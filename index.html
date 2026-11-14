@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund v9.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --primary-light: #d1fae5;
+      --accent: #0284c7;
+      --bg-color: #f0fdf4;
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      --font-family: 'Prompt', sans-serif;
+      --font-scale: 1;
+      --bg-image: none;
+      --bg-overlay: 0.85;
+      --glass-blur: 10px;
+      --hero-bg-image: none;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: calc(16px * var(--font-scale));
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: var(--bg-image);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-color);
+      opacity: var(--bg-overlay);
+      z-index: -1;
+    }
+
+    #festival-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Maintenance Overlay */
+    #maintenance-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      z-index: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+    #maintenance-overlay.active { display: flex; }
+    body.is-admin #maintenance-overlay { display: none !important; }
+
+    /* Navbar */
+    .navbar {
+      background: var(--card-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-logo {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      background: var(--primary);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1.35rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    .brand-text h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary-dark); }
+    .brand-text p { font-size: 0.78rem; color: var(--text-muted); }
+
+    .nav-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 8px 13px;
+      border-radius: 99px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { background: var(--primary-light); color: var(--primary-dark); }
+    .nav-btn.active { background: var(--primary); color: white; font-weight: 600; }
+
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+
+    .sync-badge {
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      border-radius: 99px;
+      background: #e2e8f0;
+      color: #334155;
+      font-weight: 600;
+    }
+    .sync-badge.synced { background: #dcfce7; color: #166534; }
+    .sync-badge.syncing { background: #fef9c3; color: #854d0e; }
+    .sync-badge.error { background: #fee2e2; color: #991b1b; }
+
+    /* Marquee */
+    .marquee-wrap {
+      background: #064e3b;
+      color: #ffffff;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .marquee-text {
+      white-space: nowrap;
+      display: inline-block;
+      padding-left: 100%;
+      animation: marqueeScroll 18s linear infinite;
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Container & Cards */
+    .container { max-width: 1260px; margin: 20px auto; padding: 0 16px 60px; }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      background-image: var(--hero-bg-image), linear-gradient(135deg, var(--primary), var(--accent));
+      background-size: cover;
+      background-position: center;
+      color: white;
+      border-radius: var(--radius);
+      padding: 26px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner.has-cover::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      z-index: 0;
+    }
+    .hero-banner > * { position: relative; z-index: 1; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card .label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .stat-card .value { font-size: 1.65rem; font-weight: 700; }
+
+    /* Buttons & Inputs */
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 9px 15px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover { filter: brightness(0.92); transform: translateY(-1px); }
+
+    .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+    .btn-outline:hover { background: #f1f5f9; color: #0f172a; }
+    .btn-white { background: white; color: var(--primary-dark); }
+    .btn-white:hover { background: #f8fafc; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-warning { background: #d97706; color: white; }
+    .btn-sm { padding: 6px 10px; font-size: 0.78rem; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: white;
+      color: #0f172a;
+    }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: var(--text-main); }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+
+    /* Tables */
+    .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; background: white; color: #0f172a; font-size: 0.86rem; }
+    th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f8fafc; font-weight: 600; color: #334155; white-space: nowrap; }
+
+    .session-box {
+      min-width: 34px;
+      height: 32px;
+      padding: 0 6px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: 0.15s;
+    }
+    .session-box.paid { background: var(--primary); color: white; border-color: var(--primary-dark); }
+    .session-box.readonly { cursor: default; }
+
+    /* Role Visibility */
+    .admin-only { display: none !important; }
+    body.is-admin .admin-only { display: inline-flex !important; }
+    body.is-admin th.admin-only, body.is-admin td.admin-only { display: table-cell !important; }
+    body.is-admin section.admin-only.active { display: block !important; }
+    body.is-admin .admin-block { display: block !important; }
+
+    /* Pages */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+      background: white;
+      color: #0f172a;
+      border-radius: 20px;
+      max-width: 720px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      position: relative;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .password-wrap { position: relative; }
+    .password-toggle {
+      position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 1.1rem;
+    }
+
+    .sync-highlight-card {
+      border: 2px solid var(--primary);
+      background: linear-gradient(to bottom right, #ffffff, var(--primary-light));
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      background: #0f172a; color: white;
+      padding: 12px 18px; border-radius: 12px;
+      font-size: 0.88rem; z-index: 1000;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .session-edit-row {
+      display: grid;
+      grid-template-columns: 48px 1.2fr 1.2fr 0.8fr;
+      gap: 6px;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .patch-card {
+      border-left: 4px solid var(--primary);
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      color: #0f172a;
+    }
+
+    .arrear-chip {
+      display: inline-block;
+      background: #fee2e2;
+      color: #991b1b;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin: 2px;
+      font-weight: 600;
+    }
+
+    .img-thumb-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      background: #f8fafc;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      font-size: 0.76rem;
+      color: #059669;
+    }
+
+    @media print {
+      .navbar, .marquee-wrap, .no-print, .nav-actions { display: none !important; }
+      body { background: white !important; }
+      .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="festival-canvas"></canvas>
+
+  <!-- Maintenance Mode Screen -->
+  <div id="maintenance-overlay">
+    <div style="max-width: 500px; background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.15); padding: 32px 24px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+      <div style="font-size: 3.5rem; margin-bottom: 12px;">🚧</div>
+      <h2 id="ui-maint-title" style="font-size: 1.5rem; margin-bottom: 10px; color: #fbbf24;">เว็บไซต์ปิดปรับปรุงชั่วคราว</h2>
+      <p id="ui-maint-msg" style="font-size: 0.98rem; line-height: 1.6; color: #e2e8f0; margin-bottom: 24px;">
+        ขณะนี้แอดมินกำลังอัปเดตข้อมูลยอดเงินและปรับปรุงระบบ กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง
+      </p>
+      <button type="button" class="btn btn-outline" style="color: #94a3b8; border-color: #475569; font-size: 0.8rem;" onclick="handleAuthClick()">
+        🔐 เข้าสู่ระบบสำหรับผู้ดูแลระบบ (Admin)
+      </button>
+    </div>
+  </div>
+
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-logo" id="ui-brand-logo">💰</div>
+      <div class="brand-text">
+        <h1 id="ui-site-title">ระบบจัดการเงินห้องเรียน</h1>
+        <p id="ui-site-subtitle">โปร่งใส ตรวจสอบได้ 24 ชั่วโมง</p>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button type="button" class="nav-btn active" onclick="switchTab('home', this)">🏠 หน้าหลัก</button>
+      <button type="button" class="nav-btn" onclick="switchTab('collect', this)">📋 เก็บเงินห้อง</button>
+      <button type="button" class="nav-btn" onclick="switchTab('arrears', this)">⚠️ ยอดค้างชำระ</button>
+      <button type="button" class="nav-btn" onclick="switchTab('ledger', this)">📒 บัญชีรายรับ-จ่าย</button>
+      <button type="button" class="nav-btn" onclick="switchTab('members', this)">👥 รายชื่อสมาชิก</button>
+      <button type="button" class="nav-btn" onclick="switchTab('patch', this)">📰 อัปเดตแพทช์</button>
+      <button type="button" class="nav-btn admin-only" onclick="switchTab('studio', this)">🎨 สตูดิโอ &amp; ตั้งค่า</button>
+    </nav>
+
+    <div class="nav-actions">
+      <span id="sync-status-badge" class="sync-badge synced" title="สถานะการซิงค์ Google Sheets">🟢 พร้อมใช้งาน</span>
+      <button type="button" class="btn btn-outline btn-sm" onclick="toggleAudioMute()" id="btn-audio-toggle" title="เปิด/ปิดเสียง">🔊</button>
+      <button type="button" class="btn btn-sm" id="btn-auth" onclick="handleAuthClick()">🔐 เข้าสู่ระบบ Admin</button>
+    </div>
+  </header>
+
+  <!-- Marquee Banner -->
+  <div class="marquee-wrap" id="ui-marquee-wrap">
+    <div class="marquee-text" id="ui-marquee-text">📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!</div>
+  </div>
+
+  <main class="container">
+    <!-- ==================== PAGE 1: HOME ==================== -->
+    <section id="page-home" class="page-section active">
+      <div class="hero-banner" id="ui-hero-banner">
+        <div>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v9.0</span>
+          <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
+          <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-white" onclick="openQrModal()">📱 สแกนจ่าย QR Code</button>
+          <button type="button" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.5);" onclick="manualPullSync()">🔄 รีเฟรชข้อมูล</button>
+        </div>
+      </div>
+
+      <div id="home-dynamic-sections">
+        <div id="block-stats" class="stats-grid">
+          <div class="stat-card">
+            <div class="label">💰 ยอดเงินคงเหลือสุทธิ</div>
+            <div class="value" style="color: var(--primary);" id="stat-balance">0 ฿</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">📥 รายรับทั้งหมด (รวมเก็บเงินห้อง)</div>
+            <div class="value" style="color: #0284c7;" id="stat-income">0 ฿</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">📤 รายจ่ายทั้งหมด</div>
+            <div class="value" style="color: #dc2626;" id="stat-expense">0 ฿</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">⚠️ ยอดค้างชำระรวมทั้งห้อง</div>
+            <div class="value" style="color: #d97706;" id="stat-total-arrears">0 ฿</div>
+          </div>
+        </div>
+
+        <div id="block-summary" class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+            <h3 style="font-size: 1.1rem;">📊 สถานะการชำระเงินรายบุคคล</h3>
+            <input type="text" id="home-search" placeholder="🔍 ค้นหาชื่อหรือเลขที่..." style="max-width: 240px;" oninput="renderHomeSummary()">
+          </div>
+          <div class="grid-3" id="home-member-cards"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGE 2: COLLECTION ==================== -->
+    <section id="page-collect" class="page-section">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <h3>📋 ตารางบันทึกการเก็บเงินห้อง &amp; กิจกรรม</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">เลือกพาร์ทหรือกิจกรรม (แอดมินสามารถเพิ่มกิจกรรมใหม่ ตั้งวันที่เก็บ และกำหนดยอดเงินแยกแต่ละสัปดาห์ได้ไม่จำกัด)</p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <select id="part-selector" onchange="renderCollectionTable()" style="width: auto; min-width: 250px; font-weight: 600;"></select>
+            <button type="button" class="btn btn-sm admin-only" onclick="openPartEditorModal()">⚙️ ปรับแต่งพาร์ท/กิจกรรมนี้</button>
+            <button type="button" class="btn btn-outline btn-sm admin-only" onclick="duplicateCurrentPart()">📑 คัดลอก</button>
+            <button type="button" class="btn btn-outline btn-sm admin-only" onclick="addNewPart()">➕ เพิ่มกิจกรรม/พาร์ทใหม่</button>
+          </div>
+        </div>
+
+        <div id="part-info-bar" style="background: var(--primary-light); color: var(--primary-dark); padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;"></div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr id="collect-table-head"></tr>
+            </thead>
+            <tbody id="collect-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGE 3: ARREARS SUMMARY & DIRECT PAY ==================== -->
+    <section id="page-arrears" class="page-section">
+      <div class="card">
+        <!-- ADMIN CUTOFF DATE CONTROLLER -->
+        <div class="admin-block" style="display:none; background:#fffbeb; border:2px solid #f59e0b; border-radius:14px; padding:14px 16px; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h4 style="color:#b45309; font-size:0.95rem;">🗓️ ตั้งค่า "วันที่ชำระล่าสุด" (Cutoff Date) สำหรับคำนวณยอดค้างชำระ</h4>
+              <p style="font-size:0.82rem; color:#78350f; margin-top:2px;">
+                ระบบจะนับยอดค้างชำระเฉพาะสัปดาห์ที่มีวันที่เก็บ <strong>ไม่เกินวันที่แอดมินกำหนดด้านขวานี้</strong> (และซิงค์ให้ทุกคนเห็นตรงกัน)
+              </p>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <input type="date" id="admin-arrears-cutoff" style="width:auto; font-weight:700; border:2px solid #f59e0b;">
+              <button type="button" class="btn btn-warning btn-sm" onclick="saveArrearsCutoffDate()">💾 บันทึกวันที่ล่าสุด</button>
+              <button type="button" class="btn btn-outline btn-sm" style="background:white;" onclick="clearArrearsCutoffDate()">🔄 ใช้ตามวันที่ปัจจุบันอัตโนมัติ</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <h3>⚠️ สรุปยอดค้างชำระรายบุคคล &amp; ชำระเงินทันที</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+              ตรวจสอบสัปดาห์ที่ค้างชำระและกดปุ่มชำระเงินที่ชื่อตัวเองเพื่อสแกน QR Code จ่ายยอดค้างได้ทันที
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span id="latest-collection-badge" style="background: #e0f2fe; color: #0369a1; padding: 6px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 700;">
+              📅 วันที่ชำระล่าสุด: -
+            </span>
+            <select id="arrears-part-filter" onchange="renderArrearsPage()" style="width: auto; font-weight: 600;">
+              <option value="all">ทุกพาร์ท / ทุกกิจกรรม</option>
+            </select>
+            <select id="arrears-mode-filter" onchange="renderArrearsPage()" style="width: auto;">
+              <option value="due">นับถึงวันที่ชำระล่าสุดที่กำหนด</option>
+              <option value="all_sessions">นับทุกสัปดาห์ทั้งหมดในพาร์ท</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <input type="text" id="arrears-search" placeholder="🔍 ค้นหาชื่อหรือเลขที่เพื่อเช็กยอดค้าง..." style="max-width: 300px;" oninput="renderArrearsPage()">
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 65px;">เลขที่</th>
+                <th style="min-width: 160px;">ชื่อ - นามสกุล</th>
+                <th>รายการ/สัปดาห์ที่ค้างชำระ</th>
+                <th style="width: 120px;">ยอดค้างรวม</th>
+                <th style="width: 150px; text-align: center;">ชำระเงิน</th>
+              </tr>
+            </thead>
+            <tbody id="arrears-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGE 4: LEDGER & REPORT ==================== -->
+    <section id="page-ledger" class="page-section">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <h3>📒 บัญชีรายรับ - รายจ่าย &amp; รายงานสรุป</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">บันทึกรายการรับ-จ่ายเพิ่มเติม พร้อมพิมพ์รายงานส่งครูหรือแชร์ให้เพื่อน</p>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm no-print" onclick="window.print()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+        </div>
+
+        <div class="admin-block" style="display: none; background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 10px; color: #0f172a;">➕ เพิ่มรายการรายรับ / รายจ่ายใหม่</h4>
+          <div class="grid-3">
+            <div>
+              <label style="font-size: 0.8rem; color: #0f172a;">ประเภท</label>
+              <select id="tx-type">
+                <option value="income">📥 รายรับ (+)</option>
+                <option value="expense">📤 รายจ่าย (-)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.8rem; color: #0f172a;">รายการ / รายละเอียด</label>
+              <input type="text" id="tx-title" placeholder="เช่น ซื้ออุปกรณ์ตกแต่งบอร์ด">
+            </div>
+            <div>
+              <label style="font-size: 0.8rem; color: #0f172a;">จำนวนเงิน (บาท)</label>
+              <input type="number" id="tx-amount" placeholder="0">
+            </div>
+            <div>
+              <label style="font-size: 0.8rem; color: #0f172a;">วันที่</label>
+              <input type="date" id="tx-date">
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button type="button" class="btn" style="width: 100%; justify-content: center;" onclick="addTransaction()">💾 บันทึกรายการ</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>วันที่</th>
+                <th>ประเภท</th>
+                <th>รายการ</th>
+                <th>จำนวนเงิน</th>
+                <th class="admin-only">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGE 5: MEMBERS ==================== -->
+    <section id="page-members" class="page-section">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <h3>👥 รายชื่อสมาชิกในห้องเรียน</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">รายชื่อนักเรียนทั้งหมด (Admin สามารถแก้ไขชื่อ เพิ่ม หรือลบสมาชิกได้)</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-outline btn-sm admin-only" onclick="bulkEditMembers()">📝 แก้ไขรายชื่อยกห้อง</button>
+            <button type="button" class="btn btn-sm admin-only" onclick="addNewMember()">➕ เพิ่มสมาชิกใหม่</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 70px;">เลขที่</th>
+                <th>ชื่อ - นามสกุล</th>
+                <th>ยอดชำระสะสม</th>
+                <th class="admin-only">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="members-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGE 6: PATCH NOTES & CHANGELOG ==================== -->
+    <section id="page-patch" class="page-section">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <h3>📰 รายงานการอัปเดตแพทช์ &amp; ประกาศจากแอดมิน</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">ติดตามประวัติการอัปเดตระบบ ฟีเจอร์ใหม่ และการแก้ไขต่างๆ</p>
+          </div>
+          <button type="button" class="btn btn-sm admin-only" onclick="openPatchModal()">➕ เขียนประกาศอัปเดตแพทช์ใหม่</button>
+        </div>
+        <div id="patch-notes-list"></div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGE 7: ADMIN STUDIO & SETTINGS ==================== -->
+    <section id="page-studio" class="page-section admin-only">
+      <!-- SYNC & BACKUP -->
+      <div class="card sync-highlight-card">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+          <h3 style="color: var(--primary-dark);">☁️ เชื่อมต่อ Google Sheets &amp; ซิงค์รูปภาพ/ข้อมูลทุกเครื่อง</h3>
+          <span id="studio-sync-status" class="sync-badge synced">🟢 เชื่อมต่อแล้ว</span>
+        </div>
+        <p style="font-size: 0.86rem; color: #0f172a; margin-bottom: 10px;">
+          ระบบซิงค์รูปภาพและข้อมูลทั้งหมดขึ้น Google Sheets อัตโนมัติ (แนะนำให้รีเฟรชหน้าเว็บในอีกเครื่องเพื่อดึงรูปภาพที่อัปโหลดใหม่ล่าสุดทันที)
+        </p>
+        <div class="form-group">
+          <label for="cfg-gas-url" style="color: #0f172a;">🔗 ลิงก์ Google Apps Script Web App URL:</label>
+          <input type="url" id="cfg-gas-url" style="border: 2px solid var(--primary); font-weight: 500;">
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn" onclick="saveGasUrlAndSync()">💾 บันทึก &amp; ส่งข้อมูลขึ้นชีตทันที</button>
+          <button type="button" class="btn btn-outline" style="background:white;" onclick="manualPullSync()">📥 ดึงข้อมูลล่าสุดจากชีต</button>
+          <button type="button" class="btn btn-outline" style="background:white;" onclick="exportBackupJson()">⬇️ สำรองไฟล์ (.json)</button>
+          <label class="btn btn-outline" style="background:white; cursor:pointer; margin:0;">
+            ⬆️ กู้คืนไฟล์ (.json)
+            <input type="file" accept=".json" style="display:none;" onchange="importBackupJson(event)">
+          </label>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- FULL UI DESIGNER STUDIO -->
+        <div class="card">
+          <h3 style="margin-bottom: 12px;">🎨 สตูดิโอตกแต่ง UI &amp; เลย์เอาต์หน้าเว็บ (ปรับแต่งได้อิสระ)</h3>
+          <div class="form-group">
+            <label>ชุดธีมสีสำเร็จรูป (คลิกเปลี่ยนทันที)</label>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-sm" style="background:#059669" onclick="applyPreset('emerald')">มรกต</button>
+              <button type="button" class="btn btn-sm" style="background:#2563eb" onclick="applyPreset('blue')">น้ำเงิน</button>
+              <button type="button" class="btn btn-sm" style="background:#db2777" onclick="applyPreset('sakura')">ซากุระ</button>
+              <button type="button" class="btn btn-sm" style="background:#7c3aed" onclick="applyPreset('purple')">ม่วง</button>
+              <button type="button" class="btn btn-sm" style="background:#d97706" onclick="applyPreset('sunset')">ส้มทอง</button>
+              <button type="button" class="btn btn-sm" style="background:#1e293b" onclick="applyPreset('dark')">โหมดมืด</button>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label>สีหลัก (Primary)</label>
+              <input type="color" id="cfg-primary-color" value="#059669">
+            </div>
+            <div class="form-group">
+              <label>สีรอง/ไล่เฉด (Accent)</label>
+              <input type="color" id="cfg-accent-color" value="#0284c7">
+            </div>
+            <div class="form-group">
+              <label>สีพื้นหลัง (Background)</label>
+              <input type="color" id="cfg-bg-color" value="#f0fdf4">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>ฟอนต์ภาษาไทย (6 แบบ)</label>
+              <select id="cfg-font-family">
+                <option value="'Prompt', sans-serif">Prompt (ทันสมัย อ่านง่าย)</option>
+                <option value="'Kanit', sans-serif">Kanit (กลมมน สวยงาม)</option>
+                <option value="'Sarabun', sans-serif">Sarabun (เรียบร้อย ทางการ)</option>
+                <option value="'Mali', cursive">Mali (น่ารัก ลายมือเด็ก)</option>
+                <option value="'Itim', cursive">Itim (การ์ตูน สดใส)</option>
+                <option value="'Charm', cursive">Charm (ตัวเขียนวิจิตร)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ขนาดตัวอักษรทั้งเว็บ (%)</label>
+              <input type="number" id="cfg-font-scale" value="100" min="85" max="125">
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label>ความมนขอบการ์ด (px)</label>
+              <input type="number" id="cfg-radius" value="16" min="0" max="36">
+            </div>
+            <div class="form-group">
+              <label>ความเบลอแก้ว (px)</label>
+              <input type="number" id="cfg-glass-blur" value="10" min="0" max="24">
+            </div>
+            <div class="form-group">
+              <label>ทึบแสงทับพื้นหลัง</label>
+              <input type="number" id="cfg-bg-overlay" value="0.85" min="0.2" max="0.98" step="0.05">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>การจัดวางลำดับบล็อกในหน้าหลัก</label>
+            <select id="cfg-home-order">
+              <option value="stats-first">แสดงการ์ดสรุปยอดเงินด้านบน -> ตามด้วยรายชื่อ</option>
+              <option value="summary-first">แสดงรายชื่อสมาชิกด้านบน -> ตามด้วยการ์ดสรุปยอดเงิน</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>อัปโหลดรูปภาพพื้นหลังทั้งเว็บ (ซิงค์ข้ามเครื่องอัตโนมัติ)</label>
+            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'bgImage', 720, 0.55)">
+            <div id="preview-bgImage"></div>
+          </div>
+
+          <div class="form-group">
+            <label>อัปโหลดรูปแบนเนอร์หัวเว็บหน้าหลัก (Hero Cover)</label>
+            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'heroBgImage', 720, 0.6)">
+            <div id="preview-heroBgImage"></div>
+          </div>
+
+          <div class="form-group">
+            <label>อัปโหลดโลโก้ห้องเรียน (มุมซ้ายบน)</label>
+            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'logoImage', 140, 0.75)">
+            <div id="preview-logoImage"></div>
+          </div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึก &amp; ซิงค์หน้าตา UI</button>
+            <button type="button" class="btn btn-outline" onclick="clearImages()">🗑️ ลบรูปตกแต่งทั้งหมด</button>
+          </div>
+        </div>
+
+        <!-- QR CODE & TEXTS & MAINTENANCE -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- QR CODE PAYMENT SETTINGS -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">📱 ตั้งค่าระบบรับเงิน QR Code (ซิงค์ทุกเครื่อง)</h3>
+            <div class="form-group">
+              <label>รูปแบบการแสดง QR Code</label>
+              <select id="cfg-qr-mode">
+                <option value="promptpay">สร้าง QR พร้อมเพย์อัตโนมัติ (ระบุยอดเงินอัตโนมัติ)</option>
+                <option value="image">ใช้รูปภาพ QR Code ที่อัปโหลดเอง (ซิงค์ข้ามเครื่อง)</option>
+              </select>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>เบอร์พร้อมเพย์ / เลขบัญชี</label>
+                <input type="text" id="cfg-qr-account" placeholder="เช่น 0812345678">
+              </div>
+              <div class="form-group">
+                <label>ชื่อบัญชี &amp; ธนาคาร</label>
+                <input type="text" id="cfg-qr-name" placeholder="เช่น น.ส.ใจดี มีสุข">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>อัปโหลดรูปภาพ QR Code (บีบอัดคุณภาพชัดเพื่อซิงค์ทุกเครื่อง)</label>
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'qrImage', 300, 0.72)">
+              <div id="preview-qrImage"></div>
+            </div>
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกการตั้งค่า QR Code</button>
+          </div>
+
+          <!-- HERO & SITE TEXTS & MARQUEE -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">✏️ แก้ไขข้อความหัวเว็บ แบนเนอร์ &amp; ป้ายประกาศวิ่ง</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>ชื่อเว็บไซต์ / ชื่อห้องเรียน</label>
+                <input type="text" id="cfg-site-title">
+              </div>
+              <div class="form-group">
+                <label>คำโปรยใต้ชื่อเว็บ</label>
+                <input type="text" id="cfg-site-subtitle">
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>ป้ายเล็กบนแบนเนอร์ (Badge)</label>
+                <input type="text" id="cfg-hero-badge">
+              </div>
+              <div class="form-group">
+                <label>หัวข้อใหญ่บนแบนเนอร์</label>
+                <input type="text" id="cfg-hero-title">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>คำอธิบายใต้หัวข้อแบนเนอร์</label>
+              <input type="text" id="cfg-hero-desc">
+            </div>
+            <div class="form-group">
+              <label>ข้อความป้ายประกาศวิ่ง (Marquee)</label>
+              <input type="text" id="cfg-marquee-text">
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>สีพื้นหลังป้ายวิ่ง</label>
+                <input type="color" id="cfg-marquee-bg" value="#064e3b">
+              </div>
+              <div class="form-group">
+                <label>สีตัวอักษรป้ายวิ่ง</label>
+                <input type="color" id="cfg-marquee-color" value="#ffffff">
+              </div>
+            </div>
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกข้อความทั้งหมด</button>
+          </div>
+
+          <!-- MAINTENANCE & EFFECTS & PASSWORD -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">✨ เอฟเฟกต์ เสียง ปิดปรับปรุง &amp; รหัสผ่าน</h3>
+            <div class="grid-3">
+              <div class="form-group">
+                <label>เอฟเฟกต์หน้าเว็บ</label>
+                <select id="cfg-festival">
+                  <option value="none">ปิดเอฟเฟกต์</option>
+                  <option value="snow">❄️ หิมะตก</option>
+                  <option value="confetti">🎉 พลุกระดาษสี</option>
+                  <option value="sakura">🌸 ซากุระโปรย</option>
+                  <option value="hearts">💖 หัวใจลอย</option>
+                  <option value="stars">✨ ดาววิบวับ</option>
+                  <option value="bubbles">🫧 ฟองสบู่</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>จำนวนเอฟเฟกต์</label>
+                <input type="number" id="cfg-effect-count" value="35" min="10" max="120">
+              </div>
+              <div class="form-group">
+                <label>โทนเสียงกดปุ่ม</label>
+                <select id="cfg-sound-theme">
+                  <option value="soft">🎵 นุ่มนวล</option>
+                  <option value="arcade">🕹️ เกม 8-Bit</option>
+                  <option value="crystal">💎 คริสตัลใส</option>
+                  <option value="mute">🔇 ปิดเสียง</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>🚧 โหมดปิดปรับปรุงเว็บไซต์ (Maintenance Mode)</label>
+              <select id="cfg-maint-enabled">
+                <option value="false">🟢 เปิดใช้งานเว็บไซต์ตามปกติ</option>
+                <option value="true">🔴 ปิดปรับปรุงชั่วคราว (เฉพาะ Admin เข้าได้)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ข้อความแจ้งเตือนตอนปิดปรับปรุง</label>
+              <input type="text" id="cfg-maint-msg" placeholder="เช่น กำลังอัปเดตยอดเงินประจำสัปดาห์">
+            </div>
+            <div class="form-group">
+              <label>🔑 เปลี่ยนรหัสผ่าน Admin ใหม่ (เว้นว่างไว้หากไม่เปลี่ยน)</label>
+              <input type="password" id="cfg-new-password" placeholder="กรอกรหัสผ่านใหม่ที่ต้องการ">
+            </div>
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกการตั้งค่าทั้งหมด</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== FULL PART EDITOR MODAL ==================== -->
+  <div id="part-modal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3>⚙️ ปรับแต่งพาร์ท / กิจกรรม (กำหนดวันที่และยอดเงินรายสัปดาห์)</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('part-modal')">✕</button>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>ชื่อพาร์ท / ชื่อกิจกรรม</label>
+          <input type="text" id="edit-part-title">
+        </div>
+        <div class="form-group">
+          <label>คำอธิบาย / หมายเหตุเพิ่มเติม</label>
+          <input type="text" id="edit-part-desc" placeholder="เช่น เก็บทุกวันศุกร์ โอนเข้าพร้อมเพย์">
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-group">
+          <label>ยอดเงินเริ่มต้น/ครั้ง (บาท)</label>
+          <input type="number" id="edit-part-amount" min="0" oninput="updateAllRowAmountsPreview()">
+        </div>
+        <div class="form-group">
+          <label>จำนวนสัปดาห์ / ครั้ง (1 - 50)</label>
+          <input type="number" id="edit-part-sessions" min="1" max="50" oninput="renderSessionDetailsEditor()">
+        </div>
+        <div class="form-group">
+          <label>วันที่เริ่มต้นเก็บ (กด +7วัน เพื่อเติมอัตโนมัติ)</label>
+          <div style="display:flex; gap:4px;">
+            <input type="date" id="edit-part-start-date">
+            <button type="button" class="btn btn-outline btn-sm" onclick="autoFillWeeklyDates()">+7วัน</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>กำหนดชื่อสัปดาห์, วันที่เก็บเงิน, และยอดเงินแยกทีละสัปดาห์:</label>
+        <div style="background:#f8fafc; padding:6px 10px; border-radius:8px; font-size:0.76rem; font-weight:700; color:#475569; display:grid; grid-template-columns: 48px 1.2fr 1.2fr 0.8fr; gap:6px; margin-bottom:4px;">
+          <span>#</span>
+          <span>ชื่อสัปดาห์ / ครั้ง</span>
+          <span>วันที่เก็บเงิน</span>
+          <span>ยอดเงิน (฿)</span>
+        </div>
+        <div id="session-details-container" style="max-height: 240px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px;"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 16px;">
+        <button type="button" class="btn btn-danger btn-sm" onclick="deleteCurrentPart()">🗑️ ลบพาร์ทนี้</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('part-modal')">ยกเลิก</button>
+          <button type="button" class="btn" onclick="savePartConfig()">💾 บันทึกการตั้งค่าพาร์ท</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PATCH NOTE EDITOR MODAL ==================== -->
+  <div id="patch-modal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 id="patch-modal-title">📰 เขียนรายงานการอัปเดตแพทช์</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('patch-modal')">✕</button>
+      </div>
+      <input type="hidden" id="edit-patch-id">
+      <div class="grid-2">
+        <div class="form-group">
+          <label>เวอร์ชันแพทช์ (เช่น v9.0, v9.1)</label>
+          <input type="text" id="edit-patch-version" placeholder="v9.1">
+        </div>
+        <div class="form-group">
+          <label>วันที่อัปเดต</label>
+          <input type="date" id="edit-patch-date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>หัวข้อการอัปเดต</label>
+        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตยอดเงินสัปดาห์ที่ 3 และเพิ่มกิจกรรมกีฬาสี">
+      </div>
+      <div class="form-group">
+        <label>รายละเอียดการแก้ไข / ปรับปรุง</label>
+        <textarea id="edit-patch-body" rows="6" placeholder="พิมพ์รายละเอียดการเปลี่ยนแปลงทั้งหมด..."></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" class="btn btn-outline" onclick="closeModal('patch-modal')">ยกเลิก</button>
+        <button type="button" class="btn" onclick="savePatchNote()">💾 บันทึกประกาศแพทช์</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BULK EDIT MEMBERS MODAL ==================== -->
+  <div id="bulk-members-modal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3>📝 แก้ไขรายชื่อนักเรียนยกห้อง</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('bulk-members-modal')">✕</button>
+      </div>
+      <p style="font-size: 0.84rem; color: #475569; margin-bottom: 10px;">
+        พิมพ์หรือวางรายชื่อนักเรียน <strong>1 บรรทัด ต่อ 1 คน</strong> (ระบบจัดเลขที่ 1, 2, 3... ให้อัตโนมัติ)
+      </p>
+      <div class="form-group">
+        <textarea id="bulk-members-textarea" rows="12" style="line-height: 1.6;"></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" class="btn btn-outline" onclick="closeModal('bulk-members-modal')">ยกเลิก</button>
+        <button type="button" class="btn" onclick="saveBulkMembers()">💾 บันทึกรายชื่อทั้งหมด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LOGIN MODAL ==================== -->
+  <div id="login-modal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 400px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3>🔐 เข้าสู่ระบบผู้ดูแลระบบ</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('login-modal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label for="admin-pass-input">รหัสผ่านผู้ดูแลระบบ</label>
+        <div class="password-wrap">
+          <input type="password" id="admin-pass-input" placeholder="กรอกรหัสผ่านผู้ดูแลระบบ" onkeydown="if(event.key==='Enter') submitLogin()">
+          <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">👁️</button>
+        </div>
+      </div>
+      <button type="button" class="btn" style="width: 100%; justify-content: center; padding: 11px;" onclick="submitLogin()">เข้าสู่ระบบ Admin</button>
+    </div>
+  </div>
+
+  <!-- ==================== QR CODE MODAL ==================== -->
+  <div id="qr-modal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 420px; text-align: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 id="qr-modal-title">📱 สแกนจ่ายเงินห้องเรียน</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('qr-modal')">✕ ปิดหน้าต่าง</button>
+      </div>
+      <div id="qr-student-payer-info" style="display:none; background:#fef3c7; color:#92400e; padding:8px 12px; border-radius:10px; font-size:0.84rem; font-weight:600; margin-bottom:10px;"></div>
+      <div class="form-group" style="text-align: left;">
+        <label>ระบุจำนวนเงินที่ต้องการโอน (บาท)</label>
+        <input type="number" id="qr-pay-amount" placeholder="เว้นว่างเพื่อระบุยอดเองในแอปธนาคาร" oninput="renderQrPreview()">
+      </div>
+      <div id="qr-display-area" style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 18px; margin: 12px 0;">
+        <div style="background: #003d6a; color: white; padding: 6px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; margin-bottom: 12px;">
+          PromptPay พร้อมเพย์
+        </div>
+        <div id="qr-graphic" style="display: flex; justify-content: center; align-items: center; min-height: 200px;"></div>
+        <p id="qr-account-label" style="font-weight: 700; margin-top: 10px; font-size: 1rem;"></p>
+        <p id="qr-number-label" style="color: #475569; font-size: 0.9rem;"></p>
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <button type="button" class="btn btn-outline" onclick="copyQrAccount()">📋 คัดลอกเลขบัญชี</button>
+        <button type="button" class="btn" onclick="closeModal('qr-modal')">เสร็จสิ้น</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ==================== EMBEDDED PUBLIC GMAIL GOOGLE SHEETS URL ====================
+    const EMBEDDED_GAS_URL = "https://script.google.com/macros/s/AKfycbzT0JDF67JozwwZunqgRirfaHGoHgJwLejeGb3huAD1dwcJ6SuGO2BNfUPp1cN8dyu2TA/exec";
+    const DEFAULT_ADMIN_PASS = "33896060853";
+    const STORAGE_KEY = "class_fund_v9_ultimate";
+
+    const DEFAULT_STUDENTS = Array.from({ length: 30 }, (_, i) => ({
+      id: i + 1,
+      no: i + 1,
+      name: `นักเรียนคนที่ ${i + 1}`
+    }));
+
+    const DEFAULT_PARTS = [
+      { id: 1, title: "พาร์ทที่ 1: เงินห้องรายสัปดาห์ (เทอม 1)", desc: "เก็บทุกวันศุกร์", amountPerSession: 20, sessions: 15, labels: {}, dates: {}, customAmounts: {} },
+      { id: 2, title: "พาร์ทที่ 2: เงินห้องรายสัปดาห์ (เทอม 2)", desc: "เก็บทุกวันศุกร์", amountPerSession: 20, sessions: 15, labels: {}, dates: {}, customAmounts: {} },
+      { id: 3, title: "พาร์ทที่ 3: ค่าอุปกรณ์ตกแต่งห้องเรียน", desc: "", amountPerSession: 50, sessions: 4, labels: {}, dates: {}, customAmounts: {} },
+      { id: 4, title: "พาร์ทที่ 4: กิจกรรมวันสำคัญ / งานโรงเรียน", desc: "", amountPerSession: 50, sessions: 5, labels: {}, dates: {}, customAmounts: {} },
+      { id: 5, title: "พาร์ทที่ 5: กองทุนสำรองฉุกเฉินห้อง", desc: "", amountPerSession: 30, sessions: 5, labels: {}, dates: {}, customAmounts: {} },
+      { id: 6, title: "พาร์ทที่ 6: เงินออมกิจกรรมปัจฉิม / เลี้ยงรุ่น", desc: "", amountPerSession: 100, sessions: 5, labels: {}, dates: {}, customAmounts: {} }
+    ];
+
+    const DEFAULT_PATCHES = [
+      {
+        id: 1,
+        version: "v9.0",
+        date: "2026-11-14",
+        heading: "อัปเกรดระบบซิงค์รูปภาพข้ามเครื่อง 100%, ตัวเลือกวันที่ชำระล่าสุด และสตูดิโอแต่ง UI อิสระ",
+        body: "- ปรับปรุงระบบส่งข้อมูลรูปภาพ (QR Code, พื้นหลัง, โลโก้, แบนเนอร์) ขึ้น Google Sheets แบบย่อยข้อมูลและป้องกันขนาดเกินขีดจำกัด ทำให้รูปภาพแสดงผลเหมือนกันทุกเครื่องทันที\n- เพิ่มตัวเลือก 'วันที่ชำระล่าสุด' ในหน้ายอดค้างชำระ ให้แอดมินกำหนดวันตัดรอบยอดค้างได้เอง\n- เพิ่มสตูดิโอตกแต่ง UI เต็มรูปแบบ (สีรองไล่เฉด, 6 ฟอนต์ไทย, ความเบลอแก้ว, รูปปกแบนเนอร์, สลับลำดับบล็อกหน้าหลัก)"
+      }
+    ];
+
+    let appState = {
+      adminPass: DEFAULT_ADMIN_PASS,
+      gasUrl: EMBEDDED_GAS_URL,
+      students: DEFAULT_STUDENTS,
+      parts: DEFAULT_PARTS,
+      payments: {},
+      transactions: [
+        { id: 1, date: "2026-11-01", type: "income", title: "ยอดยกมาจากภาคเรียนก่อน", amount: 1500 },
+        { id: 2, date: "2026-11-05", type: "expense", title: "ซื้อปากกาไวท์บอร์ดและแปรงลบกระดาน", amount: 180 }
+      ],
+      patchNotes: DEFAULT_PATCHES,
+      settings: {
+        siteTitle: "ระบบจัดการเงินห้องเรียน",
+        siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
+        heroBadge: "CLASS FUND DASHBOARD v9.0",
+        heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
+        heroDesc: "อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที",
+        marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!",
+        marqueeBg: "#064e3b",
+        marqueeColor: "#ffffff",
+        primaryColor: "#059669",
+        accentColor: "#0284c7",
+        bgColor: "#f0fdf4",
+        fontFamily: "'Prompt', sans-serif",
+        fontScale: 100,
+        borderRadius: 16,
+        glassBlur: 10,
+        bgOverlay: 0.85,
+        homeOrder: "stats-first",
+        bgImage: "",
+        heroBgImage: "",
+        logoImage: "",
+        arrearsCutoffDate: "",
+        festival: "none",
+        effectCount: 35,
+        effectSpeed: 1.5,
+        soundTheme: "soft",
+        soundVolume: 60,
+        qrMode: "promptpay",
+        qrAccount: "0812345678",
+        qrName: "เหรัญญิกประจำห้องเรียน",
+        qrImage: "",
+        maintenanceEnabled: false,
+        maintenanceTitle: "เว็บไซต์ปิดปรับปรุงชั่วคราว",
+        maintenanceMsg: "ขณะนี้แอดมินกำลังอัปเดตข้อมูลยอดเงินและปรับปรุงระบบ กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง"
+      }
+    };
+
+    let isAdmin = false;
+    let isPushing = false;
+    let syncTimer = null;
+    let audioCtx = null;
+    let isMuted = false;
+
+    // ==================== INITIALIZATION ====================
+    window.addEventListener("DOMContentLoaded", () => {
+      loadFromLocal();
+      appState.gasUrl = EMBEDDED_GAS_URL;
+      applyAllSettings();
+      renderAll();
+      setSyncStatus("synced", "🟢 ซิงค์ชีตแล้ว");
+
+      pullFromGoogleSheets(true);
+
+      setInterval(() => {
+        if (appState.gasUrl && !isAdmin && !isPushing) {
+          pullFromGoogleSheets(true);
+        }
+      }, 60000);
+    });
+
+    function loadFromLocal() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          appState = {
+            ...appState,
+            ...parsed,
+            gasUrl: EMBEDDED_GAS_URL,
+            patchNotes: parsed.patchNotes || DEFAULT_PATCHES,
+            settings: { ...appState.settings, ...(parsed.settings || {}) }
+          };
+        }
+      } catch (e) {
+        console.error("Load error", e);
+      }
+    }
+
+    function saveData(triggerAutoSync = true) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.warn("Storage quota warning", e);
+      }
+      renderAll();
+      if (triggerAutoSync && appState.gasUrl) {
+        schedulePushSync();
+      }
+    }
+
+    // ==================== GOOGLE SHEETS SYNC (IMAGE & DATA SAFE) ====================
+    function setSyncStatus(state, text) {
+      const badge = document.getElementById("sync-status-badge");
+      const studioBadge = document.getElementById("studio-sync-status");
+      if (badge) {
+        badge.className = "sync-badge " + state;
+        badge.textContent = text;
+      }
+      if (studioBadge) {
+        studioBadge.className = "sync-badge " + state;
+        studioBadge.textContent = text;
+      }
+    }
+
+    function schedulePushSync() {
+      isPushing = true;
+      setSyncStatus("syncing", "🟡 กำลังซิงค์...");
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => {
+        pushToGoogleSheets();
+      }, 600);
+    }
+
+    async function pushToGoogleSheets() {
+      if (!appState.gasUrl) return;
+      isPushing = true;
+      setSyncStatus("syncing", "🟡 กำลังส่งขึ้นชีต...");
+      try {
+        const payload = {
+          students: appState.students,
+          parts: appState.parts,
+          payments: appState.payments,
+          transactions: appState.transactions,
+          patchNotes: appState.patchNotes,
+          settings: appState.settings,
+          adminPass: appState.adminPass
+        };
+        const jsonBody = JSON.stringify(payload);
+        if (jsonBody.length > 48000) {
+          showToast("⚠️ รูปภาพรวมใหญ่เกินไป กำลังบีบอัดอัตโนมัติเพิ่ม...");
+          shrinkAllImagesToFit();
+          payload.settings = appState.settings;
+        }
+
+        await fetch(appState.gasUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        setSyncStatus("synced", "🟢 ซิงค์ชีตแล้ว");
+      } catch (err) {
+        console.error("Push sync error:", err);
+        setSyncStatus("error", "🔴 ซิงค์ล้มเหลว");
+      } finally {
+        setTimeout(() => { isPushing = false; }, 1500);
+      }
+    }
+
+    function shrinkAllImagesToFit() {
+      ["bgImage", "heroBgImage", "qrImage", "logoImage"].forEach(k => {
+        if (appState.settings[k] && appState.settings[k].length > 14000) {
+          appState.settings[k] = "";
+        }
+      });
+    }
+
+    async function pullFromGoogleSheets(silent = false) {
+      if (!appState.gasUrl || isPushing) return;
+      if (!silent) setSyncStatus("syncing", "🟡 กำลังดึงข้อมูล...");
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      try {
+        const res = await fetch(appState.gasUrl + "?t=" + Date.now(), {
+          redirect: "follow",
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const text = await res.text();
+        const data = JSON.parse(text);
+
+        if (data && Array.isArray(data.students) && data.students.length > 0) {
+          appState.students = data.students;
+          appState.parts = data.parts || appState.parts;
+          appState.payments = data.payments || {};
+          appState.transactions = data.transactions || appState.transactions;
+          if (data.patchNotes) appState.patchNotes = data.patchNotes;
+          if (data.settings) {
+            appState.settings = { ...appState.settings, ...data.settings };
+          }
+          if (data.adminPass) {
+            appState.adminPass = data.adminPass;
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+          applyAllSettings();
+          renderAll();
+          setSyncStatus("synced", "🟢 ซิงค์ชีตแล้ว");
+          if (!silent) showToast("✅ ดึงข้อมูลและรูปภาพล่าสุดจาก Google Sheets เรียบร้อย");
+        } else {
+          setSyncStatus("synced", "🟢 เชื่อมต่อแล้ว");
+          pushToGoogleSheets();
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        console.warn("Pull sync skipped/timeout:", err);
+        setSyncStatus("synced", "🟢 ข้อมูลล่าสุดในเครื่อง");
+        if (!silent) showToast("⚠️ การเชื่อมต่อชีตช้า ระบบใช้ข้อมูลล่าสุดในเครื่องแทน");
+      }
+    }
+
+    function manualPullSync() {
+      playSound("click");
+      pullFromGoogleSheets(false);
+    }
+
+    function saveGasUrlAndSync() {
+      const url = document.getElementById("cfg-gas-url").value.trim();
+      appState.gasUrl = url || EMBEDDED_GAS_URL;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      playSound("success");
+      showToast("💾 บันทึกและส่งข้อมูลขึ้น Google Sheets เรียบร้อย!");
+      pushToGoogleSheets();
+    }
+
+    function exportBackupJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const a = document.createElement("a");
+      a.href = dataStr;
+      a.download = `class-fund-v9-backup-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      showToast("⬇️ ดาวน์โหลดไฟล์สำรองข้อมูลเรียบร้อย");
+    }
+
+    function importBackupJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.students) {
+            appState = { ...appState, ...imported, gasUrl: EMBEDDED_GAS_URL };
+            applyAllSettings();
+            saveData(true);
+            showToast("✅ กู้คืนข้อมูลจากไฟล์สำเร็จ!");
+          }
+        } catch (err) {
+          showToast("❌ ไฟล์สำรองข้อมูลไม่ถูกต้อง");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ==================== GUARANTEED CROSS-DEVICE IMAGE COMPRESSION ====================
+    function handleCompressedImageUpload(event, targetKey, maxDim, initialQuality) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+
+          let q = initialQuality;
+          let dataUrl = canvas.toDataURL("image/jpeg", q);
+          while (dataUrl.length > 16000 && q > 0.25) {
+            q -= 0.1;
+            dataUrl = canvas.toDataURL("image/jpeg", q);
+          }
+
+          appState.settings[targetKey] = dataUrl;
+          updateImageThumbPreviews();
+          applyAllSettings();
+          saveData(true);
+          playSound("success");
+          showToast(`🖼️ บีบอัดรูปภาพ (${Math.round(dataUrl.length / 1024)} KB) และส่งขึ้นชีตเพื่อซิงค์ทุกเครื่องแล้ว!`);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateImageThumbPreviews() {
+      const keys = ["bgImage", "heroBgImage", "logoImage", "qrImage"];
+      keys.forEach(k => {
+        const el = document.getElementById("preview-" + k);
+        if (!el) return;
+        if (appState.settings[k]) {
+          el.innerHTML = `<div class="img-thumb-box"><img src="${appState.settings[k]}" style="height:36px; border-radius:6px;"><span>✓ พร้อมซิงค์ข้ามเครื่อง (${Math.round(appState.settings[k].length / 1024)} KB)</span></div>`;
+        } else {
+          el.innerHTML = "";
+        }
+      });
+    }
+
+    function clearImages() {
+      appState.settings.bgImage = "";
+      appState.settings.heroBgImage = "";
+      appState.settings.logoImage = "";
+      updateImageThumbPreviews();
+      applyAllSettings();
+      saveData(true);
+      showToast("🗑️ ลบรูปตกแต่งทั้งหมดแล้ว");
+    }
+
+    // ==================== AUTHENTICATION ====================
+    function handleAuthClick() {
+      playSound("click");
+      if (isAdmin) {
+        isAdmin = false;
+        document.body.classList.remove("is-admin");
+        document.getElementById("btn-auth").innerHTML = "🔐 เข้าสู่ระบบ Admin";
+        document.getElementById("btn-auth").classList.remove("btn-danger");
+        switchTab("home", document.querySelector(".nav-btn"));
+        renderAll();
+        showToast("ออกจากโหมดผู้ดูแลระบบแล้ว");
+      } else {
+        document.getElementById("admin-pass-input").value = "";
+        document.getElementById("login-modal").classList.add("open");
+        setTimeout(() => document.getElementById("admin-pass-input").focus(), 100);
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const inp = document.getElementById("admin-pass-input");
+      inp.type = inp.type === "password" ? "text" : "password";
+    }
+
+    function submitLogin() {
+      const entered = document.getElementById("admin-pass-input").value.trim();
+      if (entered === appState.adminPass) {
+        isAdmin = true;
+        document.body.classList.add("is-admin");
+        document.getElementById("btn-auth").innerHTML = "🔓 ออกจาก Admin";
+        document.getElementById("btn-auth").classList.add("btn-danger");
+        closeModal("login-modal");
+        populateSettingsForm();
+        renderAll();
+        playSound("success");
+        showToast("✅ เข้าสู่ระบบผู้ดูแลระบบสำเร็จ");
+      } else {
+        playSound("error");
+        showToast("❌ รหัสผ่านไม่ถูกต้อง");
+      }
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    // ==================== NAVIGATION ====================
+    function switchTab(tabId, btnEl) {
+      playSound("click");
+      document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+      const target = document.getElementById("page-" + tabId);
+      if (target) target.classList.add("active");
+      if (btnEl) btnEl.classList.add("active");
+      if (tabId === "studio") populateSettingsForm();
+      if (tabId === "arrears") renderArrearsPage();
+      if (tabId === "patch") renderPatchNotes();
+    }
+
+    // ==================== CALCULATIONS & ADMIN CUTOFF ARREARS ====================
+    function getSessionAmount(part, sessionIndex) {
+      if (part.customAmounts && part.customAmounts[sessionIndex] !== undefined && part.customAmounts[sessionIndex] !== "") {
+        return Number(part.customAmounts[sessionIndex]);
+      }
+      return Number(part.amountPerSession);
+    }
+
+    function calculateStudentPaid(studentId) {
+      let total = 0;
+      appState.parts.forEach(part => {
+        for (let s = 1; s <= part.sessions; s++) {
+          if (appState.payments[`${part.id}_${studentId}_${s}`]) {
+            total += getSessionAmount(part, s);
+          }
+        }
+      });
+      return total;
+    }
+
+    function getEffectiveCutoffDate() {
+      if (appState.settings.arrearsCutoffDate) {
+        return appState.settings.arrearsCutoffDate;
+      }
+      return new Date().toISOString().split("T")[0];
+    }
+
+    function getDueSessionNumbers(part, mode) {
+      if (mode === "all_sessions") {
+        return Array.from({ length: part.sessions }, (_, i) => i + 1);
+      }
+      const cutoffStr = getEffectiveCutoffDate();
+      const hasAdminCutoff = !!appState.settings.arrearsCutoffDate;
+      const dueSet = new Set();
+
+      for (let s = 1; s <= part.sessions; s++) {
+        if (part.dates && part.dates[s]) {
+          if (part.dates[s] <= cutoffStr) {
+            dueSet.add(s);
+          }
+        } else if (!hasAdminCutoff) {
+          const anyonePaid = appState.students.some(st => !!appState.payments[`${part.id}_${st.id}_${s}`]);
+          if (anyonePaid) dueSet.add(s);
+        }
+      }
+      return Array.from(dueSet).sort((a, b) => a - b);
+    }
+
+    function getStudentArrearsDetails(studentId, partFilter = "all", mode = "due") {
+      let totalOwed = 0;
+      const items = [];
+
+      appState.parts.forEach(part => {
+        if (partFilter !== "all" && String(part.id) !== String(partFilter)) return;
+        const dueSessions = getDueSessionNumbers(part, mode);
+        dueSessions.forEach(s => {
+          const key = `${part.id}_${studentId}_${s}`;
+          if (!appState.payments[key]) {
+            const amt = getSessionAmount(part, s);
+            const lbl = (part.labels && part.labels[s]) ? part.labels[s] : `สัปดาห์ ${s}`;
+            const dt = (part.dates && part.dates[s]) ? formatThaiShortDate(part.dates[s]) : "";
+            totalOwed += amt;
+            items.push({
+              partTitle: part.title,
+              label: lbl,
+              date: dt,
+              amount: amt
+            });
+          }
+        });
+      });
+
+      return { totalOwed, items };
+    }
+
+    function saveArrearsCutoffDate() {
+      if (!isAdmin) return;
+      const val = document.getElementById("admin-arrears-cutoff").value;
+      appState.settings.arrearsCutoffDate = val;
+      saveData(true);
+      playSound("success");
+      showToast("✅ บันทึกวันที่ชำระล่าสุดและคำนวณยอดค้างใหม่เรียบร้อย!");
+    }
+
+    function clearArrearsCutoffDate() {
+      if (!isAdmin) return;
+      appState.settings.arrearsCutoffDate = "";
+      document.getElementById("admin-arrears-cutoff").value = "";
+      saveData(true);
+      showToast("🔄 เปลี่ยนกลับเป็นใช้วันที่ปัจจุบันอัตโนมัติแล้ว");
+    }
+
+    function calculateTotals() {
+      let collectedTotal = 0;
+      let totalArrears = 0;
+
+      appState.students.forEach(st => {
+        collectedTotal += calculateStudentPaid(st.id);
+        totalArrears += getStudentArrearsDetails(st.id, "all", "due").totalOwed;
+      });
+
+      let extraIncome = 0;
+      let expenseTotal = 0;
+      appState.transactions.forEach(tx => {
+        if (tx.type === "income") extraIncome += Number(tx.amount);
+        else expenseTotal += Number(tx.amount);
+      });
+
+      const totalIncome = collectedTotal + extraIncome;
+      const balance = totalIncome - expenseTotal;
+      return { collectedTotal, totalIncome, expenseTotal, balance, totalArrears };
+    }
+
+    function renderAll() {
+      const totals = calculateTotals();
+      document.getElementById("stat-balance").textContent = totals.balance.toLocaleString() + " ฿";
+      document.getElementById("stat-income").textContent = totals.totalIncome.toLocaleString() + " ฿";
+      document.getElementById("stat-expense").textContent = totals.expenseTotal.toLocaleString() + " ฿";
+      document.getElementById("stat-total-arrears").textContent = totals.totalArrears.toLocaleString() + " ฿";
+
+      renderHomeSummary();
+      renderPartSelector();
+      renderCollectionTable();
+      renderArrearsPage();
+      renderLedgerTable();
+      renderMembersTable();
+      renderPatchNotes();
+    }
+
+    function renderHomeSummary() {
+      const keyword = (document.getElementById("home-search")?.value || "").toLowerCase();
+      const container = document.getElementById("home-member-cards");
+      container.innerHTML = "";
+
+      appState.students
+        .filter(st => st.name.toLowerCase().includes(keyword) || String(st.no).includes(keyword))
+        .forEach(st => {
+          const paid = calculateStudentPaid(st.id);
+          const owed = getStudentArrearsDetails(st.id, "all", "due").totalOwed;
+          const div = document.createElement("div");
+          div.style.cssText = "border:1px solid var(--border-color); border-radius:12px; padding:12px; background:white; color:#0f172a; display:flex; justify-content:space-between; align-items:center;";
+          div.innerHTML = `
+            <div>
+              <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary-dark); padding:2px 8px; border-radius:99px; font-weight:700;">เลขที่ ${st.no}</span>
+              <div style="font-weight:600; margin-top:4px;">${st.name}</div>
+              ${owed > 0 ? `<div style="font-size:0.74rem; color:#dc2626; font-weight:600;">ค้างชำระ ${owed.toLocaleString()} ฿</div>` : `<div style="font-size:0.74rem; color:#059669;">✓ จ่ายครบแล้ว</div>`}
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.75rem; color:#64748b;">ชำระสะสม</div>
+              <div style="font-weight:700; color:var(--primary); font-size:1.05rem;">${paid.toLocaleString()} ฿</div>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+    }
+
+    // ==================== ARREARS PAGE & STUDENT SELF-PAYMENT ====================
+    function renderArrearsPage() {
+      const cutoffInp = document.getElementById("admin-arrears-cutoff");
+      if (cutoffInp && document.activeElement !== cutoffInp) {
+        cutoffInp.value = appState.settings.arrearsCutoffDate || "";
+      }
+
+      const effectiveDate = getEffectiveCutoffDate();
+      const isCustom = !!appState.settings.arrearsCutoffDate;
+      document.getElementById("latest-collection-badge").textContent =
+        `📅 วันที่ชำระล่าสุด: ${formatThaiShortDate(effectiveDate)} ${isCustom ? '(แอดมินกำหนด)' : '(อัตโนมัติ)'}`;
+
+      const filterSel = document.getElementById("arrears-part-filter");
+      const currentFilter = filterSel.value || "all";
+      filterSel.innerHTML = `<option value="all">ทุกพาร์ท / ทุกกิจกรรม</option>`;
+      appState.parts.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.title;
+        filterSel.appendChild(opt);
+      });
+      filterSel.value = currentFilter;
+
+      const mode = document.getElementById("arrears-mode-filter").value || "due";
+      const keyword = (document.getElementById("arrears-search")?.value || "").toLowerCase();
+      const body = document.getElementById("arrears-table-body");
+      body.innerHTML = "";
+
+      appState.students
+        .filter(st => st.name.toLowerCase().includes(keyword) || String(st.no).includes(keyword))
+        .forEach(st => {
+          const info = getStudentArrearsDetails(st.id, currentFilter, mode);
+          const tr = document.createElement("tr");
+
+          let chipsHtml = "";
+          if (info.items.length === 0) {
+            chipsHtml = `<span style="color:#059669; font-weight:600;">✅ ไม่มียอดค้างชำระ</span>`;
+          } else {
+            chipsHtml = info.items.map(it =>
+              `<span class="arrear-chip">${it.label}${it.date ? ' (' + it.date + ')' : ''}: ${it.amount}฿</span>`
+            ).join(" ");
+          }
+
+          tr.innerHTML = `
+            <td><strong>${st.no}</strong></td>
+            <td style="font-weight:600;">${st.name}</td>
+            <td>${chipsHtml}</td>
+            <td style="font-weight:700; color:${info.totalOwed > 0 ? '#dc2626' : '#059669'}; font-size:0.95rem;">
+              ${info.totalOwed.toLocaleString()} ฿
+            </td>
+            <td style="text-align:center;">
+              ${info.totalOwed > 0
+                ? `<button type="button" class="btn btn-sm" onclick="openQrModalForStudent('${st.name.replace(/'/g, "\'")}', ${info.totalOwed})">💳 ชำระ ${info.totalOwed} ฿</button>`
+                : `<span style="font-size:0.8rem; color:#64748b;">เรียบร้อย</span>`
+              }
+            </td>
+          `;
+          body.appendChild(tr);
+        });
+    }
+
+    function openQrModalForStudent(studentName, owedAmount) {
+      playSound("click");
+      document.getElementById("qr-modal-title").textContent = "📱 ชำระยอดค้างชำระ";
+      const infoBox = document.getElementById("qr-student-payer-info");
+      infoBox.style.display = "block";
+      infoBox.textContent = `👤 ผู้ชำระ: ${studentName} | ยอดค้างชำระ: ${owedAmount.toLocaleString()} บาท`;
+      document.getElementById("qr-pay-amount").value = owedAmount;
+      renderQrPreview();
+      document.getElementById("qr-modal").classList.add("open");
+    }
+
+    // ==================== CUSTOMIZABLE COLLECTION TABLE ====================
+    function renderPartSelector() {
+      const sel = document.getElementById("part-selector");
+      const currentVal = sel.value;
+      sel.innerHTML = "";
+      appState.parts.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.title} (${p.sessions} ครั้ง)`;
+        sel.appendChild(opt);
+      });
+      if (currentVal && appState.parts.some(p => String(p.id) === String(currentVal))) {
+        sel.value = currentVal;
+      } else if (appState.parts.length > 0) {
+        sel.value = appState.parts[0].id;
+      }
+    }
+
+    function formatThaiShortDate(dateStr) {
+      if (!dateStr) return "";
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return dateStr;
+      const months = ["", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const thaiYear = (Number(parts[0]) + 543) % 100;
+      return `${Number(parts[2])} ${months[Number(parts[1])]} ${thaiYear}`;
+    }
+
+    function renderCollectionTable() {
+      const partId = Number(document.getElementById("part-selector").value || (appState.parts[0]?.id || 1));
+      const part = appState.parts.find(p => p.id === partId) || appState.parts[0];
+      if (!part) return;
+      if (!part.labels) part.labels = {};
+      if (!part.dates) part.dates = {};
+      if (!part.customAmounts) part.customAmounts = {};
+
+      const partTotalCollected = appState.students.reduce((sum, st) => {
+        let stSum = 0;
+        for (let s = 1; s <= part.sessions; s++) {
+          if (appState.payments[`${part.id}_${st.id}_${s}`]) {
+            stSum += getSessionAmount(part, s);
+          }
+        }
+        return sum + stSum;
+      }, 0);
+
+      document.getElementById("part-info-bar").innerHTML = `
+        <div>
+          <div style="font-weight:700; font-size:0.95rem;">📌 ${part.title}</div>
+          <div style="font-size:0.82rem; opacity:0.9; margin-top:2px;">
+            ${part.desc ? `📝 ${part.desc} | ` : ''}🗓️ จำนวนทั้งหมด: <strong>${part.sessions} สัปดาห์/ครั้ง</strong>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.78rem;">ยอดเก็บได้ในพาร์ทนี้</div>
+          <strong style="font-size:1.15rem;">${partTotalCollected.toLocaleString()} ฿</strong>
+        </div>
+      `;
+
+      const head = document.getElementById("collect-table-head");
+      let headHtml = `<th>เลขที่</th><th style="min-width:165px;">ชื่อ - นามสกุล</th>`;
+      for (let s = 1; s <= part.sessions; s++) {
+        const colLabel = part.labels[s] || `สัปดาห์ ${s}`;
+        const colDate = part.dates[s] ? formatThaiShortDate(part.dates[s]) : "";
+        const colAmt = getSessionAmount(part, s);
+        headHtml += `
+          <th style="text-align:center; min-width:82px;">
+            <div style="font-weight:700;">${colLabel}</div>
+            ${colDate ? `<div style="font-size:0.7rem; color:#0284c7; font-weight:600;">📅 ${colDate}</div>` : ''}
+            <div style="font-size:0.72rem; color:#059669; font-weight:700;">${colAmt} ฿</div>
+            ${isAdmin ? `<button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px; font-size:0.66rem; margin-top:3px;" onclick="toggleAllInSession(${part.id}, ${s})">✓ ทั้งหมด</button>` : ''}
+          </th>
+        `;
+      }
+      headHtml += `<th>รวมพาร์ทนี้</th>`;
+      head.innerHTML = headHtml;
+
+      const body = document.getElementById("collect-table-body");
+      body.innerHTML = "";
+
+      appState.students.forEach(st => {
+        const tr = document.createElement("tr");
+        let rowHtml = `<td><strong>${st.no}</strong></td><td>${st.name}</td>`;
+        let partSum = 0;
+
+        for (let s = 1; s <= part.sessions; s++) {
+          const key = `${part.id}_${st.id}_${s}`;
+          const isPaid = !!appState.payments[key];
+          if (isPaid) partSum += getSessionAmount(part, s);
+
+          rowHtml += `
+            <td style="text-align:center;">
+              <button type="button" class="session-box ${isPaid ? 'paid' : ''} ${!isAdmin ? 'readonly' : ''}"
+                onclick="togglePayment('${key}')">
+                ${isPaid ? '✓' : s}
+              </button>
+            </td>
+          `;
+        }
+        rowHtml += `<td style="font-weight:700; color:var(--primary);">${partSum.toLocaleString()} ฿</td>`;
+        tr.innerHTML = rowHtml;
+        body.appendChild(tr);
+      });
+    }
+
+    function togglePayment(key) {
+      if (!isAdmin) return;
+      if (appState.payments[key]) {
+        delete appState.payments[key];
+      } else {
+        appState.payments[key] = true;
+      }
+      playSound("success");
+      saveData(true);
+    }
+
+    function toggleAllInSession(partId, sessionIdx) {
+      if (!isAdmin) return;
+      const allPaid = appState.students.every(st => !!appState.payments[`${partId}_${st.id}_${sessionIdx}`]);
+      appState.students.forEach(st => {
+        const key = `${partId}_${st.id}_${sessionIdx}`;
+        if (allPaid) delete appState.payments[key];
+        else appState.payments[key] = true;
+      });
+      playSound("success");
+      saveData(true);
+      showToast(allPaid ? `ยกเลิกการติ๊กช่องที่ ${sessionIdx} ทั้งหมดแล้ว` : `✅ เช็กจ่ายครบทุกคนในช่องที่ ${sessionIdx} แล้ว`);
+    }
+
+    function addNewPart() {
+      if (!isAdmin) return;
+      const newId = Date.now();
+      appState.parts.push({
+        id: newId,
+        title: `กิจกรรม/พาร์ทที่ ${appState.parts.length + 1}: รายการใหม่`,
+        desc: "",
+        amountPerSession: 20,
+        sessions: 5,
+        labels: {},
+        dates: {},
+        customAmounts: {}
+      });
+      saveData(true);
+      document.getElementById("part-selector").value = newId;
+      renderCollectionTable();
+      openPartEditorModal();
+    }
+
+    function duplicateCurrentPart() {
+      if (!isAdmin) return;
+      const partId = Number(document.getElementById("part-selector").value);
+      const part = appState.parts.find(p => p.id === partId);
+      if (!part) return;
+      const newId = Date.now();
+      const cloned = JSON.parse(JSON.stringify(part));
+      cloned.id = newId;
+      cloned.title = part.title + " (สำเนา)";
+      appState.parts.push(cloned);
+      saveData(true);
+      document.getElementById("part-selector").value = newId;
+      renderCollectionTable();
+      showToast("📑 คัดลอกพาร์ทการเก็บเงินเรียบร้อย");
+    }
+
+    function openPartEditorModal() {
+      if (!isAdmin) return;
+      const partId = Number(document.getElementById("part-selector").value);
+      const part = appState.parts.find(p => p.id === partId);
+      if (!part) return;
+
+      document.getElementById("edit-part-title").value = part.title;
+      document.getElementById("edit-part-desc").value = part.desc || "";
+      document.getElementById("edit-part-amount").value = part.amountPerSession;
+      document.getElementById("edit-part-sessions").value = part.sessions;
+      document.getElementById("edit-part-start-date").value = (part.dates && part.dates[1]) ? part.dates[1] : new Date().toISOString().split("T")[0];
+      renderSessionDetailsEditor(part);
+      document.getElementById("part-modal").classList.add("open");
+    }
+
+    function renderSessionDetailsEditor(existingPart) {
+      const partId = Number(document.getElementById("part-selector").value);
+      const part = existingPart || appState.parts.find(p => p.id === partId);
+      const count = Math.min(50, Math.max(1, Number(document.getElementById("edit-part-sessions").value) || 1));
+      const defaultAmt = Number(document.getElementById("edit-part-amount").value) || 20;
+      const container = document.getElementById("session-details-container");
+      container.innerHTML = "";
+
+      for (let s = 1; s <= count; s++) {
+        const lblVal = (part.labels && part.labels[s]) ? part.labels[s] : `สัปดาห์ ${s}`;
+        const dateVal = (part.dates && part.dates[s]) ? part.dates[s] : "";
+        const amtVal = (part.customAmounts && part.customAmounts[s] !== undefined) ? part.customAmounts[s] : defaultAmt;
+
+        const row = document.createElement("div");
+        row.className = "session-edit-row";
+        row.innerHTML = `
+          <span style="font-size:0.78rem; font-weight:700; color:#475569;">#${s}</span>
+          <input type="text" class="s-label-inp" data-idx="${s}" value="${lblVal}" placeholder="เช่น สัปดาห์ ${s}" style="padding:5px 8px; font-size:0.8rem;">
+          <input type="date" class="s-date-inp" data-idx="${s}" value="${dateVal}" style="padding:5px 6px; font-size:0.78rem;">
+          <input type="number" class="s-amt-inp" data-idx="${s}" value="${amtVal}" min="0" style="padding:5px 8px; font-size:0.8rem;">
+        `;
+        container.appendChild(row);
+      }
+    }
+
+    function updateAllRowAmountsPreview() {
+      const defaultAmt = Number(document.getElementById("edit-part-amount").value) || 0;
+      document.querySelectorAll(".s-amt-inp").forEach(inp => {
+        inp.value = defaultAmt;
+      });
+    }
+
+    function autoFillWeeklyDates() {
+      const startStr = document.getElementById("edit-part-start-date").value;
+      if (!startStr) {
+        showToast("⚠️ กรุณาเลือกวันที่เริ่มต้นก่อน");
+        return;
+      }
+      const baseDate = new Date(startStr);
+      document.querySelectorAll(".s-date-inp").forEach((inp, idx) => {
+        const d = new Date(baseDate);
+        d.setDate(baseDate.getDate() + (idx * 7));
+        inp.value = d.toISOString().split("T")[0];
+      });
+      showToast("📅 สร้างวันที่รายสัปดาห์ (ห่างกัน 7 วัน) เรียบร้อย");
+    }
+
+    function savePartConfig() {
+      const partId = Number(document.getElementById("part-selector").value);
+      const part = appState.parts.find(p => p.id === partId);
+      if (!part) return;
+
+      part.title = document.getElementById("edit-part-title").value.trim() || part.title;
+      part.desc = document.getElementById("edit-part-desc").value.trim();
+      part.amountPerSession = Math.max(0, Number(document.getElementById("edit-part-amount").value) || 0);
+      part.sessions = Math.min(50, Math.max(1, Number(document.getElementById("edit-part-sessions").value) || 1));
+
+      const newLabels = {};
+      document.querySelectorAll(".s-label-inp").forEach(inp => {
+        const idx = inp.getAttribute("data-idx");
+        newLabels[idx] = inp.value.trim() || `สัปดาห์ ${idx}`;
+      });
+      part.labels = newLabels;
+
+      const newDates = {};
+      document.querySelectorAll(".s-date-inp").forEach(inp => {
+        const idx = inp.getAttribute("data-idx");
+        if (inp.value) newDates[idx] = inp.value;
+      });
+      part.dates = newDates;
+
+      const newAmounts = {};
+      document.querySelectorAll(".s-amt-inp").forEach(inp => {
+        const idx = inp.getAttribute("data-idx");
+        const val = Number(inp.value);
+        if (!isNaN(val) && val !== part.amountPerSession) {
+          newAmounts[idx] = val;
+        }
+      });
+      part.customAmounts = newAmounts;
+
+      closeModal("part-modal");
+      saveData(true);
+      showToast("✅ บันทึกการตั้งค่าพาร์ทและซิงค์ขึ้นชีตเรียบร้อย");
+    }
+
+    function deleteCurrentPart() {
+      if (appState.parts.length <= 1) {
+        showToast("⚠️ ต้องมีพาร์ทการเก็บเงินอย่างน้อย 1 พาร์ท");
+        return;
+      }
+      if (!confirm("ต้องการลบพาร์ทการเก็บเงินนี้ใช่หรือไม่?")) return;
+      const partId = Number(document.getElementById("part-selector").value);
+      appState.parts = appState.parts.filter(p => p.id !== partId);
+      closeModal("part-modal");
+      saveData(true);
+      showToast("🗑️ ลบพาร์ทเรียบร้อยแล้ว");
+    }
+
+    // ==================== PATCH NOTES ====================
+    function renderPatchNotes() {
+      const list = document.getElementById("patch-notes-list");
+      if (!list) return;
+      list.innerHTML = "";
+      if (!appState.patchNotes || appState.patchNotes.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:20px;">ยังไม่มีรายงานการอัปเดตแพทช์</p>`;
+        return;
+      }
+
+      appState.patchNotes.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "patch-card";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div>
+              <span style="background:var(--primary); color:white; padding:2px 10px; border-radius:99px; font-size:0.78rem; font-weight:700;">${p.version}</span>
+              <span style="font-size:0.8rem; color:#64748b; margin-left:8px;">📅 ${p.date}</span>
+              <h4 style="font-size:1.05rem; margin-top:6px;">${p.heading}</h4>
+            </div>
+            <div class="admin-only" style="gap:6px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="openPatchModal(${p.id})">✏️ แก้ไข</button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="deletePatchNote(${p.id})">ลบ</button>
+            </div>
+          </div>
+          <div style="white-space:pre-line; font-size:0.88rem; line-height:1.6; color:#334155;">${p.body}</div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function openPatchModal(patchId = null) {
+      if (!isAdmin) return;
+      if (patchId) {
+        const p = appState.patchNotes.find(item => item.id === patchId);
+        if (!p) return;
+        document.getElementById("patch-modal-title").textContent = "✏️ แก้ไขรายงานอัปเดตแพทช์";
+        document.getElementById("edit-patch-id").value = p.id;
+        document.getElementById("edit-patch-version").value = p.version;
+        document.getElementById("edit-patch-date").value = p.date;
+        document.getElementById("edit-patch-heading").value = p.heading;
+        document.getElementById("edit-patch-body").value = p.body;
+      } else {
+        document.getElementById("patch-modal-title").textContent = "📰 เขียนรายงานการอัปเดตแพทช์ใหม่";
+        document.getElementById("edit-patch-id").value = "";
+        document.getElementById("edit-patch-version").value = "v9." + appState.patchNotes.length;
+        document.getElementById("edit-patch-date").value = new Date().toISOString().split("T")[0];
+        document.getElementById("edit-patch-heading").value = "";
+        document.getElementById("edit-patch-body").value = "";
+      }
+      document.getElementById("patch-modal").classList.add("open");
+    }
+
+    function savePatchNote() {
+      const idVal = document.getElementById("edit-patch-id").value;
+      const version = document.getElementById("edit-patch-version").value.trim() || "v9.x";
+      const date = document.getElementById("edit-patch-date").value || new Date().toISOString().split("T")[0];
+      const heading = document.getElementById("edit-patch-heading").value.trim();
+      const body = document.getElementById("edit-patch-body").value.trim();
+
+      if (!heading) {
+        showToast("⚠️ กรุณากรอกหัวข้อการอัปเดต");
+        return;
+      }
+
+      if (idVal) {
+        const idx = appState.patchNotes.findIndex(p => String(p.id) === String(idVal));
+        if (idx !== -1) {
+          appState.patchNotes[idx] = { id: Number(idVal), version, date, heading, body };
+        }
+      } else {
+        appState.patchNotes.unshift({ id: Date.now(), version, date, heading, body });
+      }
+
+      closeModal("patch-modal");
+      saveData(true);
+      playSound("success");
+      showToast("✅ บันทึกประกาศอัปเดตแพทช์เรียบร้อย");
+    }
+
+    function deletePatchNote(id) {
+      if (!isAdmin) return;
+      if (!confirm("ต้องการลบประกาศแพทช์นี้ใช่หรือไม่?")) return;
+      appState.patchNotes = appState.patchNotes.filter(p => p.id !== id);
+      saveData(true);
+      showToast("🗑️ ลบประกาศแพทช์แล้ว");
+    }
+
+    // ==================== LEDGER ====================
+    function addTransaction() {
+      if (!isAdmin) return;
+      const type = document.getElementById("tx-type").value;
+      const title = document.getElementById("tx-title").value.trim();
+      const amount = Number(document.getElementById("tx-amount").value);
+      const date = document.getElementById("tx-date").value || new Date().toISOString().split("T")[0];
+
+      if (!title || amount <= 0) {
+        showToast("⚠️ กรุณากรอกรายการและจำนวนเงินให้ถูกต้อง");
+        return;
+      }
+
+      appState.transactions.unshift({ id: Date.now(), date, type, title, amount });
+      document.getElementById("tx-title").value = "";
+      document.getElementById("tx-amount").value = "";
+      playSound("success");
+      saveData(true);
+      showToast("✅ บันทึกรายการเรียบร้อย");
+    }
+
+    function deleteTransaction(id) {
+      if (!isAdmin) return;
+      if (!confirm("ต้องการลบรายการนี้ใช่หรือไม่?")) return;
+      appState.transactions = appState.transactions.filter(t => t.id !== id);
+      saveData(true);
+      showToast("🗑️ ลบรายการเรียบร้อย");
+    }
+
+    function renderLedgerTable() {
+      const body = document.getElementById("ledger-table-body");
+      body.innerHTML = "";
+      appState.transactions.forEach(tx => {
+        const isInc = tx.type === "income";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${tx.date}</td>
+          <td><span style="padding:3px 8px; border-radius:99px; font-size:0.78rem; font-weight:600; background:${isInc ? '#dcfce7' : '#fee2e2'}; color:${isInc ? '#166534' : '#991b1b'};">${isInc ? '📥 รายรับ' : '📤 รายจ่าย'}</span></td>
+          <td>${tx.title}</td>
+          <td style="font-weight:700; color:${isInc ? '#059669' : '#dc2626'};">${isInc ? '+' : '-'}${Number(tx.amount).toLocaleString()} ฿</td>
+          <td class="admin-only"><button type="button" class="btn btn-danger btn-sm" onclick="deleteTransaction(${tx.id})">ลบ</button></td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    // ==================== MEMBERS ====================
+    function renderMembersTable() {
+      const body = document.getElementById("members-table-body");
+      body.innerHTML = "";
+      appState.students.forEach(st => {
+        const paid = calculateStudentPaid(st.id);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${st.no}</strong></td>
+          <td>${st.name}</td>
+          <td style="font-weight:700; color:var(--primary);">${paid.toLocaleString()} ฿</td>
+          <td class="admin-only">
+            <button type="button" class="btn btn-outline btn-sm" onclick="editMember(${st.id})">✏️ แก้ไข</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteMember(${st.id})">ลบ</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function addNewMember() {
+      if (!isAdmin) return;
+      const name = prompt("กรอกชื่อ - นามสกุล สมาชิกใหม่:");
+      if (!name || !name.trim()) return;
+      const nextNo = appState.students.length + 1;
+      appState.students.push({ id: Date.now(), no: nextNo, name: name.trim() });
+      saveData(true);
+      showToast("✅ เพิ่มสมาชิกใหม่เรียบร้อย");
+    }
+
+    function editMember(id) {
+      if (!isAdmin) return;
+      const st = appState.students.find(s => s.id === id);
+      if (!st) return;
+      const newName = prompt("แก้ไขชื่อ - นามสกุล:", st.name);
+      if (newName && newName.trim()) {
+        st.name = newName.trim();
+        saveData(true);
+        showToast("✅ แก้ไขชื่อเรียบร้อย");
+      }
+    }
+
+    function deleteMember(id) {
+      if (!isAdmin) return;
+      if (!confirm("ต้องการลบสมาชิกคนนี้ใช่หรือไม่?")) return;
+      appState.students = appState.students.filter(s => s.id !== id);
+      appState.students.forEach((s, idx) => s.no = idx + 1);
+      saveData(true);
+      showToast("🗑️ ลบสมาชิกเรียบร้อย");
+    }
+
+    function bulkEditMembers() {
+      if (!isAdmin) return;
+      document.getElementById("bulk-members-textarea").value = appState.students.map(s => s.name).join("\n");
+      document.getElementById("bulk-members-modal").classList.add("open");
+    }
+
+    function saveBulkMembers() {
+      const lines = document.getElementById("bulk-members-textarea").value
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+      if (lines.length === 0) {
+        showToast("⚠️ กรุณากรอกรายชื่ออย่างน้อย 1 คน");
+        return;
+      }
+      appState.students = lines.map((name, idx) => {
+        const existing = appState.students[idx];
+        return {
+          id: existing ? existing.id : (Date.now() + idx),
+          no: idx + 1,
+          name: name
+        };
+      });
+      closeModal("bulk-members-modal");
+      saveData(true);
+      showToast(`✅ บันทึกรายชื่อทั้งหมด ${lines.length} คนเรียบร้อย`);
+    }
+
+    // ==================== SETTINGS & STUDIO ====================
+    function populateSettingsForm() {
+      const s = appState.settings;
+      document.getElementById("cfg-gas-url").value = appState.gasUrl || EMBEDDED_GAS_URL;
+      document.getElementById("cfg-maint-enabled").value = String(!!s.maintenanceEnabled);
+      document.getElementById("cfg-maint-msg").value = s.maintenanceMsg || "";
+      document.getElementById("cfg-qr-mode").value = s.qrMode;
+      document.getElementById("cfg-qr-account").value = s.qrAccount;
+      document.getElementById("cfg-qr-name").value = s.qrName;
+      document.getElementById("cfg-marquee-text").value = s.marqueeText;
+      document.getElementById("cfg-marquee-bg").value = s.marqueeBg;
+      document.getElementById("cfg-marquee-color").value = s.marqueeColor;
+      document.getElementById("cfg-primary-color").value = s.primaryColor;
+      document.getElementById("cfg-accent-color").value = s.accentColor || "#0284c7";
+      document.getElementById("cfg-bg-color").value = s.bgColor;
+      document.getElementById("cfg-font-family").value = s.fontFamily;
+      document.getElementById("cfg-font-scale").value = s.fontScale;
+      document.getElementById("cfg-radius").value = s.borderRadius || 16;
+      document.getElementById("cfg-glass-blur").value = s.glassBlur || 10;
+      document.getElementById("cfg-bg-overlay").value = s.bgOverlay || 0.85;
+      document.getElementById("cfg-home-order").value = s.homeOrder || "stats-first";
+      document.getElementById("cfg-site-title").value = s.siteTitle;
+      document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v9.0";
+      document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
+      document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
+      document.getElementById("cfg-festival").value = s.festival;
+      document.getElementById("cfg-effect-count").value = s.effectCount || 35;
+      document.getElementById("cfg-sound-theme").value = s.soundTheme || "soft";
+      document.getElementById("cfg-new-password").value = "";
+      updateImageThumbPreviews();
+    }
+
+    function applyPreset(name) {
+      const presets = {
+        emerald: { primary: "#059669", accent: "#0284c7", bg: "#f0fdf4" },
+        blue: { primary: "#2563eb", accent: "#06b6d4", bg: "#eff6ff" },
+        sakura: { primary: "#db2777", accent: "#f43f5e", bg: "#fdf2f8" },
+        purple: { primary: "#7c3aed", accent: "#c026d3", bg: "#f5f3ff" },
+        sunset: { primary: "#d97706", accent: "#dc2626", bg: "#fffbeb" },
+        dark: { primary: "#10b981", accent: "#3b82f6", bg: "#0f172a" }
+      };
+      const p = presets[name];
+      if (!p) return;
+      document.getElementById("cfg-primary-color").value = p.primary;
+      document.getElementById("cfg-accent-color").value = p.accent;
+      document.getElementById("cfg-bg-color").value = p.bg;
+      saveSettings();
+    }
+
+    function saveSettings() {
+      const s = appState.settings;
+      s.maintenanceEnabled = document.getElementById("cfg-maint-enabled").value === "true";
+      s.maintenanceMsg = document.getElementById("cfg-maint-msg").value.trim();
+      s.qrMode = document.getElementById("cfg-qr-mode").value;
+      s.qrAccount = document.getElementById("cfg-qr-account").value.trim();
+      s.qrName = document.getElementById("cfg-qr-name").value.trim();
+      s.marqueeText = document.getElementById("cfg-marquee-text").value;
+      s.marqueeBg = document.getElementById("cfg-marquee-bg").value;
+      s.marqueeColor = document.getElementById("cfg-marquee-color").value;
+      s.primaryColor = document.getElementById("cfg-primary-color").value;
+      s.accentColor = document.getElementById("cfg-accent-color").value;
+      s.bgColor = document.getElementById("cfg-bg-color").value;
+      s.fontFamily = document.getElementById("cfg-font-family").value;
+      s.fontScale = Number(document.getElementById("cfg-font-scale").value) || 100;
+      s.borderRadius = Number(document.getElementById("cfg-radius").value) || 16;
+      s.glassBlur = Number(document.getElementById("cfg-glass-blur").value) || 10;
+      s.bgOverlay = Number(document.getElementById("cfg-bg-overlay").value) || 0.85;
+      s.homeOrder = document.getElementById("cfg-home-order").value;
+      s.siteTitle = document.getElementById("cfg-site-title").value;
+      s.siteSubtitle = document.getElementById("cfg-site-subtitle").value;
+      s.heroBadge = document.getElementById("cfg-hero-badge").value;
+      s.heroTitle = document.getElementById("cfg-hero-title").value;
+      s.heroDesc = document.getElementById("cfg-hero-desc").value;
+      s.festival = document.getElementById("cfg-festival").value;
+      s.effectCount = Math.min(120, Math.max(10, Number(document.getElementById("cfg-effect-count").value) || 35));
+      s.soundTheme = document.getElementById("cfg-sound-theme").value;
+
+      const newPass = document.getElementById("cfg-new-password").value.trim();
+      if (newPass) {
+        appState.adminPass = newPass;
+        document.getElementById("cfg-new-password").value = "";
+        showToast("🔑 เปลี่ยนรหัสผ่าน Admin สำเร็จ!");
+      } else {
+        showToast("✅ บันทึกการตั้งค่าทั้งหมดและซิงค์ขึ้นชีตแล้ว!");
+      }
+
+      applyAllSettings();
+      saveData(true);
+      playSound("success");
+    }
+
+    function applyAllSettings() {
+      const s = appState.settings;
+      const root = document.documentElement;
+      root.style.setProperty("--primary", s.primaryColor);
+      root.style.setProperty("--primary-dark", s.primaryColor);
+      root.style.setProperty("--accent", s.accentColor || "#0284c7");
+      root.style.setProperty("--bg-color", s.bgColor);
+      root.style.setProperty("--font-family", s.fontFamily);
+      root.style.setProperty("--font-scale", s.fontScale / 100);
+      root.style.setProperty("--radius", (s.borderRadius || 16) + "px");
+      root.style.setProperty("--glass-blur", (s.glassBlur || 10) + "px");
+      root.style.setProperty("--bg-overlay", s.bgOverlay || 0.85);
+
+      if (s.bgColor === "#0f172a") {
+        root.style.setProperty("--card-bg", "rgba(30, 41, 59, 0.92)");
+        root.style.setProperty("--text-main", "#f8fafc");
+        root.style.setProperty("--text-muted", "#94a3b8");
+        root.style.setProperty("--border-color", "#334155");
+      } else {
+        root.style.setProperty("--card-bg", "rgba(255, 255, 255, 0.94)");
+        root.style.setProperty("--text-main", "#0f172a");
+        root.style.setProperty("--text-muted", "#475569");
+        root.style.setProperty("--border-color", "#cbd5e1");
+      }
+
+      root.style.setProperty("--bg-image", s.bgImage ? `url("${s.bgImage}")` : "none");
+
+      const heroEl = document.getElementById("ui-hero-banner");
+      if (s.heroBgImage) {
+        root.style.setProperty("--hero-bg-image", `url("${s.heroBgImage}")`);
+        heroEl.classList.add("has-cover");
+      } else {
+        root.style.setProperty("--hero-bg-image", "none");
+        heroEl.classList.remove("has-cover");
+      }
+
+      const logoEl = document.getElementById("ui-brand-logo");
+      if (s.logoImage) {
+        logoEl.innerHTML = `<img src="${s.logoImage}" alt="Logo">`;
+      } else {
+        logoEl.textContent = "💰";
+      }
+
+      document.getElementById("ui-site-title").textContent = s.siteTitle;
+      document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v9.0";
+      document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
+      document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
+
+      const dynContainer = document.getElementById("home-dynamic-sections");
+      const blockStats = document.getElementById("block-stats");
+      const blockSummary = document.getElementById("block-summary");
+      if (dynContainer && blockStats && blockSummary) {
+        if (s.homeOrder === "summary-first") {
+          dynContainer.appendChild(blockSummary);
+          dynContainer.appendChild(blockStats);
+        } else {
+          dynContainer.appendChild(blockStats);
+          dynContainer.appendChild(blockSummary);
+        }
+      }
+
+      const mWrap = document.getElementById("ui-marquee-wrap");
+      const mText = document.getElementById("ui-marquee-text");
+      mWrap.style.backgroundColor = s.marqueeBg;
+      mText.style.color = s.marqueeColor;
+      mText.textContent = s.marqueeText;
+
+      const maintOverlay = document.getElementById("maintenance-overlay");
+      document.getElementById("ui-maint-msg").textContent = s.maintenanceMsg || "";
+      if (s.maintenanceEnabled) {
+        maintOverlay.classList.add("active");
+      } else {
+        maintOverlay.classList.remove("active");
+      }
+
+      startFestivalEffect(s.festival, s.effectCount || 35, 1.5);
+    }
+
+    // ==================== QR CODE MODAL ====================
+    function openQrModal() {
+      playSound("click");
+      document.getElementById("qr-modal-title").textContent = "📱 สแกนจ่ายเงินห้องเรียน";
+      document.getElementById("qr-student-payer-info").style.display = "none";
+      document.getElementById("qr-pay-amount").value = "";
+      renderQrPreview();
+      document.getElementById("qr-modal").classList.add("open");
+    }
+
+    function renderQrPreview() {
+      const s = appState.settings;
+      const amt = document.getElementById("qr-pay-amount").value;
+      const graphic = document.getElementById("qr-graphic");
+      document.getElementById("qr-account-label").textContent = s.qrName || "บัญชีเงินห้องเรียน";
+      document.getElementById("qr-number-label").textContent = "เลขบัญชี/พร้อมเพย์: " + (s.qrAccount || "-");
+
+      if (s.qrMode === "image" && s.qrImage) {
+        graphic.innerHTML = `<img src="${s.qrImage}" alt="QR Code" style="max-width:220px; max-height:220px; border-radius:10px;">`;
+      } else {
+        const cleanAcc = (s.qrAccount || "0812345678").replace(/[^0-9]/g, "");
+        const qrUrl = `https://promptpay.io/${cleanAcc}${amt && Number(amt) > 0 ? "/" + amt : ""}.png`;
+        graphic.innerHTML = `<img src="${qrUrl}" alt="PromptPay QR" style="width:200px; height:200px; border-radius:8px; background:white; padding:6px;">`;
+      }
+    }
+
+    function copyQrAccount() {
+      const acc = appState.settings.qrAccount;
+      navigator.clipboard.writeText(acc).then(() => {
+        playSound("success");
+        showToast("📋 คัดลอกเลขบัญชี " + acc + " แล้ว");
+      });
+    }
+
+    // ==================== FESTIVAL PARTICLES ====================
+    let festivalAnimId = null;
+    function startFestivalEffect(type, count = 35, speedMultiplier = 1.5) {
+      const canvas = document.getElementById("festival-canvas");
+      const ctx = canvas.getContext("2d");
+      if (festivalAnimId) cancelAnimationFrame(festivalAnimId);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!type || type === "none") return;
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const symbols = {
+        snow: ["❄️", "❅", "•"],
+        confetti: ["🎉", "✨", "🎊"],
+        sakura: ["🌸", "🌺"],
+        hearts: ["💖", "💕", "❤️"],
+        stars: ["✨", "⭐", "🌟"],
+        bubbles: ["🫧", "⚪"]
+      };
+      const chars = symbols[type] || ["✨"];
+      const isRising = (type === "bubbles" || type === "hearts");
+
+      const particles = Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 12 + Math.random() * 14,
+        speedY: (0.6 + Math.random() * 1.4) * speedMultiplier * (isRising ? -1 : 1),
+        speedX: -0.5 + Math.random() * 1,
+        char: chars[Math.floor(Math.random() * chars.length)]
+      }));
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.font = `${p.size}px sans-serif`;
+          ctx.fillText(p.char, p.x, p.y);
+          p.y += p.speedY;
+          p.x += p.speedX;
+          if (!isRising && p.y > canvas.height) {
+            p.y = -20;
+            p.x = Math.random() * canvas.width;
+          } else if (isRising && p.y < -20) {
+            p.y = canvas.height + 20;
+            p.x = Math.random() * canvas.width;
+          }
+        });
+        festivalAnimId = requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    // ==================== AUDIO ====================
+    function playSound(type) {
+      const theme = appState.settings.soundTheme || "soft";
+      if (isMuted || theme === "mute") return;
+      const vol = 0.08;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = theme === "arcade" ? "square" : (theme === "crystal" ? "triangle" : "sine");
+        osc.frequency.setValueAtTime(type === "success" ? 880 : 520, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    function toggleAudioMute() {
+      isMuted = !isMuted;
+      document.getElementById("btn-audio-toggle").textContent = isMuted ? "🔇" : "🔊";
+      showToast(isMuted ? "ปิดเสียงแล้ว" : "เปิดเสียงแล้ว");
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 3200);
+    }
+  </script>
+</body>
+</html>
