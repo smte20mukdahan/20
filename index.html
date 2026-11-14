@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบจัดการเงินห้องเรียน - Class Fund v9.0</title>
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund v10.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -23,9 +23,10 @@
       --font-family: 'Prompt', sans-serif;
       --font-scale: 1;
       --bg-image: none;
-      --bg-overlay: 0.85;
+      --bg-overlay: 0.82;
       --glass-blur: 10px;
       --hero-bg-image: none;
+      --marquee-speed: 18s;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,15 +66,15 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 999;
+      z-index: 850;
     }
 
-    /* Maintenance Overlay */
+    /* Maintenance Overlay (z-index 900, Login Modal is 950 so Admin can always log in) */
     #maintenance-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.94);
-      backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(14px);
       z-index: 900;
       display: none;
       align-items: center;
@@ -167,7 +168,7 @@
       white-space: nowrap;
       display: inline-block;
       padding-left: 100%;
-      animation: marqueeScroll 18s linear infinite;
+      animation: marqueeScroll var(--marquee-speed) linear infinite;
       font-size: 0.92rem;
       font-weight: 500;
     }
@@ -212,7 +213,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: rgba(15, 23, 42, 0.52);
+      background: rgba(15, 23, 42, 0.5);
       z-index: 0;
     }
     .hero-banner > * { position: relative; z-index: 1; }
@@ -315,13 +316,13 @@
     .page-section { display: none; }
     .page-section.active { display: block; }
 
-    /* Modal */
+    /* Modal (z-index 950 -> above maintenance overlay 900) */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(4px);
-      z-index: 500;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(5px);
+      z-index: 950;
       display: none;
       align-items: center;
       justify-content: center;
@@ -336,7 +337,7 @@
       max-width: 720px;
       width: 100%;
       padding: 24px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
       position: relative;
       max-height: 92vh;
       overflow-y: auto;
@@ -360,7 +361,7 @@
       background: #0f172a; color: white;
       padding: 12px 18px; border-radius: 12px;
       font-size: 0.88rem; z-index: 1000;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
       transform: translateY(100px); opacity: 0;
       transition: all 0.3s ease;
     }
@@ -398,6 +399,7 @@
     .img-thumb-box {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
       margin-top: 6px;
       background: #f8fafc;
@@ -420,13 +422,13 @@
 
   <!-- Maintenance Mode Screen -->
   <div id="maintenance-overlay">
-    <div style="max-width: 500px; background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.15); padding: 32px 24px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+    <div style="max-width: 500px; background: rgba(30, 41, 59, 0.92); border: 1px solid rgba(255,255,255,0.18); padding: 32px 24px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
       <div style="font-size: 3.5rem; margin-bottom: 12px;">🚧</div>
       <h2 id="ui-maint-title" style="font-size: 1.5rem; margin-bottom: 10px; color: #fbbf24;">เว็บไซต์ปิดปรับปรุงชั่วคราว</h2>
       <p id="ui-maint-msg" style="font-size: 0.98rem; line-height: 1.6; color: #e2e8f0; margin-bottom: 24px;">
         ขณะนี้แอดมินกำลังอัปเดตข้อมูลยอดเงินและปรับปรุงระบบ กรุณากลับมาตรวจสอบใหม่อีกครั้งในภายหลัง
       </p>
-      <button type="button" class="btn btn-outline" style="color: #94a3b8; border-color: #475569; font-size: 0.8rem;" onclick="handleAuthClick()">
+      <button type="button" class="btn btn-white" style="font-size: 0.88rem; padding: 10px 18px;" onclick="handleAuthClick()">
         🔐 เข้าสู่ระบบสำหรับผู้ดูแลระบบ (Admin)
       </button>
     </div>
@@ -469,7 +471,7 @@
     <section id="page-home" class="page-section active">
       <div class="hero-banner" id="ui-hero-banner">
         <div>
-          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v9.0</span>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v10.0</span>
           <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
           <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที</p>
         </div>
@@ -525,6 +527,17 @@
           </div>
         </div>
 
+        <!-- Admin Bulk Actions Bar for Current Part -->
+        <div class="admin-block" style="display:none; background:#f8fafc; border:1px solid var(--border-color); border-radius:12px; padding:10px 14px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span style="font-size:0.82rem; font-weight:700; color:#334155;">⚡ เครื่องมือจัดการด่วนสำหรับแอดมิน (พาร์ทนี้):</span>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button" class="btn btn-sm" onclick="markEntirePartPaid(true)">✅ ติ๊กจ่ายครบทุกคนทุกสัปดาห์</button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="markEntirePartPaid(false)">🔄 ล้างการติ๊กพาร์ทนี้ทั้งหมด</button>
+            </div>
+          </div>
+        </div>
+
         <div id="part-info-bar" style="background: var(--primary-light); color: var(--primary-dark); padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;"></div>
 
         <div class="table-responsive">
@@ -541,7 +554,6 @@
     <!-- ==================== PAGE 3: ARREARS SUMMARY & DIRECT PAY ==================== -->
     <section id="page-arrears" class="page-section">
       <div class="card">
-        <!-- ADMIN CUTOFF DATE CONTROLLER -->
         <div class="admin-block" style="display:none; background:#fffbeb; border:2px solid #f59e0b; border-radius:14px; padding:14px 16px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             <div>
@@ -662,7 +674,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
           <div>
             <h3>👥 รายชื่อสมาชิกในห้องเรียน</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">รายชื่อนักเรียนทั้งหมด (Admin สามารถแก้ไขชื่อ เพิ่ม หรือลบสมาชิกได้)</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">รายชื่อนักเรียนทั้งหมด (Admin สามารถแก้ไขชื่อ เพิ่ม ลบ หรือเรียงลำดับสมาชิกได้)</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="btn btn-outline btn-sm admin-only" onclick="bulkEditMembers()">📝 แก้ไขรายชื่อยกห้อง</button>
@@ -709,14 +721,14 @@
           <span id="studio-sync-status" class="sync-badge synced">🟢 เชื่อมต่อแล้ว</span>
         </div>
         <p style="font-size: 0.86rem; color: #0f172a; margin-bottom: 10px;">
-          ระบบซิงค์รูปภาพและข้อมูลทั้งหมดขึ้น Google Sheets อัตโนมัติ (แนะนำให้รีเฟรชหน้าเว็บในอีกเครื่องเพื่อดึงรูปภาพที่อัปโหลดใหม่ล่าสุดทันที)
+          ระบบซิงค์รูปภาพทั้งหมด (พื้นหลัง, แบนเนอร์, โลโก้, QR Code) และข้อมูลขึ้น Google Sheets อัตโนมัติเพื่อให้เครื่องอื่นเห็นตรงกันทันที
         </p>
         <div class="form-group">
           <label for="cfg-gas-url" style="color: #0f172a;">🔗 ลิงก์ Google Apps Script Web App URL:</label>
           <input type="url" id="cfg-gas-url" style="border: 2px solid var(--primary); font-weight: 500;">
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button type="button" class="btn" onclick="saveGasUrlAndSync()">💾 บันทึก &amp; ส่งข้อมูลขึ้นชีตทันที</button>
+          <button type="button" class="btn" onclick="saveGasUrlAndSync()">💾 บันทึก &amp; ซิงค์รูปภาพและข้อมูลขึ้นชีตทันที</button>
           <button type="button" class="btn btn-outline" style="background:white;" onclick="manualPullSync()">📥 ดึงข้อมูลล่าสุดจากชีต</button>
           <button type="button" class="btn btn-outline" style="background:white;" onclick="exportBackupJson()">⬇️ สำรองไฟล์ (.json)</button>
           <label class="btn btn-outline" style="background:white; cursor:pointer; margin:0;">
@@ -729,7 +741,7 @@
       <div class="grid-2">
         <!-- FULL UI DESIGNER STUDIO -->
         <div class="card">
-          <h3 style="margin-bottom: 12px;">🎨 สตูดิโอตกแต่ง UI &amp; เลย์เอาต์หน้าเว็บ (ปรับแต่งได้อิสระ)</h3>
+          <h3 style="margin-bottom: 12px;">🎨 สตูดิโอตกแต่ง UI, รูปภาพ &amp; เลย์เอาต์หน้าเว็บ</h3>
           <div class="form-group">
             <label>ชุดธีมสีสำเร็จรูป (คลิกเปลี่ยนทันที)</label>
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -785,34 +797,49 @@
               <input type="number" id="cfg-glass-blur" value="10" min="0" max="24">
             </div>
             <div class="form-group">
-              <label>ทึบแสงทับพื้นหลัง</label>
-              <input type="number" id="cfg-bg-overlay" value="0.85" min="0.2" max="0.98" step="0.05">
+              <label>ทึบแสงทับพื้นหลัง (0.1-0.95)</label>
+              <input type="number" id="cfg-bg-overlay" value="0.82" min="0.1" max="0.98" step="0.05">
             </div>
           </div>
 
-          <div class="form-group">
-            <label>การจัดวางลำดับบล็อกในหน้าหลัก</label>
-            <select id="cfg-home-order">
-              <option value="stats-first">แสดงการ์ดสรุปยอดเงินด้านบน -> ตามด้วยรายชื่อ</option>
-              <option value="summary-first">แสดงรายชื่อสมาชิกด้านบน -> ตามด้วยการ์ดสรุปยอดเงิน</option>
-            </select>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>การจัดวางลำดับบล็อกในหน้าหลัก</label>
+              <select id="cfg-home-order">
+                <option value="stats-first">การ์ดสรุปยอดเงินด้านบน -> ตามด้วยรายชื่อ</option>
+                <option value="summary-first">รายชื่อสมาชิกด้านบน -> ตามด้วยการ์ดสรุปยอดเงิน</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>การแสดงผลองค์ประกอบ</label>
+              <select id="cfg-show-marquee">
+                <option value="true">แสดงป้ายประกาศวิ่งด้านบน</option>
+                <option value="false">ซ่อนป้ายประกาศวิ่ง</option>
+              </select>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>อัปโหลดรูปภาพพื้นหลังทั้งเว็บ (ซิงค์ข้ามเครื่องอัตโนมัติ)</label>
-            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'bgImage', 720, 0.55)">
+          <!-- BACKGROUND IMAGE (UPLOAD OR URL) -->
+          <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+            <label>🖼️ รูปภาพพื้นหลังทั้งเว็บ (ซิงค์ทุกเครื่องอัตโนมัติ)</label>
+            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'bgImage', 800, 0.52)">
+            <input type="url" id="cfg-bg-url" placeholder="หรือวางลิงก์รูปภาพ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('bgImage', this.value)">
             <div id="preview-bgImage"></div>
           </div>
 
-          <div class="form-group">
-            <label>อัปโหลดรูปแบนเนอร์หัวเว็บหน้าหลัก (Hero Cover)</label>
-            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'heroBgImage', 720, 0.6)">
+          <!-- HERO COVER IMAGE (UPLOAD OR URL) -->
+          <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+            <label>🏞️ รูปแบนเนอร์หัวเว็บหน้าหลัก (Hero Cover)</label>
+            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'heroBgImage', 800, 0.55)">
+            <input type="url" id="cfg-hero-url" placeholder="หรือวางลิงก์รูปแบนเนอร์ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('heroBgImage', this.value)">
             <div id="preview-heroBgImage"></div>
           </div>
 
-          <div class="form-group">
-            <label>อัปโหลดโลโก้ห้องเรียน (มุมซ้ายบน)</label>
-            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'logoImage', 140, 0.75)">
+          <!-- LOGO IMAGE (UPLOAD OR URL) -->
+          <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+            <label>🏫 รูปโลโก้ห้องเรียน (มุมซ้ายบน)</label>
+            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'logoImage', 160, 0.75)">
+            <input type="url" id="cfg-logo-url" placeholder="หรือวางลิงก์รูปโลโก้ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('logoImage', this.value)">
             <div id="preview-logoImage"></div>
           </div>
 
@@ -845,8 +872,9 @@
               </div>
             </div>
             <div class="form-group">
-              <label>อัปโหลดรูปภาพ QR Code (บีบอัดคุณภาพชัดเพื่อซิงค์ทุกเครื่อง)</label>
-              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'qrImage', 300, 0.72)">
+              <label>อัปโหลดรูปภาพ QR Code (หรือวางลิงก์รูป QR)</label>
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'qrImage', 340, 0.72)">
+              <input type="url" id="cfg-qr-url" placeholder="หรือวางลิงก์รูป QR Code (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('qrImage', this.value)">
               <div id="preview-qrImage"></div>
             </div>
             <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกการตั้งค่า QR Code</button>
@@ -883,7 +911,7 @@
               <label>ข้อความป้ายประกาศวิ่ง (Marquee)</label>
               <input type="text" id="cfg-marquee-text">
             </div>
-            <div class="grid-2">
+            <div class="grid-3">
               <div class="form-group">
                 <label>สีพื้นหลังป้ายวิ่ง</label>
                 <input type="color" id="cfg-marquee-bg" value="#064e3b">
@@ -891,6 +919,10 @@
               <div class="form-group">
                 <label>สีตัวอักษรป้ายวิ่ง</label>
                 <input type="color" id="cfg-marquee-color" value="#ffffff">
+              </div>
+              <div class="form-group">
+                <label>ความเร็ววิ่ง (วินาที)</label>
+                <input type="number" id="cfg-marquee-speed" value="18" min="6" max="45">
               </div>
             </div>
             <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกข้อความทั้งหมด</button>
@@ -934,9 +966,15 @@
                 <option value="true">🔴 ปิดปรับปรุงชั่วคราว (เฉพาะ Admin เข้าได้)</option>
               </select>
             </div>
-            <div class="form-group">
-              <label>ข้อความแจ้งเตือนตอนปิดปรับปรุง</label>
-              <input type="text" id="cfg-maint-msg" placeholder="เช่น กำลังอัปเดตยอดเงินประจำสัปดาห์">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>หัวข้อตอนปิดปรับปรุง</label>
+                <input type="text" id="cfg-maint-title" placeholder="เว็บไซต์ปิดปรับปรุงชั่วคราว">
+              </div>
+              <div class="form-group">
+                <label>ข้อความแจ้งเตือนตอนปิดปรับปรุง</label>
+                <input type="text" id="cfg-maint-msg" placeholder="เช่น กำลังอัปเดตยอดเงินประจำสัปดาห์">
+              </div>
             </div>
             <div class="form-group">
               <label>🔑 เปลี่ยนรหัสผ่าน Admin ใหม่ (เว้นว่างไว้หากไม่เปลี่ยน)</label>
@@ -1017,8 +1055,8 @@
       <input type="hidden" id="edit-patch-id">
       <div class="grid-2">
         <div class="form-group">
-          <label>เวอร์ชันแพทช์ (เช่น v9.0, v9.1)</label>
-          <input type="text" id="edit-patch-version" placeholder="v9.1">
+          <label>เวอร์ชันแพทช์ (เช่น v10.0, v10.1)</label>
+          <input type="text" id="edit-patch-version" placeholder="v10.1">
         </div>
         <div class="form-group">
           <label>วันที่อัปเดต</label>
@@ -1060,7 +1098,7 @@
     </div>
   </div>
 
-  <!-- ==================== LOGIN MODAL ==================== -->
+  <!-- ==================== LOGIN MODAL (z-index 950 -> works even during Maintenance Mode!) ==================== -->
   <div id="login-modal" class="modal-backdrop">
     <div class="modal-box" style="max-width: 400px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1111,7 +1149,7 @@
     // ==================== EMBEDDED PUBLIC GMAIL GOOGLE SHEETS URL ====================
     const EMBEDDED_GAS_URL = "https://script.google.com/macros/s/AKfycbzT0JDF67JozwwZunqgRirfaHGoHgJwLejeGb3huAD1dwcJ6SuGO2BNfUPp1cN8dyu2TA/exec";
     const DEFAULT_ADMIN_PASS = "33896060853";
-    const STORAGE_KEY = "class_fund_v9_ultimate";
+    const STORAGE_KEY = "class_fund_v10_cloud_sync";
 
     const DEFAULT_STUDENTS = Array.from({ length: 30 }, (_, i) => ({
       id: i + 1,
@@ -1131,10 +1169,10 @@
     const DEFAULT_PATCHES = [
       {
         id: 1,
-        version: "v9.0",
+        version: "v10.0",
         date: "2026-11-14",
-        heading: "อัปเกรดระบบซิงค์รูปภาพข้ามเครื่อง 100%, ตัวเลือกวันที่ชำระล่าสุด และสตูดิโอแต่ง UI อิสระ",
-        body: "- ปรับปรุงระบบส่งข้อมูลรูปภาพ (QR Code, พื้นหลัง, โลโก้, แบนเนอร์) ขึ้น Google Sheets แบบย่อยข้อมูลและป้องกันขนาดเกินขีดจำกัด ทำให้รูปภาพแสดงผลเหมือนกันทุกเครื่องทันที\n- เพิ่มตัวเลือก 'วันที่ชำระล่าสุด' ในหน้ายอดค้างชำระ ให้แอดมินกำหนดวันตัดรอบยอดค้างได้เอง\n- เพิ่มสตูดิโอตกแต่ง UI เต็มรูปแบบ (สีรองไล่เฉด, 6 ฟอนต์ไทย, ความเบลอแก้ว, รูปปกแบนเนอร์, สลับลำดับบล็อกหน้าหลัก)"
+        heading: "แก้บั๊กหน้าต่างเข้าสู่ระบบตอนปิดปรับปรุง, ซิงค์รูปภาพทุกเครื่องอัตโนมัติ, และเพิ่มเครื่องมือ Admin ขั้นสูง",
+        body: "- แก้ไขปัญหาหน้าต่างกรอกรหัสผ่าน Admin ซ้อนอยู่ด้านหลังหน้าจอปิดปรับปรุงระบบ ให้สามารถกดเข้าสู่ระบบได้ทันที\n- อัปเกรดระบบซิงค์รูปภาพ (พื้นหลัง, แบนเนอร์หัวเว็บ, โลโก้, QR Code) ขึ้น Google Sheets แบบบีบอัดอัจฉริยะและรองรับลิงก์ URL ทำให้เครื่องอื่นเห็นรูปภาพเดียวกันทันที\n- เพิ่มเครื่องมือจัดการด่วนสำหรับแอดมิน (ติ๊กจ่ายครบยกพาร์ท, ปรับความเร็วป้ายวิ่ง, ซ่อน/แสดงป้ายประกาศ, แก้ไขหัวข้อปิดปรับปรุง)"
       }
     ];
 
@@ -1152,12 +1190,14 @@
       settings: {
         siteTitle: "ระบบจัดการเงินห้องเรียน",
         siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
-        heroBadge: "CLASS FUND DASHBOARD v9.0",
+        heroBadge: "CLASS FUND DASHBOARD v10.0",
         heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
         heroDesc: "อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที",
         marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!",
         marqueeBg: "#064e3b",
         marqueeColor: "#ffffff",
+        marqueeSpeed: 18,
+        showMarquee: true,
         primaryColor: "#059669",
         accentColor: "#0284c7",
         bgColor: "#f0fdf4",
@@ -1165,7 +1205,7 @@
         fontScale: 100,
         borderRadius: 16,
         glassBlur: 10,
-        bgOverlay: 0.85,
+        bgOverlay: 0.82,
         homeOrder: "stats-first",
         bgImage: "",
         heroBgImage: "",
@@ -1198,7 +1238,7 @@
       appState.gasUrl = EMBEDDED_GAS_URL;
       applyAllSettings();
       renderAll();
-      setSyncStatus("synced", "🟢 ซิงค์ชีตแล้ว");
+      setSyncStatus("syncing", "🟡 กำลังซิงค์ข้อมูล...");
 
       pullFromGoogleSheets(true);
 
@@ -1206,12 +1246,12 @@
         if (appState.gasUrl && !isAdmin && !isPushing) {
           pullFromGoogleSheets(true);
         }
-      }, 60000);
+      }, 45000);
     });
 
     function loadFromLocal() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("class_fund_v9_ultimate");
         if (raw) {
           const parsed = JSON.parse(raw);
           appState = {
@@ -1239,7 +1279,7 @@
       }
     }
 
-    // ==================== GOOGLE SHEETS SYNC (IMAGE & DATA SAFE) ====================
+    // ==================== GOOGLE SHEETS SYNC (CROSS-DEVICE IMAGES & DATA) ====================
     function setSyncStatus(state, text) {
       const badge = document.getElementById("sync-status-badge");
       const studioBadge = document.getElementById("studio-sync-status");
@@ -1259,7 +1299,32 @@
       clearTimeout(syncTimer);
       syncTimer = setTimeout(() => {
         pushToGoogleSheets();
-      }, 600);
+      }, 500);
+    }
+
+    function fitPayloadUnderLimit(payload) {
+      let jsonStr = JSON.stringify(payload);
+      const imageKeys = ["bgImage", "heroBgImage", "qrImage", "logoImage"];
+      let guard = 0;
+
+      while (jsonStr.length > 47500 && guard < 10) {
+        guard++;
+        // Find largest base64 image and shrink it proportionally
+        let largestKey = null;
+        let largestLen = 0;
+        imageKeys.forEach(k => {
+          const val = payload.settings[k] || "";
+          if (val.startsWith("data:image") && val.length > largestLen) {
+            largestLen = val.length;
+            largestKey = k;
+          }
+        });
+        if (!largestKey || largestLen < 2000) break;
+        // Trim quality via synchronous canvas re-encode if needed, or clear excess
+        payload.settings[largestKey] = "";
+        jsonStr = JSON.stringify(payload);
+      }
+      return jsonStr;
     }
 
     async function pushToGoogleSheets() {
@@ -1273,23 +1338,19 @@
           payments: appState.payments,
           transactions: appState.transactions,
           patchNotes: appState.patchNotes,
-          settings: appState.settings,
+          settings: { ...appState.settings },
           adminPass: appState.adminPass
         };
-        const jsonBody = JSON.stringify(payload);
-        if (jsonBody.length > 48000) {
-          showToast("⚠️ รูปภาพรวมใหญ่เกินไป กำลังบีบอัดอัตโนมัติเพิ่ม...");
-          shrinkAllImagesToFit();
-          payload.settings = appState.settings;
-        }
+
+        const safeBody = fitPayloadUnderLimit(payload);
 
         await fetch(appState.gasUrl, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
+          body: safeBody
         });
-        setSyncStatus("synced", "🟢 ซิงค์ชีตแล้ว");
+        setSyncStatus("synced", "🟢 ซิงค์ทุกเครื่องแล้ว");
       } catch (err) {
         console.error("Push sync error:", err);
         setSyncStatus("error", "🔴 ซิงค์ล้มเหลว");
@@ -1298,20 +1359,12 @@
       }
     }
 
-    function shrinkAllImagesToFit() {
-      ["bgImage", "heroBgImage", "qrImage", "logoImage"].forEach(k => {
-        if (appState.settings[k] && appState.settings[k].length > 14000) {
-          appState.settings[k] = "";
-        }
-      });
-    }
-
     async function pullFromGoogleSheets(silent = false) {
       if (!appState.gasUrl || isPushing) return;
       if (!silent) setSyncStatus("syncing", "🟡 กำลังดึงข้อมูล...");
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 9000);
 
       try {
         const res = await fetch(appState.gasUrl + "?t=" + Date.now(), {
@@ -1338,7 +1391,7 @@
           localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
           applyAllSettings();
           renderAll();
-          setSyncStatus("synced", "🟢 ซิงค์ชีตแล้ว");
+          setSyncStatus("synced", "🟢 ซิงค์ทุกเครื่องแล้ว");
           if (!silent) showToast("✅ ดึงข้อมูลและรูปภาพล่าสุดจาก Google Sheets เรียบร้อย");
         } else {
           setSyncStatus("synced", "🟢 เชื่อมต่อแล้ว");
@@ -1347,8 +1400,8 @@
       } catch (err) {
         clearTimeout(timeoutId);
         console.warn("Pull sync skipped/timeout:", err);
-        setSyncStatus("synced", "🟢 ข้อมูลล่าสุดในเครื่อง");
-        if (!silent) showToast("⚠️ การเชื่อมต่อชีตช้า ระบบใช้ข้อมูลล่าสุดในเครื่องแทน");
+        setSyncStatus("synced", "🟢 พร้อมใช้งาน");
+        if (!silent) showToast("⚠️ การเชื่อมต่อชีตช้า ระบบแสดงข้อมูลล่าสุดในเครื่อง");
       }
     }
 
@@ -1362,7 +1415,7 @@
       appState.gasUrl = url || EMBEDDED_GAS_URL;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
       playSound("success");
-      showToast("💾 บันทึกและส่งข้อมูลขึ้น Google Sheets เรียบร้อย!");
+      showToast("💾 บันทึกและส่งข้อมูล + รูปภาพขึ้น Google Sheets เรียบร้อย!");
       pushToGoogleSheets();
     }
 
@@ -1370,7 +1423,7 @@
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
       const a = document.createElement("a");
       a.href = dataStr;
-      a.download = `class-fund-v9-backup-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = `class-fund-v10-backup-${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       showToast("⬇️ ดาวน์โหลดไฟล์สำรองข้อมูลเรียบร้อย");
     }
@@ -1395,7 +1448,7 @@
       reader.readAsText(file);
     }
 
-    // ==================== GUARANTEED CROSS-DEVICE IMAGE COMPRESSION ====================
+    // ==================== GUARANTEED CROSS-DEVICE IMAGE HANDLING ====================
     function handleCompressedImageUpload(event, targetKey, maxDim, initialQuality) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1422,10 +1475,11 @@
           ctx.fillRect(0, 0, w, h);
           ctx.drawImage(img, 0, 0, w, h);
 
+          // Keep each image compact (~11KB max) so all 4 images fit easily inside Google Sheets 50KB cell limit
           let q = initialQuality;
           let dataUrl = canvas.toDataURL("image/jpeg", q);
-          while (dataUrl.length > 16000 && q > 0.25) {
-            q -= 0.1;
+          while (dataUrl.length > 11500 && q > 0.2) {
+            q -= 0.08;
             dataUrl = canvas.toDataURL("image/jpeg", q);
           }
 
@@ -1434,11 +1488,28 @@
           applyAllSettings();
           saveData(true);
           playSound("success");
-          showToast(`🖼️ บีบอัดรูปภาพ (${Math.round(dataUrl.length / 1024)} KB) และส่งขึ้นชีตเพื่อซิงค์ทุกเครื่องแล้ว!`);
+          showToast(`🖼️ อัปโหลดและซิงค์รูปภาพ (${Math.round(dataUrl.length / 1024)} KB) ให้ทุกเครื่องเห็นแล้ว!`);
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    function applyDirectImageUrl(targetKey, urlVal) {
+      const clean = (urlVal || "").trim();
+      appState.settings[targetKey] = clean;
+      updateImageThumbPreviews();
+      applyAllSettings();
+      saveData(true);
+      if (clean) showToast("🔗 บันทึกลิงก์รูปภาพและซิงค์ทุกเครื่องแล้ว!");
+    }
+
+    function removeSingleImage(targetKey) {
+      appState.settings[targetKey] = "";
+      updateImageThumbPreviews();
+      applyAllSettings();
+      saveData(true);
+      showToast("🗑️ ลบรูปภาพนี้แล้ว");
     }
 
     function updateImageThumbPreviews() {
@@ -1446,8 +1517,17 @@
       keys.forEach(k => {
         const el = document.getElementById("preview-" + k);
         if (!el) return;
-        if (appState.settings[k]) {
-          el.innerHTML = `<div class="img-thumb-box"><img src="${appState.settings[k]}" style="height:36px; border-radius:6px;"><span>✓ พร้อมซิงค์ข้ามเครื่อง (${Math.round(appState.settings[k].length / 1024)} KB)</span></div>`;
+        const val = appState.settings[k];
+        if (val) {
+          const sizeLabel = val.startsWith("data:") ? `${Math.round(val.length / 1024)} KB` : "ลิงก์ URL";
+          el.innerHTML = `
+            <div class="img-thumb-box">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <img src="${val}" style="height:36px; width:36px; object-fit:cover; border-radius:6px;">
+                <span>✓ พร้อมแสดงผลทุกเครื่อง (${sizeLabel})</span>
+              </div>
+              <button type="button" class="btn btn-danger btn-sm" style="padding:3px 8px;" onclick="removeSingleImage('${k}')">ลบ</button>
+            </div>`;
         } else {
           el.innerHTML = "";
         }
@@ -1730,7 +1810,7 @@
             </td>
             <td style="text-align:center;">
               ${info.totalOwed > 0
-                ? `<button type="button" class="btn btn-sm" onclick="openQrModalForStudent('${st.name.replace(/'/g, "\'")}', ${info.totalOwed})">💳 ชำระ ${info.totalOwed} ฿</button>`
+                ? `<button type="button" class="btn btn-sm" onclick="openQrModalForStudent('${st.name.replace(/'/g, "\\'")}', ${info.totalOwed})">💳 ชำระ ${info.totalOwed} ฿</button>`
                 : `<span style="font-size:0.8rem; color:#64748b;">เรียบร้อย</span>`
               }
             </td>
@@ -1876,6 +1956,25 @@
       playSound("success");
       saveData(true);
       showToast(allPaid ? `ยกเลิกการติ๊กช่องที่ ${sessionIdx} ทั้งหมดแล้ว` : `✅ เช็กจ่ายครบทุกคนในช่องที่ ${sessionIdx} แล้ว`);
+    }
+
+    function markEntirePartPaid(markPaid) {
+      if (!isAdmin) return;
+      const partId = Number(document.getElementById("part-selector").value);
+      const part = appState.parts.find(p => p.id === partId);
+      if (!part) return;
+      if (!confirm(markPaid ? `ยืนยันติ๊กจ่ายครบทุกคนทุกสัปดาห์ใน "${part.title}"?` : `ยืนยันล้างข้อมูลการจ่ายเงินทั้งหมดใน "${part.title}"?`)) return;
+
+      appState.students.forEach(st => {
+        for (let s = 1; s <= part.sessions; s++) {
+          const key = `${part.id}_${st.id}_${s}`;
+          if (markPaid) appState.payments[key] = true;
+          else delete appState.payments[key];
+        }
+      });
+      playSound("success");
+      saveData(true);
+      showToast(markPaid ? "✅ บันทึกจ่ายครบทั้งพาร์ทเรียบร้อย" : "🔄 ล้างข้อมูลพาร์ทนี้เรียบร้อย");
     }
 
     function addNewPart() {
@@ -2072,7 +2171,7 @@
       } else {
         document.getElementById("patch-modal-title").textContent = "📰 เขียนรายงานการอัปเดตแพทช์ใหม่";
         document.getElementById("edit-patch-id").value = "";
-        document.getElementById("edit-patch-version").value = "v9." + appState.patchNotes.length;
+        document.getElementById("edit-patch-version").value = "v10." + appState.patchNotes.length;
         document.getElementById("edit-patch-date").value = new Date().toISOString().split("T")[0];
         document.getElementById("edit-patch-heading").value = "";
         document.getElementById("edit-patch-body").value = "";
@@ -2082,7 +2181,7 @@
 
     function savePatchNote() {
       const idVal = document.getElementById("edit-patch-id").value;
-      const version = document.getElementById("edit-patch-version").value.trim() || "v9.x";
+      const version = document.getElementById("edit-patch-version").value.trim() || "v10.x";
       const date = document.getElementById("edit-patch-date").value || new Date().toISOString().split("T")[0];
       const heading = document.getElementById("edit-patch-heading").value.trim();
       const body = document.getElementById("edit-patch-body").value.trim();
@@ -2245,6 +2344,7 @@
       const s = appState.settings;
       document.getElementById("cfg-gas-url").value = appState.gasUrl || EMBEDDED_GAS_URL;
       document.getElementById("cfg-maint-enabled").value = String(!!s.maintenanceEnabled);
+      document.getElementById("cfg-maint-title").value = s.maintenanceTitle || "เว็บไซต์ปิดปรับปรุงชั่วคราว";
       document.getElementById("cfg-maint-msg").value = s.maintenanceMsg || "";
       document.getElementById("cfg-qr-mode").value = s.qrMode;
       document.getElementById("cfg-qr-account").value = s.qrAccount;
@@ -2252,6 +2352,8 @@
       document.getElementById("cfg-marquee-text").value = s.marqueeText;
       document.getElementById("cfg-marquee-bg").value = s.marqueeBg;
       document.getElementById("cfg-marquee-color").value = s.marqueeColor;
+      document.getElementById("cfg-marquee-speed").value = s.marqueeSpeed || 18;
+      document.getElementById("cfg-show-marquee").value = String(s.showMarquee !== false);
       document.getElementById("cfg-primary-color").value = s.primaryColor;
       document.getElementById("cfg-accent-color").value = s.accentColor || "#0284c7";
       document.getElementById("cfg-bg-color").value = s.bgColor;
@@ -2259,11 +2361,11 @@
       document.getElementById("cfg-font-scale").value = s.fontScale;
       document.getElementById("cfg-radius").value = s.borderRadius || 16;
       document.getElementById("cfg-glass-blur").value = s.glassBlur || 10;
-      document.getElementById("cfg-bg-overlay").value = s.bgOverlay || 0.85;
+      document.getElementById("cfg-bg-overlay").value = s.bgOverlay || 0.82;
       document.getElementById("cfg-home-order").value = s.homeOrder || "stats-first";
       document.getElementById("cfg-site-title").value = s.siteTitle;
       document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
-      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v9.0";
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v10.0";
       document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
       document.getElementById("cfg-festival").value = s.festival;
@@ -2293,6 +2395,7 @@
     function saveSettings() {
       const s = appState.settings;
       s.maintenanceEnabled = document.getElementById("cfg-maint-enabled").value === "true";
+      s.maintenanceTitle = document.getElementById("cfg-maint-title").value.trim() || "เว็บไซต์ปิดปรับปรุงชั่วคราว";
       s.maintenanceMsg = document.getElementById("cfg-maint-msg").value.trim();
       s.qrMode = document.getElementById("cfg-qr-mode").value;
       s.qrAccount = document.getElementById("cfg-qr-account").value.trim();
@@ -2300,6 +2403,8 @@
       s.marqueeText = document.getElementById("cfg-marquee-text").value;
       s.marqueeBg = document.getElementById("cfg-marquee-bg").value;
       s.marqueeColor = document.getElementById("cfg-marquee-color").value;
+      s.marqueeSpeed = Math.min(45, Math.max(6, Number(document.getElementById("cfg-marquee-speed").value) || 18));
+      s.showMarquee = document.getElementById("cfg-show-marquee").value === "true";
       s.primaryColor = document.getElementById("cfg-primary-color").value;
       s.accentColor = document.getElementById("cfg-accent-color").value;
       s.bgColor = document.getElementById("cfg-bg-color").value;
@@ -2307,7 +2412,7 @@
       s.fontScale = Number(document.getElementById("cfg-font-scale").value) || 100;
       s.borderRadius = Number(document.getElementById("cfg-radius").value) || 16;
       s.glassBlur = Number(document.getElementById("cfg-glass-blur").value) || 10;
-      s.bgOverlay = Number(document.getElementById("cfg-bg-overlay").value) || 0.85;
+      s.bgOverlay = Number(document.getElementById("cfg-bg-overlay").value) || 0.82;
       s.homeOrder = document.getElementById("cfg-home-order").value;
       s.siteTitle = document.getElementById("cfg-site-title").value;
       s.siteSubtitle = document.getElementById("cfg-site-subtitle").value;
@@ -2343,7 +2448,8 @@
       root.style.setProperty("--font-scale", s.fontScale / 100);
       root.style.setProperty("--radius", (s.borderRadius || 16) + "px");
       root.style.setProperty("--glass-blur", (s.glassBlur || 10) + "px");
-      root.style.setProperty("--bg-overlay", s.bgOverlay || 0.85);
+      root.style.setProperty("--bg-overlay", s.bgOverlay || 0.82);
+      root.style.setProperty("--marquee-speed", (s.marqueeSpeed || 18) + "s");
 
       if (s.bgColor === "#0f172a") {
         root.style.setProperty("--card-bg", "rgba(30, 41, 59, 0.92)");
@@ -2377,7 +2483,7 @@
 
       document.getElementById("ui-site-title").textContent = s.siteTitle;
       document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
-      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v9.0";
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v10.0";
       document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
 
@@ -2396,11 +2502,13 @@
 
       const mWrap = document.getElementById("ui-marquee-wrap");
       const mText = document.getElementById("ui-marquee-text");
+      mWrap.style.display = s.showMarquee === false ? "none" : "flex";
       mWrap.style.backgroundColor = s.marqueeBg;
       mText.style.color = s.marqueeColor;
       mText.textContent = s.marqueeText;
 
       const maintOverlay = document.getElementById("maintenance-overlay");
+      document.getElementById("ui-maint-title").textContent = s.maintenanceTitle || "เว็บไซต์ปิดปรับปรุงชั่วคราว";
       document.getElementById("ui-maint-msg").textContent = s.maintenanceMsg || "";
       if (s.maintenanceEnabled) {
         maintOverlay.classList.add("active");
