@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบจัดการเงินห้องเรียน - Class Fund v11.0</title>
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund v11.1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -368,6 +368,27 @@
     th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
     th { background: #f8fafc; font-weight: 600; color: #334155; white-space: nowrap; }
 
+    /* Export Snapshot Mode: Ensures 100% full width without horizontal scroll clipping */
+    .export-snapshot-mode {
+      width: max-content !important;
+      min-width: 100% !important;
+      overflow: visible !important;
+      padding: 18px !important;
+      background: #ffffff !important;
+    }
+    .export-snapshot-mode .table-responsive {
+      overflow: visible !important;
+      width: max-content !important;
+      min-width: 100% !important;
+    }
+    .export-snapshot-mode .no-print,
+    .export-snapshot-mode .no-export {
+      display: none !important;
+    }
+    .export-snapshot-mode #export-stamp-footer {
+      display: flex !important;
+    }
+
     .session-box {
       min-width: 34px;
       height: 32px;
@@ -510,12 +531,17 @@
     }
 
     @media print {
-      @page { size: landscape; margin: 10mm; }
-      .navbar, .marquee-wrap, .no-print, .nav-actions, #screen-aura-frame, #festival-canvas, .admin-block { display: none !important; }
-      body { background: white !important; }
+      @page { size: A4 landscape; margin: 8mm; }
+      .navbar, .marquee-wrap, .no-print, .no-export, .nav-actions, #screen-aura-frame, #festival-canvas, .admin-block { display: none !important; }
+      body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
       .card { box-shadow: none !important; border: none !important; padding: 0 !important; }
       .page-section { display: none !important; }
       .page-section.active { display: block !important; }
+      .table-responsive { overflow: visible !important; border: none !important; }
+      table { font-size: 0.74rem !important; width: 100% !important; }
+      th, td { padding: 5px 6px !important; }
+      #export-stamp-footer { display: flex !important; }
     }
   </style>
 </head>
@@ -574,7 +600,7 @@
     <section id="page-home" class="page-section active">
       <div class="hero-banner" id="ui-hero-banner">
         <div>
-          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v11.0</span>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v11.1</span>
           <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
           <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที</p>
         </div>
@@ -608,7 +634,7 @@
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
             <div>
               <h3 style="font-size: 1.15rem;">📊 สถานะการชำระเงินรายบุคคล</h3>
-              <p style="font-size: 0.8rem; color: var(--text-muted);">แยกสีชัดเจน: จ่ายครบแล้ว / จ่ายไม่ครบ / ยังไม่จ่าย</p>
+              <p id="home-cutoff-note" style="font-size: 0.8rem; color: var(--text-muted);">เกณฑ์ณ วันที่กำหนด: จ่ายครบแล้ว / จ่ายไม่ครบ / ยังไม่จ่าย (0 บาท)</p>
             </div>
             <input type="text" id="home-search" placeholder="🔍 ค้นหาชื่อหรือเลขที่..." style="max-width: 240px;" oninput="renderHomeSummary()">
           </div>
@@ -631,11 +657,11 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
           <div>
             <h3>📋 ตารางบันทึกการเก็บเงินห้อง &amp; กิจกรรม</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">เลือกพาร์ทหรือกิจกรรม และส่งออกตารางเป็นรูปภาพ PNG หรือเอกสาร PDF ได้ทันที</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">เลือกพาร์ทหรือกิจกรรม และส่งออกตารางฉบับสมบูรณ์ครบทุกช่องเป็นภาพ PNG หรือ PDF ได้ทันที</p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <select id="part-selector" onchange="renderCollectionTable()" style="width: auto; min-width: 240px; font-weight: 600;"></select>
-            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportCollectionPng()">🖼️ บันทึกเป็น PNG</button>
+            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportCollectionPng()">🖼️ บันทึกเป็น PNG (ครบทุกช่อง)</button>
             <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportCollectionPdf()">📄 พิมพ์ / บันทึก PDF</button>
             <button type="button" class="btn btn-sm admin-only" onclick="openPartEditorModal()">⚙️ ปรับแต่งพาร์ทนี้</button>
             <button type="button" class="btn btn-outline btn-sm admin-only" onclick="duplicateCurrentPart()">📑 คัดลอก</button>
@@ -654,8 +680,8 @@
           </div>
         </div>
 
-        <!-- Capture Area for PNG & PDF Export -->
-        <div id="collect-export-area" style="background: white; border-radius: 14px; padding: 10px;">
+        <!-- Full-Capture Area for PNG & PDF Export -->
+        <div id="collect-export-area" style="background: white; border-radius: 14px; padding: 12px;">
           <div id="part-info-bar" style="background: var(--primary-light); color: var(--primary-dark); padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;"></div>
 
           <div class="table-responsive">
@@ -665,6 +691,11 @@
               </thead>
               <tbody id="collect-table-body"></tbody>
             </table>
+          </div>
+
+          <div id="export-stamp-footer" style="display:none; justify-content:space-between; align-items:center; margin-top:12px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:0.78rem; color:#475569;">
+            <span id="export-site-name">ระบบจัดการเงินห้องเรียน</span>
+            <span id="export-timestamp"></span>
           </div>
         </div>
       </div>
@@ -676,9 +707,9 @@
         <div class="admin-block" style="display:none; background:#fffbeb; border:2px solid #f59e0b; border-radius:14px; padding:14px 16px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             <div>
-              <h4 style="color:#b45309; font-size:0.95rem;">🗓️ ตั้งค่า "วันที่ชำระล่าสุด" (Cutoff Date) สำหรับคำนวณยอดค้างชำระ</h4>
+              <h4 style="color:#b45309; font-size:0.95rem;">🗓️ ตั้งค่า "วันที่ชำระล่าสุด" (Cutoff Date) สำหรับคำนวณยอดค้างชำระ &amp; สถานะหน้าหลัก</h4>
               <p style="font-size:0.82rem; color:#78350f; margin-top:2px;">
-                ระบบจะนับยอดค้างชำระเฉพาะสัปดาห์ที่มีวันที่เก็บ <strong>ไม่เกินวันที่แอดมินกำหนดด้านขวานี้</strong>
+                ระบบจะนับยอดที่ต้องจ่ายเฉพาะสัปดาห์ที่มีวันที่เก็บ <strong>ไม่เกินวันที่แอดมินกำหนดด้านขวานี้</strong>
               </p>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -1315,7 +1346,7 @@
       <input type="hidden" id="edit-patch-id">
       <div class="grid-2">
         <div class="form-group">
-          <label>เวอร์ชันแพทช์ (เช่น v11.0, v11.1)</label>
+          <label>เวอร์ชันแพทช์ (เช่น v11.1)</label>
           <input type="text" id="edit-patch-version" placeholder="v11.1">
         </div>
         <div class="form-group">
@@ -1429,10 +1460,10 @@
     const DEFAULT_PATCHES = [
       {
         id: 1,
-        version: "v11.0",
+        version: "v11.1",
         date: "2026-11-14",
-        heading: "อัปเดตระบบเสียงปรับแต่งเอง, ส่งออก PNG/PDF หน้าเก็บเงิน, ออร่ากรอบเว็บ และตัวกรองสถานะหน้าหลัก",
-        body: "- เพิ่มสตูดิโอเสียงให้แอดมินอัปโหลดเสียงหรือวางลิงก์เสียง MP3 แยกตามเหตุการณ์ได้\n- เพิ่มปุ่มบันทึกตารางเก็บเงินห้องเป็นไฟล์รูปภาพ PNG และ PDF ในหน้าเก็บเงินห้อง\n- เพิ่มตัวสร้างกิจกรรมและเทศกาลตามใจชอบ (ใส่สัญลักษณ์/อีโมจิ ทิศทาง ความเร็ว ขนาดได้เอง)\n- ปรับหน้าหลักให้แยกสถานะ จ่ายครบแล้ว / จ่ายไม่ครบ / ยังไม่จ่าย พร้อมตัวกรองกดดูง่าย\n- ย้ายกล่องแจ้งเตือน (Toast) มาอยู่กึ่งกลางด้านบน และเพิ่มตัวแต่งสี+ออร่ากรอบเว็บไซต์"
+        heading: "ปรับปรุงเกณฑ์สถานะการชำระเงินหน้าหลัก & ระบบส่งออกภาพ PNG/PDF ครบทุกช่อง",
+        body: "- ปรับเกณฑ์หน้าหลัก: จ่ายครบแล้ว (จ่ายครบตามวันที่กำหนด), จ่ายไม่ครบ (จ่ายแล้วแต่ยังไม่ครบยอดตามวันที่กำหนด), ยังไม่จ่าย (ยอดจ่าย 0 บาท)\n- ปรับปรุงระบบส่งออก PNG และ PDF ในหน้าเก็บเงินห้องให้ขยายตารางเต็มความกว้างจริง ครบทุกคอลัมน์และทุกคนไม่ตกขอบ"
       }
     ];
 
@@ -1450,7 +1481,7 @@
       settings: {
         siteTitle: "ระบบจัดการเงินห้องเรียน",
         siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
-        heroBadge: "CLASS FUND DASHBOARD v11.0",
+        heroBadge: "CLASS FUND DASHBOARD v11.1",
         heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
         heroDesc: "อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที",
         marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!",
@@ -1721,7 +1752,7 @@
       reader.readAsText(file);
     }
 
-    // ==================== EXPORT COLLECTION TO PNG & PDF ====================
+    // ==================== FULL-WIDTH EXPORT COLLECTION TO PNG & PDF ====================
     async function exportCollectionPng() {
       playSound("click");
       const target = document.getElementById("collect-export-area");
@@ -1731,28 +1762,52 @@
         showToast("❌ ระบบสร้างรูปภาพยังไม่พร้อม กรุณาลองใหม่");
         return;
       }
-      showToast("🖼️ กำลังสร้างไฟล์รูปภาพ PNG...");
+
+      showToast("🖼️ กำลังจัดหน้าตารางฉบับเต็มและสร้างไฟล์ PNG...");
+
+      // Populate timestamp footer for official export
+      document.getElementById("export-site-name").textContent = `📌 ${appState.settings.siteTitle || "ระบบจัดการเงินห้องเรียน"}`;
+      document.getElementById("export-timestamp").textContent = `ข้อมูล ณ วันที่ ${new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })} น.`;
+
+      // Expand container temporarily so NO horizontal/vertical scroll clipping occurs
+      target.classList.add("export-snapshot-mode");
+      await new Promise(r => setTimeout(r, 120));
+
       try {
+        const fullWidth = target.scrollWidth;
+        const fullHeight = target.scrollHeight;
+
         const canvas = await html2canvas(target, {
           scale: 2,
           backgroundColor: "#ffffff",
+          width: fullWidth,
+          height: fullHeight,
+          windowWidth: fullWidth + 100,
+          windowHeight: fullHeight + 100,
+          scrollX: 0,
+          scrollY: 0,
           useCORS: true
         });
+
         const link = document.createElement("a");
         link.download = `${partName.replace(/[^a-zA-Z0-9ก-๙]/g, "_")}_${new Date().toISOString().split("T")[0]}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
         playSound("success");
-        showToast("✅ ดาวน์โหลดรูปภาพ PNG ตารางเก็บเงินเรียบร้อย!");
+        showToast("✅ ดาวน์โหลดรูปภาพ PNG ตารางเก็บเงินครบทุกช่องเรียบร้อย!");
       } catch (err) {
         console.error(err);
         showToast("❌ เกิดข้อผิดพลาดในการสร้างไฟล์ PNG");
+      } finally {
+        target.classList.remove("export-snapshot-mode");
       }
     }
 
     function exportCollectionPdf() {
       playSound("click");
-      showToast("📄 กำลังเปิดหน้าต่างพิมพ์ / บันทึกเป็น PDF...");
+      document.getElementById("export-site-name").textContent = `📌 ${appState.settings.siteTitle || "ระบบจัดการเงินห้องเรียน"}`;
+      document.getElementById("export-timestamp").textContent = `พิมพ์เมื่อวันที่ ${new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })} น.`;
+      showToast("📄 กำลังเปิดหน้าต่างพิมพ์ / บันทึกเป็น PDF ฉบับสมบูรณ์...");
       setTimeout(() => {
         window.print();
       }, 300);
@@ -1952,7 +2007,7 @@
       if (tabId === "patch") renderPatchNotes();
     }
 
-    // ==================== CALCULATIONS & HOME CLEAR STATUS ====================
+    // ==================== CALCULATIONS & EXACT HOME PAYMENT STATUS ====================
     function getSessionAmount(part, sessionIndex) {
       if (part.customAmounts && part.customAmounts[sessionIndex] !== undefined && part.customAmounts[sessionIndex] !== "") {
         return Number(part.customAmounts[sessionIndex]);
@@ -2027,14 +2082,41 @@
       return { totalOwed, items };
     }
 
+    /**
+     * Exact status rules as requested:
+     * 1. ยังไม่จ่าย (unpaid): total paid == 0 baht (0 บาทที่จ่ายมา)
+     * 2. จ่ายไม่ครบ (partial): total paid > 0 baht, AND still owes money up to cutoff date
+     * 3. จ่ายครบแล้ว (paid): total paid > 0 baht, AND 0 baht owed up to cutoff date
+     */
     function getStudentPaymentStatusCategory(studentId) {
       const paid = calculateStudentPaid(studentId);
       const owed = getStudentArrearsDetails(studentId, "all", "due").totalOwed;
 
-      if (paid === 0 && owed > 0) return { code: "unpaid", label: "🔴 ยังไม่จ่าย", border: "#ef4444", bg: "#fef2f2", text: "#b91c1c" };
-      if (paid === 0 && owed === 0) return { code: "unpaid", label: "⚪ ยังไม่มียอดเรียกเก็บ", border: "#cbd5e1", bg: "#f8fafc", text: "#475569" };
-      if (paid > 0 && owed > 0) return { code: "partial", label: "🟡 จ่ายไม่ครบ", border: "#f59e0b", bg: "#fffbeb", text: "#b45309" };
-      return { code: "paid", label: "🟢 จ่ายครบแล้ว", border: "#10b981", bg: "#ecfdf5", text: "#047857" };
+      if (paid === 0) {
+        return {
+          code: "unpaid",
+          label: "🔴 ยังไม่จ่าย (0 ฿)",
+          border: "#ef4444",
+          bg: "#fef2f2",
+          text: "#b91c1c"
+        };
+      }
+      if (owed > 0) {
+        return {
+          code: "partial",
+          label: "🟡 จ่ายไม่ครบ",
+          border: "#f59e0b",
+          bg: "#fffbeb",
+          text: "#b45309"
+        };
+      }
+      return {
+        code: "paid",
+        label: "🟢 จ่ายครบแล้ว",
+        border: "#10b981",
+        bg: "#ecfdf5",
+        text: "#047857"
+      };
     }
 
     function setHomeStatusFilter(filterCode, btnEl) {
@@ -2100,6 +2182,12 @@
     }
 
     function renderHomeSummary() {
+      const effectiveDate = getEffectiveCutoffDate();
+      const noteEl = document.getElementById("home-cutoff-note");
+      if (noteEl) {
+        noteEl.textContent = `เกณฑ์ ณ วันที่กำหนด (${formatThaiShortDate(effectiveDate)}): 🟢 จ่ายครบตามกำหนด | 🟡 จ่ายแล้วแต่ยอดยังไม่ครบ | 🔴 ยังไม่จ่ายเลย (0 ฿)`;
+      }
+
       const keyword = (document.getElementById("home-search")?.value || "").toLowerCase();
       const container = document.getElementById("home-member-cards");
       container.innerHTML = "";
@@ -2128,11 +2216,11 @@
               <span style="font-size:0.72rem; background:${statusInfo.bg}; color:${statusInfo.text}; padding:2px 8px; border-radius:99px; font-weight:700;">${statusInfo.label}</span>
             </div>
             <div style="font-weight:700; margin-top:5px; font-size:0.95rem;">${st.name}</div>
-            ${owed > 0 ? `<div style="font-size:0.76rem; color:#dc2626; font-weight:600; margin-top:2px;">ค้างชำระอีก ${owed.toLocaleString()} ฿</div>` : `<div style="font-size:0.76rem; color:#059669; margin-top:2px;">ไม่มียอดค้างชำระ</div>`}
+            ${owed > 0 ? `<div style="font-size:0.76rem; color:#dc2626; font-weight:600; margin-top:2px;">ค้างตามกำหนดอีก ${owed.toLocaleString()} ฿</div>` : `<div style="font-size:0.76rem; color:#059669; margin-top:2px;">ครบตามกำหนดแล้ว</div>`}
           </div>
           <div style="text-align:right; flex-shrink:0;">
-            <div style="font-size:0.72rem; color:#64748b;">จ่ายแล้ว</div>
-            <div style="font-weight:700; color:var(--primary); font-size:1.1rem;">${paid.toLocaleString()} ฿</div>
+            <div style="font-size:0.72rem; color:#64748b;">ยอดที่จ่ายแล้ว</div>
+            <div style="font-weight:700; color:${paid > 0 ? 'var(--primary)' : '#dc2626'}; font-size:1.1rem;">${paid.toLocaleString()} ฿</div>
           </div>
         `;
         container.appendChild(div);
@@ -2265,7 +2353,7 @@
         <div>
           <div style="font-weight:700; font-size:0.95rem;">📌 ${part.title}</div>
           <div style="font-size:0.82rem; opacity:0.9; margin-top:2px;">
-            ${part.desc ? `📝 ${part.desc} | ` : ''}🗓️ จำนวนทั้งหมด: <strong>${part.sessions} สัปดาห์/ครั้ง</strong>
+            ${part.desc ? `📝 ${part.desc} | ` : ''}🗓️ จำนวนทั้งหมด: <strong>${part.sessions} สัปดาห์/ครั้ง</strong> | 👥 สมาชิก: <strong>${appState.students.length} คน</strong>
           </div>
         </div>
         <div style="text-align:right;">
@@ -2285,7 +2373,7 @@
             <div style="font-weight:700;">${colLabel}</div>
             ${colDate ? `<div style="font-size:0.7rem; color:#0284c7; font-weight:600;">📅 ${colDate}</div>` : ''}
             <div style="font-size:0.72rem; color:#059669; font-weight:700;">${colAmt} ฿</div>
-            ${isAdmin ? `<button type="button" class="btn btn-outline btn-sm no-print" style="padding:1px 5px; font-size:0.66rem; margin-top:3px;" onclick="toggleAllInSession(${part.id}, ${s})">✓ ทั้งหมด</button>` : ''}
+            ${isAdmin ? `<button type="button" class="btn btn-outline btn-sm no-print no-export" style="padding:1px 5px; font-size:0.66rem; margin-top:3px;" onclick="toggleAllInSession(${part.id}, ${s})">✓ ทั้งหมด</button>` : ''}
           </th>
         `;
       }
@@ -2297,7 +2385,7 @@
 
       appState.students.forEach(st => {
         const tr = document.createElement("tr");
-        let rowHtml = `<td><strong>${st.no}</strong></td><td>${st.name}</td>`;
+        let rowHtml = `<td><strong>${st.no}</strong></td><td style="white-space:nowrap;">${st.name}</td>`;
         let partSum = 0;
 
         for (let s = 1; s <= part.sessions; s++) {
@@ -2314,7 +2402,7 @@
             </td>
           `;
         }
-        rowHtml += `<td style="font-weight:700; color:var(--primary);">${partSum.toLocaleString()} ฿</td>`;
+        rowHtml += `<td style="font-weight:700; color:var(--primary); white-space:nowrap;">${partSum.toLocaleString()} ฿</td>`;
         tr.innerHTML = rowHtml;
         body.appendChild(tr);
       });
@@ -2557,7 +2645,7 @@
       } else {
         document.getElementById("patch-modal-title").textContent = "📰 เขียนรายงานการอัปเดตแพทช์ใหม่";
         document.getElementById("edit-patch-id").value = "";
-        document.getElementById("edit-patch-version").value = "v11." + appState.patchNotes.length;
+        document.getElementById("edit-patch-version").value = "v11." + (appState.patchNotes.length + 1);
         document.getElementById("edit-patch-date").value = new Date().toISOString().split("T")[0];
         document.getElementById("edit-patch-heading").value = "";
         document.getElementById("edit-patch-body").value = "";
@@ -2771,7 +2859,7 @@
       document.getElementById("cfg-home-order").value = s.homeOrder || "stats-first";
       document.getElementById("cfg-site-title").value = s.siteTitle;
       document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
-      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v11.0";
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v11.1";
       document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
 
@@ -2956,7 +3044,7 @@
 
       document.getElementById("ui-site-title").textContent = s.siteTitle;
       document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
-      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v11.0";
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v11.1";
       document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
 
@@ -3114,7 +3202,6 @@
       const volRatio = (s.soundVolume !== undefined ? s.soundVolume : 70) / 100;
       if (volRatio <= 0) return;
 
-      // Check custom uploaded/URL audio first
       const customSrc = type === "success" ? s.audioSuccess : (type === "error" ? s.audioError : s.audioClick);
       if (customSrc) {
         try {
@@ -3125,7 +3212,6 @@
         } catch (e) {}
       }
 
-      // Fallback to synthesized themes
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
