@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบจัดการเงินห้องเรียน - Class Fund v11.1</title>
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund v11.2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -91,12 +91,8 @@
       box-shadow: inset 0 0 28px var(--aura-color-1), inset 0 0 12px var(--aura-color-2);
     }
     #screen-aura-frame.active { display: block; }
-    #screen-aura-frame.aura-pulse {
-      animation: auraPulse 3s ease-in-out infinite;
-    }
-    #screen-aura-frame.aura-rainbow {
-      animation: auraRainbow 6s linear infinite;
-    }
+    #screen-aura-frame.aura-pulse { animation: auraPulse 3s ease-in-out infinite; }
+    #screen-aura-frame.aura-rainbow { animation: auraRainbow 6s linear infinite; }
     @keyframes auraPulse {
       0%, 100% { box-shadow: inset 0 0 18px var(--aura-color-1), inset 0 0 8px var(--aura-color-2); opacity: 0.7; }
       50% { box-shadow: inset 0 0 46px var(--aura-color-1), inset 0 0 24px var(--aura-color-2); opacity: 1; }
@@ -390,7 +386,7 @@
     }
 
     .session-box {
-      min-width: 34px;
+      min-width: 38px;
       height: 32px;
       padding: 0 6px;
       border-radius: 8px;
@@ -400,11 +396,12 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 700;
       transition: 0.15s;
     }
     .session-box.paid { background: var(--primary); color: white; border-color: var(--primary-dark); }
+    .session-box.partial { background: #fef3c7; color: #b45309; border: 2px solid #f59e0b; }
     .session-box.readonly { cursor: default; }
 
     /* Role Visibility */
@@ -515,6 +512,10 @@
       margin: 2px;
       font-weight: 600;
     }
+    .arrear-chip.partial-chip {
+      background: #fef3c7;
+      color: #b45309;
+    }
 
     .img-thumb-box {
       display: flex;
@@ -600,7 +601,7 @@
     <section id="page-home" class="page-section active">
       <div class="hero-banner" id="ui-hero-banner">
         <div>
-          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v11.1</span>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v11.2</span>
           <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
           <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที</p>
         </div>
@@ -633,15 +634,18 @@
         <div id="block-summary" class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
             <div>
-              <h3 style="font-size: 1.15rem;">📊 สถานะการชำระเงินรายบุคคล</h3>
-              <p id="home-cutoff-note" style="font-size: 0.8rem; color: var(--text-muted);">เกณฑ์ณ วันที่กำหนด: จ่ายครบแล้ว / จ่ายไม่ครบ / ยังไม่จ่าย (0 บาท)</p>
+              <h3 style="font-size: 1.15rem;">📊 สถานะการชำระเงินประจำสัปดาห์ล่าสุด</h3>
+              <p id="home-latest-week-desc" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">กำลังโหลดข้อมูลสัปดาห์ล่าสุด...</p>
             </div>
-            <input type="text" id="home-search" placeholder="🔍 ค้นหาชื่อหรือเลขที่..." style="max-width: 240px;" oninput="renderHomeSummary()">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <select id="home-latest-session-select" onchange="onHomeLatestSessionChange()" style="width:auto; font-weight:600; font-size:0.84rem;" title="เลือกสัปดาห์ล่าสุดที่ต้องการแสดง"></select>
+              <input type="text" id="home-search" placeholder="🔍 ค้นหาชื่อหรือเลขที่..." style="max-width: 220px;" oninput="renderHomeSummary()">
+            </div>
           </div>
 
           <div class="status-filter-bar" id="home-status-filters">
             <button type="button" class="filter-pill active" onclick="setHomeStatusFilter('all', this)">ทั้งหมด (<span id="cnt-all">0</span>)</button>
-            <button type="button" class="filter-pill" onclick="setHomeStatusFilter('paid', this)">🟢 จ่ายครบแล้ว (<span id="cnt-paid">0</span>)</button>
+            <button type="button" class="filter-pill" onclick="setHomeStatusFilter('paid', this)">🟢 จ่ายแล้ว (<span id="cnt-paid">0</span>)</button>
             <button type="button" class="filter-pill" onclick="setHomeStatusFilter('partial', this)">🟡 จ่ายไม่ครบ (<span id="cnt-partial">0</span>)</button>
             <button type="button" class="filter-pill" onclick="setHomeStatusFilter('unpaid', this)">🔴 ยังไม่จ่าย (<span id="cnt-unpaid">0</span>)</button>
           </div>
@@ -657,7 +661,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
           <div>
             <h3>📋 ตารางบันทึกการเก็บเงินห้อง &amp; กิจกรรม</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">เลือกพาร์ทหรือกิจกรรม และส่งออกตารางฉบับสมบูรณ์ครบทุกช่องเป็นภาพ PNG หรือ PDF ได้ทันที</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">บันทึกการจ่ายครบ, จ่ายไม่ครบ (ระบุยอดที่มี) พร้อมสรุปหมายเหตุขาดกี่บาท และส่งออก PNG/PDF ได้ครบถ้วน</p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <select id="part-selector" onchange="renderCollectionTable()" style="width: auto; min-width: 240px; font-weight: 600;"></select>
@@ -669,13 +673,17 @@
           </div>
         </div>
 
-        <!-- Admin Bulk Actions Bar for Current Part -->
+        <!-- Admin Bulk & Partial Payment Mode Bar -->
         <div class="admin-block no-print" style="display:none; background:#f8fafc; border:1px solid var(--border-color); border-radius:12px; padding:10px 14px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <span style="font-size:0.82rem; font-weight:700; color:#334155;">⚡ เครื่องมือจัดการด่วนสำหรับแอดมิน (พาร์ทนี้):</span>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:0.82rem; font-weight:700; color:#334155;">⚡ โหมดการคลิกช่องตาราง:</span>
+              <button type="button" id="btn-mode-full" class="btn btn-sm" onclick="setCollectClickMode('full')">✅ ติ๊กจ่ายครบเต็มจำนวน</button>
+              <button type="button" id="btn-mode-partial" class="btn btn-outline btn-sm" style="background:white;" onclick="setCollectClickMode('partial')">🟡 กรอกยอดจ่ายไม่ครบ (จ่ายเท่าที่มี)</button>
+            </div>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
               <button type="button" class="btn btn-sm" onclick="markEntirePartPaid(true)">✅ ติ๊กจ่ายครบทุกคนทุกสัปดาห์</button>
-              <button type="button" class="btn btn-outline btn-sm" onclick="markEntirePartPaid(false)">🔄 ล้างการติ๊กพาร์ทนี้ทั้งหมด</button>
+              <button type="button" class="btn btn-outline btn-sm" style="background:white;" onclick="markEntirePartPaid(false)">🔄 ล้างการติ๊กพาร์ทนี้ทั้งหมด</button>
             </div>
           </div>
         </div>
@@ -707,9 +715,9 @@
         <div class="admin-block" style="display:none; background:#fffbeb; border:2px solid #f59e0b; border-radius:14px; padding:14px 16px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             <div>
-              <h4 style="color:#b45309; font-size:0.95rem;">🗓️ ตั้งค่า "วันที่ชำระล่าสุด" (Cutoff Date) สำหรับคำนวณยอดค้างชำระ &amp; สถานะหน้าหลัก</h4>
+              <h4 style="color:#b45309; font-size:0.95rem;">🗓️ ตั้งค่า "วันที่ชำระล่าสุด" (Cutoff Date) สำหรับคำนวณยอดค้างชำระ</h4>
               <p style="font-size:0.82rem; color:#78350f; margin-top:2px;">
-                ระบบจะนับยอดที่ต้องจ่ายเฉพาะสัปดาห์ที่มีวันที่เก็บ <strong>ไม่เกินวันที่แอดมินกำหนดด้านขวานี้</strong>
+                ระบบจะนับยอดค้างชำระเฉพาะสัปดาห์ที่มีวันที่เก็บ <strong>ไม่เกินวันที่แอดมินกำหนดด้านขวานี้</strong>
               </p>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -724,7 +732,7 @@
           <div>
             <h3>⚠️ สรุปยอดค้างชำระรายบุคคล &amp; ชำระเงินทันที</h3>
             <p style="font-size: 0.85rem; color: var(--text-muted);">
-              ตรวจสอบสัปดาห์ที่ค้างชำระและกดปุ่มชำระเงินที่ชื่อตัวเองเพื่อสแกน QR Code จ่ายยอดค้างได้ทันที
+              ตรวจสอบสัปดาห์ที่ค้างชำระหรือยอดส่วนต่างที่จ่ายไม่ครบ พร้อมกดปุ่มชำระเงินผ่าน QR Code ได้ทันที
             </p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
@@ -751,8 +759,8 @@
               <tr>
                 <th style="width: 65px;">เลขที่</th>
                 <th style="min-width: 160px;">ชื่อ - นามสกุล</th>
-                <th>รายการ/สัปดาห์ที่ค้างชำระ</th>
-                <th style="width: 120px;">ยอดค้างรวม</th>
+                <th>รายการ/สัปดาห์ที่ค้างชำระ (รวมยอดที่จ่ายไม่ครบ)</th>
+                <th style="width: 120px;">ยอดขาดรวม</th>
                 <th style="width: 150px; text-align: center;">ชำระเงิน</th>
               </tr>
             </thead>
@@ -1278,6 +1286,28 @@
     </section>
   </main>
 
+  <!-- ==================== PARTIAL PAYMENT INPUT MODAL ==================== -->
+  <div id="partial-pay-modal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 420px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3>🟡 บันทึกยอดจ่ายจริง (จ่ายไม่ครบ / จ่ายเท่าที่มี)</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('partial-pay-modal')">✕</button>
+      </div>
+      <div id="partial-pay-info" style="background:#f8fafc; padding:10px 12px; border-radius:10px; font-size:0.86rem; margin-bottom:12px; border:1px solid #e2e8f0;"></div>
+      <input type="hidden" id="partial-pay-key">
+      <input type="hidden" id="partial-pay-required">
+      <div class="form-group">
+        <label>จำนวนเงินที่จ่ายจริง (บาท):</label>
+        <input type="number" id="partial-pay-amount" min="0" step="1" placeholder="กรอกจำนวนเงินที่จ่ายมาจริง">
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+        <button type="button" class="btn btn-danger btn-sm" onclick="savePartialPaymentValue(0)">ยังไม่จ่าย (0 ฿)</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="savePartialPaymentFull()">จ่ายครบเต็มจำนวน</button>
+        <button type="button" class="btn" onclick="submitPartialPaymentModal()">💾 บันทึกยอดนี้</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== FULL PART EDITOR MODAL ==================== -->
   <div id="part-modal" class="modal-backdrop">
     <div class="modal-box">
@@ -1346,8 +1376,8 @@
       <input type="hidden" id="edit-patch-id">
       <div class="grid-2">
         <div class="form-group">
-          <label>เวอร์ชันแพทช์ (เช่น v11.1)</label>
-          <input type="text" id="edit-patch-version" placeholder="v11.1">
+          <label>เวอร์ชันแพทช์ (เช่น v11.2)</label>
+          <input type="text" id="edit-patch-version" placeholder="v11.2">
         </div>
         <div class="form-group">
           <label>วันที่อัปเดต</label>
@@ -1356,7 +1386,7 @@
       </div>
       <div class="form-group">
         <label>หัวข้อการอัปเดต</label>
-        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตยอดเงินสัปดาห์ที่ 3 และเพิ่มกิจกรรมกีฬาสี">
+        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตยอดเงินสัปดาห์ที่ 10 และเพิ่มหมายเหตุจ่ายไม่ครบ">
       </div>
       <div class="form-group">
         <label>รายละเอียดการแก้ไข / ปรับปรุง</label>
@@ -1449,21 +1479,21 @@
     }));
 
     const DEFAULT_PARTS = [
-      { id: 1, title: "พาร์ทที่ 1: เงินห้องรายสัปดาห์ (เทอม 1)", desc: "เก็บทุกวันศุกร์", amountPerSession: 20, sessions: 15, labels: {}, dates: {}, customAmounts: {} },
-      { id: 2, title: "พาร์ทที่ 2: เงินห้องรายสัปดาห์ (เทอม 2)", desc: "เก็บทุกวันศุกร์", amountPerSession: 20, sessions: 15, labels: {}, dates: {}, customAmounts: {} },
-      { id: 3, title: "พาร์ทที่ 3: ค่าอุปกรณ์ตกแต่งห้องเรียน", desc: "", amountPerSession: 50, sessions: 4, labels: {}, dates: {}, customAmounts: {} },
-      { id: 4, title: "พาร์ทที่ 4: กิจกรรมวันสำคัญ / งานโรงเรียน", desc: "", amountPerSession: 50, sessions: 5, labels: {}, dates: {}, customAmounts: {} },
-      { id: 5, title: "พาร์ทที่ 5: กองทุนสำรองฉุกเฉินห้อง", desc: "", amountPerSession: 30, sessions: 5, labels: {}, dates: {}, customAmounts: {} },
-      { id: 6, title: "พาร์ทที่ 6: เงินออมกิจกรรมปัจฉิม / เลี้ยงรุ่น", desc: "", amountPerSession: 100, sessions: 5, labels: {}, dates: {}, customAmounts: {} }
+      { id: 1, title: "พาร์ทที่ 1: เงินห้องรายสัปดาห์ (เทอม 1)", desc: "เก็บทุกวันศุกร์", amountPerSession: 20, sessions: 15, labels: {}, dates: {}, customAmounts: {}, notes: {} },
+      { id: 2, title: "พาร์ทที่ 2: เงินห้องรายสัปดาห์ (เทอม 2)", desc: "เก็บทุกวันศุกร์", amountPerSession: 20, sessions: 15, labels: {}, dates: {}, customAmounts: {}, notes: {} },
+      { id: 3, title: "พาร์ทที่ 3: ค่าอุปกรณ์ตกแต่งห้องเรียน", desc: "", amountPerSession: 50, sessions: 4, labels: {}, dates: {}, customAmounts: {}, notes: {} },
+      { id: 4, title: "พาร์ทที่ 4: กิจกรรมวันสำคัญ / งานโรงเรียน", desc: "", amountPerSession: 50, sessions: 5, labels: {}, dates: {}, customAmounts: {}, notes: {} },
+      { id: 5, title: "พาร์ทที่ 5: กองทุนสำรองฉุกเฉินห้อง", desc: "", amountPerSession: 30, sessions: 5, labels: {}, dates: {}, customAmounts: {}, notes: {} },
+      { id: 6, title: "พาร์ทที่ 6: เงินออมกิจกรรมปัจฉิม / เลี้ยงรุ่น", desc: "", amountPerSession: 100, sessions: 5, labels: {}, dates: {}, customAmounts: {}, notes: {} }
     ];
 
     const DEFAULT_PATCHES = [
       {
         id: 1,
-        version: "v11.1",
+        version: "v11.2",
         date: "2026-11-14",
-        heading: "ปรับปรุงเกณฑ์สถานะการชำระเงินหน้าหลัก & ระบบส่งออกภาพ PNG/PDF ครบทุกช่อง",
-        body: "- ปรับเกณฑ์หน้าหลัก: จ่ายครบแล้ว (จ่ายครบตามวันที่กำหนด), จ่ายไม่ครบ (จ่ายแล้วแต่ยังไม่ครบยอดตามวันที่กำหนด), ยังไม่จ่าย (ยอดจ่าย 0 บาท)\n- ปรับปรุงระบบส่งออก PNG และ PDF ในหน้าเก็บเงินห้องให้ขยายตารางเต็มความกว้างจริง ครบทุกคอลัมน์และทุกคนไม่ตกขอบ"
+        heading: "หน้าหลักเทียบสถานะตามสัปดาห์ล่าสุด & เพิ่มระบบบันทึกจ่ายไม่ครบพร้อมหมายเหตุขาดกี่บาท",
+        body: "- หน้าหลักตรวจสอบสถานะจาก 'สัปดาห์ล่าสุด' ที่ตั้งไว้: สีเขียว (จ่ายครบสัปดาห์ล่าสุด), สีเหลือง (จ่ายแล้วแต่ไม่ถึงยอดสัปดาห์ล่าสุด), สีแดง (ยังไม่จ่าย 0 บาท)\n- หน้าเก็บเงินห้องเพิ่มโหมดกรอกยอดจ่ายไม่ครบ (จ่ายเท่าที่มี) และเพิ่มคอลัมน์ 'หมายเหตุ: จ่ายไม่ครบ / ขาดกี่บาท' ท้ายตาราง"
       }
     ];
 
@@ -1481,7 +1511,7 @@
       settings: {
         siteTitle: "ระบบจัดการเงินห้องเรียน",
         siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
-        heroBadge: "CLASS FUND DASHBOARD v11.1",
+        heroBadge: "CLASS FUND DASHBOARD v11.2",
         heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
         heroDesc: "อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที",
         marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!",
@@ -1498,6 +1528,7 @@
         glassBlur: 10,
         bgOverlay: 0.82,
         homeOrder: "stats-first",
+        homeTargetSessionKey: "",
         bgImage: "",
         heroBgImage: "",
         logoImage: "",
@@ -1538,6 +1569,7 @@
     let audioCtx = null;
     let isMuted = false;
     let homeStatusFilter = "all";
+    let collectClickMode = "full"; // "full" | "partial"
 
     // ==================== INITIALIZATION ====================
     window.addEventListener("DOMContentLoaded", () => {
@@ -1765,11 +1797,9 @@
 
       showToast("🖼️ กำลังจัดหน้าตารางฉบับเต็มและสร้างไฟล์ PNG...");
 
-      // Populate timestamp footer for official export
       document.getElementById("export-site-name").textContent = `📌 ${appState.settings.siteTitle || "ระบบจัดการเงินห้องเรียน"}`;
       document.getElementById("export-timestamp").textContent = `ข้อมูล ณ วันที่ ${new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })} น.`;
 
-      // Expand container temporarily so NO horizontal/vertical scroll clipping occurs
       target.classList.add("export-snapshot-mode");
       await new Promise(r => setTimeout(r, 120));
 
@@ -2007,7 +2037,7 @@
       if (tabId === "patch") renderPatchNotes();
     }
 
-    // ==================== CALCULATIONS & EXACT HOME PAYMENT STATUS ====================
+    // ==================== PAYMENT AMOUNT HELPER (SUPPORTS PARTIAL PAYMENTS) ====================
     function getSessionAmount(part, sessionIndex) {
       if (part.customAmounts && part.customAmounts[sessionIndex] !== undefined && part.customAmounts[sessionIndex] !== "") {
         return Number(part.customAmounts[sessionIndex]);
@@ -2015,13 +2045,25 @@
       return Number(part.amountPerSession);
     }
 
+    /**
+     * Returns actual paid amount in Baht for a given (part, studentId, sessionIdx).
+     * Supports legacy boolean `true` (full amount) as well as numeric partial amounts (e.g. 3 out of 5).
+     */
+    function getCellPaidAmount(part, studentId, sessionIndex) {
+      const key = `${part.id}_${studentId}_${sessionIndex}`;
+      const val = appState.payments[key];
+      if (!val) return 0;
+      const required = getSessionAmount(part, sessionIndex);
+      if (val === true) return required;
+      const num = Number(val);
+      return isNaN(num) ? 0 : Math.max(0, num);
+    }
+
     function calculateStudentPaid(studentId) {
       let total = 0;
       appState.parts.forEach(part => {
         for (let s = 1; s <= part.sessions; s++) {
-          if (appState.payments[`${part.id}_${studentId}_${s}`]) {
-            total += getSessionAmount(part, s);
-          }
+          total += getCellPaidAmount(part, studentId, s);
         }
       });
       return total;
@@ -2048,7 +2090,7 @@
             dueSet.add(s);
           }
         } else if (!hasAdminCutoff) {
-          const anyonePaid = appState.students.some(st => !!appState.payments[`${part.id}_${st.id}_${s}`]);
+          const anyonePaid = appState.students.some(st => getCellPaidAmount(part, st.id, s) > 0);
           if (anyonePaid) dueSet.add(s);
         }
       }
@@ -2063,17 +2105,21 @@
         if (partFilter !== "all" && String(part.id) !== String(partFilter)) return;
         const dueSessions = getDueSessionNumbers(part, mode);
         dueSessions.forEach(s => {
-          const key = `${part.id}_${studentId}_${s}`;
-          if (!appState.payments[key]) {
-            const amt = getSessionAmount(part, s);
+          const required = getSessionAmount(part, s);
+          const paid = getCellPaidAmount(part, studentId, s);
+          const shortage = Math.max(0, required - paid);
+          if (shortage > 0) {
             const lbl = (part.labels && part.labels[s]) ? part.labels[s] : `สัปดาห์ ${s}`;
             const dt = (part.dates && part.dates[s]) ? formatThaiShortDate(part.dates[s]) : "";
-            totalOwed += amt;
+            totalOwed += shortage;
             items.push({
               partTitle: part.title,
               label: lbl,
               date: dt,
-              amount: amt
+              amount: shortage,
+              isPartial: paid > 0,
+              paidSoFar: paid,
+              required: required
             });
           }
         });
@@ -2082,41 +2128,61 @@
       return { totalOwed, items };
     }
 
-    /**
-     * Exact status rules as requested:
-     * 1. ยังไม่จ่าย (unpaid): total paid == 0 baht (0 บาทที่จ่ายมา)
-     * 2. จ่ายไม่ครบ (partial): total paid > 0 baht, AND still owes money up to cutoff date
-     * 3. จ่ายครบแล้ว (paid): total paid > 0 baht, AND 0 baht owed up to cutoff date
-     */
-    function getStudentPaymentStatusCategory(studentId) {
-      const paid = calculateStudentPaid(studentId);
-      const owed = getStudentArrearsDetails(studentId, "all", "due").totalOwed;
+    // ==================== HOME PAGE: LATEST SESSION STATUS LOGIC ====================
+    function getAllSessionsList() {
+      const list = [];
+      appState.parts.forEach(part => {
+        for (let s = 1; s <= part.sessions; s++) {
+          const lbl = (part.labels && part.labels[s]) ? part.labels[s] : `สัปดาห์ ${s}`;
+          const dt = (part.dates && part.dates[s]) ? part.dates[s] : "";
+          const req = getSessionAmount(part, s);
+          const hasAnyPayment = appState.students.some(st => getCellPaidAmount(part, st.id, s) > 0);
+          list.push({
+            key: `${part.id}_${s}`,
+            part,
+            sessionIdx: s,
+            label: lbl,
+            date: dt,
+            required: req,
+            hasAnyPayment
+          });
+        }
+      });
+      return list;
+    }
 
-      if (paid === 0) {
-        return {
-          code: "unpaid",
-          label: "🔴 ยังไม่จ่าย (0 ฿)",
-          border: "#ef4444",
-          bg: "#fef2f2",
-          text: "#b91c1c"
-        };
+    function resolveLatestHomeSession() {
+      const allSessions = getAllSessionsList();
+      if (allSessions.length === 0) return null;
+
+      // 1. If user/admin explicitly picked a session on Home dropdown
+      if (appState.settings.homeTargetSessionKey) {
+        const found = allSessions.find(item => item.key === appState.settings.homeTargetSessionKey);
+        if (found) return found;
       }
-      if (owed > 0) {
-        return {
-          code: "partial",
-          label: "🟡 จ่ายไม่ครบ",
-          border: "#f59e0b",
-          bg: "#fffbeb",
-          text: "#b45309"
-        };
+
+      // 2. Otherwise pick latest session up to cutoff date or latest session that has payments
+      const cutoff = getEffectiveCutoffDate();
+      const datedDue = allSessions.filter(item => item.date && item.date <= cutoff);
+      if (datedDue.length > 0) {
+        datedDue.sort((a, b) => a.date.localeCompare(b.date));
+        return datedDue[datedDue.length - 1];
       }
-      return {
-        code: "paid",
-        label: "🟢 จ่ายครบแล้ว",
-        border: "#10b981",
-        bg: "#ecfdf5",
-        text: "#047857"
-      };
+
+      const activeOnes = allSessions.filter(item => item.hasAnyPayment);
+      if (activeOnes.length > 0) {
+        return activeOnes[activeOnes.length - 1];
+      }
+
+      return allSessions[0];
+    }
+
+    function onHomeLatestSessionChange() {
+      const sel = document.getElementById("home-latest-session-select");
+      if (!sel) return;
+      appState.settings.homeTargetSessionKey = sel.value;
+      if (isAdmin) saveData(true);
+      else renderHomeSummary();
     }
 
     function setHomeStatusFilter(filterCode, btnEl) {
@@ -2182,10 +2248,26 @@
     }
 
     function renderHomeSummary() {
-      const effectiveDate = getEffectiveCutoffDate();
-      const noteEl = document.getElementById("home-cutoff-note");
-      if (noteEl) {
-        noteEl.textContent = `เกณฑ์ ณ วันที่กำหนด (${formatThaiShortDate(effectiveDate)}): 🟢 จ่ายครบตามกำหนด | 🟡 จ่ายแล้วแต่ยอดยังไม่ครบ | 🔴 ยังไม่จ่ายเลย (0 ฿)`;
+      const allSessions = getAllSessionsList();
+      const targetSession = resolveLatestHomeSession();
+
+      // Populate session selector on Home
+      const sel = document.getElementById("home-latest-session-select");
+      if (sel && allSessions.length > 0) {
+        sel.innerHTML = "";
+        allSessions.forEach(item => {
+          const opt = document.createElement("option");
+          opt.value = item.key;
+          opt.textContent = `สัปดาห์ล่าสุด: ${item.label} (${item.required}฿) - ${item.part.title.split(":")[0]}`;
+          sel.appendChild(opt);
+        });
+        if (targetSession) sel.value = targetSession.key;
+      }
+
+      const descEl = document.getElementById("home-latest-week-desc");
+      if (descEl && targetSession) {
+        const dtText = targetSession.date ? ` (${formatThaiShortDate(targetSession.date)})` : "";
+        descEl.innerHTML = `เกณฑ์ประจำ <strong>${targetSession.label}${dtText}</strong> ยอดที่ตั้งไว้ <strong>${targetSession.required} บาท</strong>: 🟢 จ่ายครบ ${targetSession.required}฿ | 🟡 จ่ายไม่ถึง ${targetSession.required}฿ | 🔴 ยังไม่จ่าย (0฿)`;
       }
 
       const keyword = (document.getElementById("home-search")?.value || "").toLowerCase();
@@ -2195,7 +2277,41 @@
       let cntAll = 0, cntPaid = 0, cntPartial = 0, cntUnpaid = 0;
 
       appState.students.forEach(st => {
-        const statusInfo = getStudentPaymentStatusCategory(st.id);
+        let paidThisWeek = 0;
+        let requiredThisWeek = 0;
+        if (targetSession) {
+          requiredThisWeek = targetSession.required;
+          paidThisWeek = getCellPaidAmount(targetSession.part, st.id, targetSession.sessionIdx);
+        }
+
+        let statusInfo;
+        if (paidThisWeek === 0) {
+          statusInfo = {
+            code: "unpaid",
+            label: "🔴 ยังไม่จ่าย (0 ฿)",
+            border: "#ef4444",
+            bg: "#fef2f2",
+            text: "#b91c1c"
+          };
+        } else if (paidThisWeek < requiredThisWeek) {
+          constขาด = requiredThisWeek - paidThisWeek;
+          statusInfo = {
+            code: "partial",
+            label: `🟡 จ่ายไม่ครบ (ขาด ${ขาด} ฿)`,
+            border: "#f59e0b",
+            bg: "#fffbeb",
+            text: "#b45309"
+          };
+        } else {
+          statusInfo = {
+            code: "paid",
+            label: "🟢 จ่ายแล้ว (ครบ)",
+            border: "#10b981",
+            bg: "#ecfdf5",
+            text: "#047857"
+          };
+        }
+
         cntAll++;
         if (statusInfo.code === "paid") cntPaid++;
         else if (statusInfo.code === "partial") cntPartial++;
@@ -2205,8 +2321,7 @@
         const matchesFilter = homeStatusFilter === "all" || statusInfo.code === homeStatusFilter;
         if (!matchesSearch || !matchesFilter) return;
 
-        const paid = calculateStudentPaid(st.id);
-        const owed = getStudentArrearsDetails(st.id, "all", "due").totalOwed;
+        const totalPaidAll = calculateStudentPaid(st.id);
         const div = document.createElement("div");
         div.style.cssText = `border: 2px solid ${statusInfo.border}; border-left-width: 6px; border-radius: 14px; padding: 12px 14px; background: white; color: #0f172a; display: flex; justify-content: space-between; align-items: center; gap: 8px;`;
         div.innerHTML = `
@@ -2216,11 +2331,11 @@
               <span style="font-size:0.72rem; background:${statusInfo.bg}; color:${statusInfo.text}; padding:2px 8px; border-radius:99px; font-weight:700;">${statusInfo.label}</span>
             </div>
             <div style="font-weight:700; margin-top:5px; font-size:0.95rem;">${st.name}</div>
-            ${owed > 0 ? `<div style="font-size:0.76rem; color:#dc2626; font-weight:600; margin-top:2px;">ค้างตามกำหนดอีก ${owed.toLocaleString()} ฿</div>` : `<div style="font-size:0.76rem; color:#059669; margin-top:2px;">ครบตามกำหนดแล้ว</div>`}
+            <div style="font-size:0.76rem; color:#64748b; margin-top:2px;">ยอดสะสมทั้งหมด: ${totalPaidAll.toLocaleString()} ฿</div>
           </div>
           <div style="text-align:right; flex-shrink:0;">
-            <div style="font-size:0.72rem; color:#64748b;">ยอดที่จ่ายแล้ว</div>
-            <div style="font-weight:700; color:${paid > 0 ? 'var(--primary)' : '#dc2626'}; font-size:1.1rem;">${paid.toLocaleString()} ฿</div>
+            <div style="font-size:0.72rem; color:#64748b;">สัปดาห์ล่าสุด</div>
+            <div style="font-weight:700; color:${statusInfo.text}; font-size:1.1rem;">${paidThisWeek}/${requiredThisWeek} ฿</div>
           </div>
         `;
         container.appendChild(div);
@@ -2270,9 +2385,12 @@
           if (info.items.length === 0) {
             chipsHtml = `<span style="color:#059669; font-weight:600;">✅ ไม่มียอดค้างชำระ</span>`;
           } else {
-            chipsHtml = info.items.map(it =>
-              `<span class="arrear-chip">${it.label}${it.date ? ' (' + it.date + ')' : ''}: ${it.amount}฿</span>`
-            ).join(" ");
+            chipsHtml = info.items.map(it => {
+              if (it.isPartial) {
+                return `<span class="arrear-chip partial-chip">${it.label} (จ่ายแล้ว ${it.paidSoFar}/${it.required}฿ • ขาด ${it.amount}฿)</span>`;
+              }
+              return `<span class="arrear-chip">${it.label}${it.date ? ' (' + it.date + ')' : ''}: ค้าง ${it.amount}฿</span>`;
+            }).join(" ");
           }
 
           tr.innerHTML = `
@@ -2304,7 +2422,25 @@
       document.getElementById("qr-modal").classList.add("open");
     }
 
-    // ==================== CUSTOMIZABLE COLLECTION TABLE ====================
+    // ==================== CUSTOMIZABLE COLLECTION TABLE WITH PARTIAL PAYMENTS & NOTES ====================
+    function setCollectClickMode(mode) {
+      playSound("click");
+      collectClickMode = mode;
+      const btnFull = document.getElementById("btn-mode-full");
+      const btnPart = document.getElementById("btn-mode-partial");
+      if (mode === "full") {
+        btnFull.className = "btn btn-sm";
+        btnPart.className = "btn btn-outline btn-sm";
+        btnPart.style.background = "white";
+        showToast("✅ โหมด: คลิกช่องเพื่อติ๊กจ่ายครบเต็มจำนวน");
+      } else {
+        btnFull.className = "btn btn-outline btn-sm";
+        btnFull.style.background = "white";
+        btnPart.className = "btn btn-warning btn-sm";
+        showToast("🟡 โหมด: คลิกช่องเพื่อกรอกยอดจ่ายไม่ครบ (จ่ายเท่าที่มี)");
+      }
+    }
+
     function renderPartSelector() {
       const sel = document.getElementById("part-selector");
       const currentVal = sel.value;
@@ -2338,13 +2474,12 @@
       if (!part.labels) part.labels = {};
       if (!part.dates) part.dates = {};
       if (!part.customAmounts) part.customAmounts = {};
+      if (!part.notes) part.notes = {};
 
       const partTotalCollected = appState.students.reduce((sum, st) => {
         let stSum = 0;
         for (let s = 1; s <= part.sessions; s++) {
-          if (appState.payments[`${part.id}_${st.id}_${s}`]) {
-            stSum += getSessionAmount(part, s);
-          }
+          stSum += getCellPaidAmount(part, st.id, s);
         }
         return sum + stSum;
       }, 0);
@@ -2377,7 +2512,7 @@
           </th>
         `;
       }
-      headHtml += `<th>รวมพาร์ทนี้</th>`;
+      headHtml += `<th>รวมพาร์ทนี้</th><th style="min-width:210px;">📝 หมายเหตุ (จ่ายไม่ครบ / ขาดกี่บาท)</th>`;
       head.innerHTML = headHtml;
 
       const body = document.getElementById("collect-table-body");
@@ -2387,30 +2522,98 @@
         const tr = document.createElement("tr");
         let rowHtml = `<td><strong>${st.no}</strong></td><td style="white-space:nowrap;">${st.name}</td>`;
         let partSum = 0;
+        const partialList = [];
 
         for (let s = 1; s <= part.sessions; s++) {
           const key = `${part.id}_${st.id}_${s}`;
-          const isPaid = !!appState.payments[key];
-          if (isPaid) partSum += getSessionAmount(part, s);
+          const required = getSessionAmount(part, s);
+          const paid = getCellPaidAmount(part, st.id, s);
+          partSum += paid;
+
+          const isFull = paid >= required && required > 0;
+          const isPartial = paid > 0 && paid < required;
+          const colLabel = part.labels[s] || `สัปดาห์ ${s}`;
+
+          if (isPartial) {
+            constขาด = required - paid;
+            partialList.push(`${colLabel}: จ่าย ${paid}/${required}฿ (ขาด ${ขาด}฿)`);
+          }
+
+          let boxClass = "session-box";
+          let boxText = `${s}`;
+          if (isFull) {
+            boxClass += " paid";
+            boxText = "✓";
+          } else if (isPartial) {
+            boxClass += " partial";
+            boxText = `${paid}/${required}`;
+          }
+          if (!isAdmin) boxClass += " readonly";
 
           rowHtml += `
             <td style="text-align:center;">
-              <button type="button" class="session-box ${isPaid ? 'paid' : ''} ${!isAdmin ? 'readonly' : ''}"
-                onclick="togglePayment('${key}')">
-                ${isPaid ? '✓' : s}
+              <button type="button" class="${boxClass}"
+                onclick="handleCellClick(${part.id}, ${st.id}, ${s})">
+                ${boxText}
               </button>
             </td>
           `;
         }
-        rowHtml += `<td style="font-weight:700; color:var(--primary); white-space:nowrap;">${partSum.toLocaleString()} ฿</td>`;
+
+        // Auto-generated shortage summary + optional custom note
+        const customNote = part.notes[st.id] || "";
+        let noteDisplayHtml = "";
+        if (partialList.length > 0) {
+          noteDisplayHtml += partialList.map(txt =>
+            `<div style="background:#fef3c7; color:#b45309; padding:2px 7px; border-radius:6px; font-size:0.74rem; font-weight:700; margin-bottom:2px;">🟡 ${txt}</div>`
+          ).join("");
+        }
+        if (customNote) {
+          noteDisplayHtml += `<div style="color:#334155; font-size:0.75rem;">📌 ${customNote}</div>`;
+        }
+        if (!noteDisplayHtml) {
+          noteDisplayHtml = `<span style="color:#94a3b8; font-size:0.75rem;">-</span>`;
+        }
+
+        rowHtml += `
+          <td style="font-weight:700; color:var(--primary); white-space:nowrap;">${partSum.toLocaleString()} ฿</td>
+          <td>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
+              <div>${noteDisplayHtml}</div>
+              ${isAdmin ? `<button type="button" class="btn btn-outline btn-sm no-print no-export" style="padding:2px 6px; font-size:0.7rem; flex-shrink:0;" onclick="editStudentPartNote(${part.id}, ${st.id})">✏️</button>` : ''}
+            </div>
+          </td>
+        `;
         tr.innerHTML = rowHtml;
         body.appendChild(tr);
       });
     }
 
-    function togglePayment(key) {
+    function handleCellClick(partId, studentId, sessionIdx) {
       if (!isAdmin) return;
-      if (appState.payments[key]) {
+      const part = appState.parts.find(p => p.id === partId);
+      const st = appState.students.find(s => s.id === studentId);
+      if (!part || !st) return;
+
+      const key = `${partId}_${studentId}_${sessionIdx}`;
+      const required = getSessionAmount(part, sessionIdx);
+      const currentPaid = getCellPaidAmount(part, studentId, sessionIdx);
+
+      // If in Partial Payment Mode OR cell already has a partial amount, open Partial Payment Modal
+      if (collectClickMode === "partial" || (currentPaid > 0 && currentPaid < required)) {
+        const lbl = (part.labels && part.labels[sessionIdx]) ? part.labels[sessionIdx] : `สัปดาห์ ${sessionIdx}`;
+        document.getElementById("partial-pay-key").value = key;
+        document.getElementById("partial-pay-required").value = required;
+        document.getElementById("partial-pay-info").innerHTML =
+          `👤 <strong>${st.name}</strong> (เลขที่ ${st.no})<br>📌 ${lbl} | ยอดที่กำหนด: <strong>${required} บาท</strong>`;
+        document.getElementById("partial-pay-amount").value = currentPaid > 0 ? currentPaid : "";
+        document.getElementById("partial-pay-modal").classList.add("open");
+        setTimeout(() => document.getElementById("partial-pay-amount").focus(), 100);
+        return;
+      }
+
+      // Standard Full Payment Toggle Mode
+      if (currentPaid > 0) {
         delete appState.payments[key];
       } else {
         appState.payments[key] = true;
@@ -2419,9 +2622,64 @@
       saveData(true);
     }
 
+    function submitPartialPaymentModal() {
+      const amt = Number(document.getElementById("partial-pay-amount").value);
+      if (isNaN(amt) || amt < 0) {
+        showToast("⚠️ กรุณากรอกจำนวนเงินให้ถูกต้อง");
+        return;
+      }
+      savePartialPaymentValue(amt);
+    }
+
+    function savePartialPaymentFull() {
+      const req = Number(document.getElementById("partial-pay-required").value) || 0;
+      savePartialPaymentValue(req);
+    }
+
+    function savePartialPaymentValue(amt) {
+      const key = document.getElementById("partial-pay-key").value;
+      const req = Number(document.getElementById("partial-pay-required").value) || 0;
+
+      if (amt <= 0) {
+        delete appState.payments[key];
+      } else if (amt >= req) {
+        appState.payments[key] = true;
+      } else {
+        appState.payments[key] = amt;
+      }
+
+      closeModal("partial-pay-modal");
+      playSound("success");
+      saveData(true);
+      if (amt > 0 && amt < req) {
+        showToast(`🟡 บันทึกจ่ายไม่ครบ (${amt}/${req} บาท • ขาด ${req - amt} บาท) เรียบร้อย!`);
+      } else if (amt >= req) {
+        showToast(`✅ บันทึกจ่ายครบ ${req} บาท เรียบร้อย!`);
+      } else {
+        showToast("🔴 ล้างยอดเป็นยังไม่จ่าย (0 บาท) แล้ว");
+      }
+    }
+
+    function editStudentPartNote(partId, studentId) {
+      if (!isAdmin) return;
+      const part = appState.parts.find(p => p.id === partId);
+      const st = appState.students.find(s => s.id === studentId);
+      if (!part || !st) return;
+      if (!part.notes) part.notes = {};
+      const current = part.notes[studentId] || "";
+      const updated = prompt(`หมายเหตุเพิ่มเติมสำหรับ ${st.name} (เว้นว่างเพื่อลบ):`, current);
+      if (updated === null) return;
+      if (updated.trim()) part.notes[studentId] = updated.trim();
+      else delete part.notes[studentId];
+      saveData(true);
+      showToast("📝 บันทึกหมายเหตุเรียบร้อย");
+    }
+
     function toggleAllInSession(partId, sessionIdx) {
       if (!isAdmin) return;
-      const allPaid = appState.students.every(st => !!appState.payments[`${partId}_${st.id}_${sessionIdx}`]);
+      const part = appState.parts.find(p => p.id === partId);
+      const req = part ? getSessionAmount(part, sessionIdx) : 0;
+      const allPaid = appState.students.every(st => getCellPaidAmount(part, st.id, sessionIdx) >= req);
       appState.students.forEach(st => {
         const key = `${partId}_${st.id}_${sessionIdx}`;
         if (allPaid) delete appState.payments[key];
@@ -2462,7 +2720,8 @@
         sessions: 5,
         labels: {},
         dates: {},
-        customAmounts: {}
+        customAmounts: {},
+        notes: {}
       });
       saveData(true);
       document.getElementById("part-selector").value = newId;
@@ -2645,7 +2904,7 @@
       } else {
         document.getElementById("patch-modal-title").textContent = "📰 เขียนรายงานการอัปเดตแพทช์ใหม่";
         document.getElementById("edit-patch-id").value = "";
-        document.getElementById("edit-patch-version").value = "v11." + (appState.patchNotes.length + 1);
+        document.getElementById("edit-patch-version").value = "v11." + (appState.patchNotes.length + 2);
         document.getElementById("edit-patch-date").value = new Date().toISOString().split("T")[0];
         document.getElementById("edit-patch-heading").value = "";
         document.getElementById("edit-patch-body").value = "";
@@ -2859,7 +3118,7 @@
       document.getElementById("cfg-home-order").value = s.homeOrder || "stats-first";
       document.getElementById("cfg-site-title").value = s.siteTitle;
       document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
-      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v11.1";
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v11.2";
       document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
 
@@ -3044,7 +3303,7 @@
 
       document.getElementById("ui-site-title").textContent = s.siteTitle;
       document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
-      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v11.1";
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v11.2";
       document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
 
