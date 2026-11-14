@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบจัดการเงินห้องเรียน - Class Fund v10.0</title>
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund v11.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --primary: #059669;
@@ -27,6 +28,11 @@
       --glass-blur: 10px;
       --hero-bg-image: none;
       --marquee-speed: 18s;
+      --toast-bg: #0f172a;
+      --toast-color: #ffffff;
+      --toast-border: #10b981;
+      --aura-color-1: #10b981;
+      --aura-color-2: #0284c7;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,6 +68,48 @@
       z-index: -1;
     }
 
+    /* Animated Gradient Background Option */
+    body.anim-gradient-bg::after {
+      background: linear-gradient(-45deg, var(--bg-color), var(--primary-light), #e0f2fe, var(--bg-color));
+      background-size: 400% 400%;
+      animation: gradientShift 14s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Screen Border Aura Overlay */
+    #screen-aura-frame {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 880;
+      display: none;
+      border: 4px solid transparent;
+      box-shadow: inset 0 0 28px var(--aura-color-1), inset 0 0 12px var(--aura-color-2);
+    }
+    #screen-aura-frame.active { display: block; }
+    #screen-aura-frame.aura-pulse {
+      animation: auraPulse 3s ease-in-out infinite;
+    }
+    #screen-aura-frame.aura-rainbow {
+      animation: auraRainbow 6s linear infinite;
+    }
+    @keyframes auraPulse {
+      0%, 100% { box-shadow: inset 0 0 18px var(--aura-color-1), inset 0 0 8px var(--aura-color-2); opacity: 0.7; }
+      50% { box-shadow: inset 0 0 46px var(--aura-color-1), inset 0 0 24px var(--aura-color-2); opacity: 1; }
+    }
+    @keyframes auraRainbow {
+      0% { box-shadow: inset 0 0 34px #ef4444; }
+      20% { box-shadow: inset 0 0 34px #f59e0b; }
+      40% { box-shadow: inset 0 0 34px #10b981; }
+      60% { box-shadow: inset 0 0 34px #3b82f6; }
+      80% { box-shadow: inset 0 0 34px #8b5cf6; }
+      100% { box-shadow: inset 0 0 34px #ef4444; }
+    }
+
     #festival-canvas {
       position: fixed;
       inset: 0;
@@ -69,7 +117,7 @@
       z-index: 850;
     }
 
-    /* Maintenance Overlay (z-index 900, Login Modal is 950 so Admin can always log in) */
+    /* Maintenance Overlay */
     #maintenance-overlay {
       position: fixed;
       inset: 0;
@@ -189,6 +237,13 @@
       padding: 20px;
       box-shadow: var(--shadow);
       margin-bottom: 20px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    body.anim-card-hover .card:hover,
+    body.anim-card-hover .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 32px -8px rgba(0, 0, 0, 0.14);
     }
 
     .hero-banner {
@@ -232,10 +287,36 @@
       border-radius: var(--radius);
       padding: 18px;
       box-shadow: var(--shadow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
     .stat-card .label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
     .stat-card .value { font-size: 1.65rem; font-weight: 700; }
+
+    /* Home Status Filter Pills */
+    .status-filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .filter-pill {
+      padding: 6px 13px;
+      border-radius: 99px;
+      border: 1px solid var(--border-color);
+      background: white;
+      color: #334155;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .filter-pill.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
 
     /* Buttons & Inputs */
     .btn {
@@ -282,7 +363,7 @@
     .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
 
     /* Tables */
-    .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); }
+    .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); background: white; }
     table { width: 100%; border-collapse: collapse; background: white; color: #0f172a; font-size: 0.86rem; }
     th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
     th { background: #f8fafc; font-weight: 600; color: #334155; white-space: nowrap; }
@@ -314,9 +395,13 @@
 
     /* Pages */
     .page-section { display: none; }
-    .page-section.active { display: block; }
+    .page-section.active { display: block; animation: pageFadeIn 0.28s ease; }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-    /* Modal (z-index 950 -> above maintenance overlay 900) */
+    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -355,17 +440,31 @@
       background: linear-gradient(to bottom right, #ffffff, var(--primary-light));
     }
 
+    /* Top-Center Customizable Toast Notification */
     .toast {
       position: fixed;
-      bottom: 20px; right: 20px;
-      background: #0f172a; color: white;
-      padding: 12px 18px; border-radius: 12px;
-      font-size: 0.88rem; z-index: 1000;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-      transform: translateY(100px); opacity: 0;
-      transition: all 0.3s ease;
+      top: 76px;
+      left: 50%;
+      transform: translate(-50%, -24px) scale(0.95);
+      background: var(--toast-bg);
+      color: var(--toast-color);
+      border: 2px solid var(--toast-border);
+      padding: 12px 22px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      z-index: 1050;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+      opacity: 0;
+      pointer-events: none;
+      text-align: center;
+      max-width: 92vw;
+      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.show {
+      transform: translate(-50%, 0) scale(1);
+      opacity: 1;
+    }
 
     .session-edit-row {
       display: grid;
@@ -411,13 +510,17 @@
     }
 
     @media print {
-      .navbar, .marquee-wrap, .no-print, .nav-actions { display: none !important; }
+      @page { size: landscape; margin: 10mm; }
+      .navbar, .marquee-wrap, .no-print, .nav-actions, #screen-aura-frame, #festival-canvas, .admin-block { display: none !important; }
       body { background: white !important; }
-      .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+      .card { box-shadow: none !important; border: none !important; padding: 0 !important; }
+      .page-section { display: none !important; }
+      .page-section.active { display: block !important; }
     }
   </style>
 </head>
-<body>
+<body class="anim-card-hover">
+  <div id="screen-aura-frame"></div>
   <canvas id="festival-canvas"></canvas>
 
   <!-- Maintenance Mode Screen -->
@@ -471,7 +574,7 @@
     <section id="page-home" class="page-section active">
       <div class="hero-banner" id="ui-hero-banner">
         <div>
-          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v10.0</span>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v11.0</span>
           <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
           <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที</p>
         </div>
@@ -502,10 +605,21 @@
         </div>
 
         <div id="block-summary" class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
-            <h3 style="font-size: 1.1rem;">📊 สถานะการชำระเงินรายบุคคล</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div>
+              <h3 style="font-size: 1.15rem;">📊 สถานะการชำระเงินรายบุคคล</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">แยกสีชัดเจน: จ่ายครบแล้ว / จ่ายไม่ครบ / ยังไม่จ่าย</p>
+            </div>
             <input type="text" id="home-search" placeholder="🔍 ค้นหาชื่อหรือเลขที่..." style="max-width: 240px;" oninput="renderHomeSummary()">
           </div>
+
+          <div class="status-filter-bar" id="home-status-filters">
+            <button type="button" class="filter-pill active" onclick="setHomeStatusFilter('all', this)">ทั้งหมด (<span id="cnt-all">0</span>)</button>
+            <button type="button" class="filter-pill" onclick="setHomeStatusFilter('paid', this)">🟢 จ่ายครบแล้ว (<span id="cnt-paid">0</span>)</button>
+            <button type="button" class="filter-pill" onclick="setHomeStatusFilter('partial', this)">🟡 จ่ายไม่ครบ (<span id="cnt-partial">0</span>)</button>
+            <button type="button" class="filter-pill" onclick="setHomeStatusFilter('unpaid', this)">🔴 ยังไม่จ่าย (<span id="cnt-unpaid">0</span>)</button>
+          </div>
+
           <div class="grid-3" id="home-member-cards"></div>
         </div>
       </div>
@@ -517,18 +631,20 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
           <div>
             <h3>📋 ตารางบันทึกการเก็บเงินห้อง &amp; กิจกรรม</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">เลือกพาร์ทหรือกิจกรรม (แอดมินสามารถเพิ่มกิจกรรมใหม่ ตั้งวันที่เก็บ และกำหนดยอดเงินแยกแต่ละสัปดาห์ได้ไม่จำกัด)</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">เลือกพาร์ทหรือกิจกรรม และส่งออกตารางเป็นรูปภาพ PNG หรือเอกสาร PDF ได้ทันที</p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <select id="part-selector" onchange="renderCollectionTable()" style="width: auto; min-width: 250px; font-weight: 600;"></select>
-            <button type="button" class="btn btn-sm admin-only" onclick="openPartEditorModal()">⚙️ ปรับแต่งพาร์ท/กิจกรรมนี้</button>
+            <select id="part-selector" onchange="renderCollectionTable()" style="width: auto; min-width: 240px; font-weight: 600;"></select>
+            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportCollectionPng()">🖼️ บันทึกเป็น PNG</button>
+            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportCollectionPdf()">📄 พิมพ์ / บันทึก PDF</button>
+            <button type="button" class="btn btn-sm admin-only" onclick="openPartEditorModal()">⚙️ ปรับแต่งพาร์ทนี้</button>
             <button type="button" class="btn btn-outline btn-sm admin-only" onclick="duplicateCurrentPart()">📑 คัดลอก</button>
-            <button type="button" class="btn btn-outline btn-sm admin-only" onclick="addNewPart()">➕ เพิ่มกิจกรรม/พาร์ทใหม่</button>
+            <button type="button" class="btn btn-outline btn-sm admin-only" onclick="addNewPart()">➕ เพิ่มกิจกรรมใหม่</button>
           </div>
         </div>
 
         <!-- Admin Bulk Actions Bar for Current Part -->
-        <div class="admin-block" style="display:none; background:#f8fafc; border:1px solid var(--border-color); border-radius:12px; padding:10px 14px; margin-bottom:12px;">
+        <div class="admin-block no-print" style="display:none; background:#f8fafc; border:1px solid var(--border-color); border-radius:12px; padding:10px 14px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <span style="font-size:0.82rem; font-weight:700; color:#334155;">⚡ เครื่องมือจัดการด่วนสำหรับแอดมิน (พาร์ทนี้):</span>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -538,15 +654,18 @@
           </div>
         </div>
 
-        <div id="part-info-bar" style="background: var(--primary-light); color: var(--primary-dark); padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;"></div>
+        <!-- Capture Area for PNG & PDF Export -->
+        <div id="collect-export-area" style="background: white; border-radius: 14px; padding: 10px;">
+          <div id="part-info-bar" style="background: var(--primary-light); color: var(--primary-dark); padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;"></div>
 
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr id="collect-table-head"></tr>
-            </thead>
-            <tbody id="collect-table-body"></tbody>
-          </table>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr id="collect-table-head"></tr>
+              </thead>
+              <tbody id="collect-table-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -559,7 +678,7 @@
             <div>
               <h4 style="color:#b45309; font-size:0.95rem;">🗓️ ตั้งค่า "วันที่ชำระล่าสุด" (Cutoff Date) สำหรับคำนวณยอดค้างชำระ</h4>
               <p style="font-size:0.82rem; color:#78350f; margin-top:2px;">
-                ระบบจะนับยอดค้างชำระเฉพาะสัปดาห์ที่มีวันที่เก็บ <strong>ไม่เกินวันที่แอดมินกำหนดด้านขวานี้</strong> (และซิงค์ให้ทุกคนเห็นตรงกัน)
+                ระบบจะนับยอดค้างชำระเฉพาะสัปดาห์ที่มีวันที่เก็บ <strong>ไม่เกินวันที่แอดมินกำหนดด้านขวานี้</strong>
               </p>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -717,18 +836,15 @@
       <!-- SYNC & BACKUP -->
       <div class="card sync-highlight-card">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-          <h3 style="color: var(--primary-dark);">☁️ เชื่อมต่อ Google Sheets &amp; ซิงค์รูปภาพ/ข้อมูลทุกเครื่อง</h3>
+          <h3 style="color: var(--primary-dark);">☁️ เชื่อมต่อ Google Sheets &amp; ซิงค์ข้อมูลทุกเครื่อง</h3>
           <span id="studio-sync-status" class="sync-badge synced">🟢 เชื่อมต่อแล้ว</span>
         </div>
-        <p style="font-size: 0.86rem; color: #0f172a; margin-bottom: 10px;">
-          ระบบซิงค์รูปภาพทั้งหมด (พื้นหลัง, แบนเนอร์, โลโก้, QR Code) และข้อมูลขึ้น Google Sheets อัตโนมัติเพื่อให้เครื่องอื่นเห็นตรงกันทันที
-        </p>
         <div class="form-group">
           <label for="cfg-gas-url" style="color: #0f172a;">🔗 ลิงก์ Google Apps Script Web App URL:</label>
           <input type="url" id="cfg-gas-url" style="border: 2px solid var(--primary); font-weight: 500;">
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button type="button" class="btn" onclick="saveGasUrlAndSync()">💾 บันทึก &amp; ซิงค์รูปภาพและข้อมูลขึ้นชีตทันที</button>
+          <button type="button" class="btn" onclick="saveGasUrlAndSync()">💾 บันทึก &amp; ซิงค์ข้อมูลขึ้นชีตทันที</button>
           <button type="button" class="btn btn-outline" style="background:white;" onclick="manualPullSync()">📥 ดึงข้อมูลล่าสุดจากชีต</button>
           <button type="button" class="btn btn-outline" style="background:white;" onclick="exportBackupJson()">⬇️ สำรองไฟล์ (.json)</button>
           <label class="btn btn-outline" style="background:white; cursor:pointer; margin:0;">
@@ -739,126 +855,298 @@
       </div>
 
       <div class="grid-2">
-        <!-- FULL UI DESIGNER STUDIO -->
-        <div class="card">
-          <h3 style="margin-bottom: 12px;">🎨 สตูดิโอตกแต่ง UI, รูปภาพ &amp; เลย์เอาต์หน้าเว็บ</h3>
-          <div class="form-group">
-            <label>ชุดธีมสีสำเร็จรูป (คลิกเปลี่ยนทันที)</label>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button type="button" class="btn btn-sm" style="background:#059669" onclick="applyPreset('emerald')">มรกต</button>
-              <button type="button" class="btn btn-sm" style="background:#2563eb" onclick="applyPreset('blue')">น้ำเงิน</button>
-              <button type="button" class="btn btn-sm" style="background:#db2777" onclick="applyPreset('sakura')">ซากุระ</button>
-              <button type="button" class="btn btn-sm" style="background:#7c3aed" onclick="applyPreset('purple')">ม่วง</button>
-              <button type="button" class="btn btn-sm" style="background:#d97706" onclick="applyPreset('sunset')">ส้มทอง</button>
-              <button type="button" class="btn btn-sm" style="background:#1e293b" onclick="applyPreset('dark')">โหมดมืด</button>
+        <!-- LEFT COLUMN: UI DESIGNER & ANIMATIONS & AURA -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- UI THEME & IMAGES -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">🎨 สตูดิโอตกแต่ง UI, รูปภาพ &amp; เลย์เอาต์</h3>
+            <div class="form-group">
+              <label>ชุดธีมสีสำเร็จรูป</label>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-sm" style="background:#059669" onclick="applyPreset('emerald')">มรกต</button>
+                <button type="button" class="btn btn-sm" style="background:#2563eb" onclick="applyPreset('blue')">น้ำเงิน</button>
+                <button type="button" class="btn btn-sm" style="background:#db2777" onclick="applyPreset('sakura')">ซากุระ</button>
+                <button type="button" class="btn btn-sm" style="background:#7c3aed" onclick="applyPreset('purple')">ม่วง</button>
+                <button type="button" class="btn btn-sm" style="background:#d97706" onclick="applyPreset('sunset')">ส้มทอง</button>
+                <button type="button" class="btn btn-sm" style="background:#1e293b" onclick="applyPreset('dark')">โหมดมืด</button>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="form-group">
+                <label>สีหลัก (Primary)</label>
+                <input type="color" id="cfg-primary-color" value="#059669">
+              </div>
+              <div class="form-group">
+                <label>สีรอง (Accent)</label>
+                <input type="color" id="cfg-accent-color" value="#0284c7">
+              </div>
+              <div class="form-group">
+                <label>สีพื้นหลัง (Bg)</label>
+                <input type="color" id="cfg-bg-color" value="#f0fdf4">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>ฟอนต์ภาษาไทย</label>
+                <select id="cfg-font-family">
+                  <option value="'Prompt', sans-serif">Prompt (ทันสมัย อ่านง่าย)</option>
+                  <option value="'Kanit', sans-serif">Kanit (กลมมน สวยงาม)</option>
+                  <option value="'Sarabun', sans-serif">Sarabun (เรียบร้อย ทางการ)</option>
+                  <option value="'Mali', cursive">Mali (น่ารัก ลายมือเด็ก)</option>
+                  <option value="'Itim', cursive">Itim (การ์ตูน สดใส)</option>
+                  <option value="'Charm', cursive">Charm (ตัวเขียนวิจิตร)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>ขนาดตัวอักษร (%)</label>
+                <input type="number" id="cfg-font-scale" value="100" min="85" max="125">
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="form-group">
+                <label>ความมนการ์ด (px)</label>
+                <input type="number" id="cfg-radius" value="16" min="0" max="36">
+              </div>
+              <div class="form-group">
+                <label>ความเบลอแก้ว (px)</label>
+                <input type="number" id="cfg-glass-blur" value="10" min="0" max="24">
+              </div>
+              <div class="form-group">
+                <label>ทึบแสงทับพื้นหลัง</label>
+                <input type="number" id="cfg-bg-overlay" value="0.82" min="0.1" max="0.98" step="0.05">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>ลำดับบล็อกในหน้าหลัก</label>
+                <select id="cfg-home-order">
+                  <option value="stats-first">การ์ดสรุปยอดเงิน -> รายชื่อ</option>
+                  <option value="summary-first">รายชื่อสมาชิก -> การ์ดสรุปยอดเงิน</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>ป้ายประกาศวิ่ง</label>
+                <select id="cfg-show-marquee">
+                  <option value="true">แสดงป้ายประกาศวิ่ง</option>
+                  <option value="false">ซ่อนป้ายประกาศวิ่ง</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+              <label>🖼️ รูปภาพพื้นหลังทั้งเว็บ</label>
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'bgImage', 800, 0.52)">
+              <input type="url" id="cfg-bg-url" placeholder="หรือวางลิงก์รูปภาพ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('bgImage', this.value)">
+              <div id="preview-bgImage"></div>
+            </div>
+
+            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+              <label>🏞️ รูปแบนเนอร์หัวเว็บหน้าหลัก (แนะนำ 1200×200px)</label>
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'heroBgImage', 800, 0.55)">
+              <input type="url" id="cfg-hero-url" placeholder="หรือวางลิงก์รูปแบนเนอร์ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('heroBgImage', this.value)">
+              <div id="preview-heroBgImage"></div>
+            </div>
+
+            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+              <label>🏫 รูปโลโก้ห้องเรียน (มุมซ้ายบน)</label>
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'logoImage', 160, 0.75)">
+              <input type="url" id="cfg-logo-url" placeholder="หรือวางลิงก์รูปโลโก้ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('logoImage', this.value)">
+              <div id="preview-logoImage"></div>
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกหน้าตา UI</button>
+              <button type="button" class="btn btn-outline" onclick="clearImages()">🗑️ ลบรูปทั้งหมด</button>
             </div>
           </div>
 
-          <div class="grid-3">
-            <div class="form-group">
-              <label>สีหลัก (Primary)</label>
-              <input type="color" id="cfg-primary-color" value="#059669">
+          <!-- UI ANIMATIONS & SCREEN AURA -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">🌟 แอนิเมชันหน้าเว็บ &amp; ออร่ากรอบเว็บไซต์</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>เอฟเฟกต์ออร่ากรอบเว็บไซต์</label>
+                <select id="cfg-aura-mode">
+                  <option value="none">ปิดออร่ากรอบเว็บ</option>
+                  <option value="pulse">✨ ออร่าแสงเรืองรองเต้นเป็นจังหวะ</option>
+                  <option value="static">🔆 ออร่าแสงเรืองรองคงที่</option>
+                  <option value="rainbow">🌈 ออร่าสีรุ้งหมุนวน (RGB)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>แอนิเมชันการ์ด &amp; พื้นหลัง</label>
+                <select id="cfg-ui-anim">
+                  <option value="card-hover">การ์ดลอยนุ่มนวลเมื่อชี้เมาส์</option>
+                  <option value="gradient-bg">พื้นหลังไล่เฉดสีเคลื่อนไหว + การ์ดลอย</option>
+                  <option value="none">ปิดแอนิเมชันเสริม</option>
+                </select>
+              </div>
             </div>
-            <div class="form-group">
-              <label>สีรอง/ไล่เฉด (Accent)</label>
-              <input type="color" id="cfg-accent-color" value="#0284c7">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>สีออร่าหลัก (Aura Color 1)</label>
+                <input type="color" id="cfg-aura-c1" value="#10b981">
+              </div>
+              <div class="form-group">
+                <label>สีออร่ารอง (Aura Color 2)</label>
+                <input type="color" id="cfg-aura-c2" value="#0284c7">
+              </div>
             </div>
-            <div class="form-group">
-              <label>สีพื้นหลัง (Background)</label>
-              <input type="color" id="cfg-bg-color" value="#f0fdf4">
-            </div>
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกแอนิเมชัน &amp; ออร่า</button>
           </div>
 
-          <div class="grid-2">
-            <div class="form-group">
-              <label>ฟอนต์ภาษาไทย (6 แบบ)</label>
-              <select id="cfg-font-family">
-                <option value="'Prompt', sans-serif">Prompt (ทันสมัย อ่านง่าย)</option>
-                <option value="'Kanit', sans-serif">Kanit (กลมมน สวยงาม)</option>
-                <option value="'Sarabun', sans-serif">Sarabun (เรียบร้อย ทางการ)</option>
-                <option value="'Mali', cursive">Mali (น่ารัก ลายมือเด็ก)</option>
-                <option value="'Itim', cursive">Itim (การ์ตูน สดใส)</option>
-                <option value="'Charm', cursive">Charm (ตัวเขียนวิจิตร)</option>
-              </select>
+          <!-- TOAST NOTIFICATION CUSTOMIZER -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">🔔 ปรับแต่งกล่องแจ้งเตือน (กลางด้านบน)</h3>
+            <div class="grid-3">
+              <div class="form-group">
+                <label>สีพื้นหลังแจ้งเตือน</label>
+                <input type="color" id="cfg-toast-bg" value="#0f172a">
+              </div>
+              <div class="form-group">
+                <label>สีตัวอักษร</label>
+                <input type="color" id="cfg-toast-color" value="#ffffff">
+              </div>
+              <div class="form-group">
+                <label>สีเส้นขอบ</label>
+                <input type="color" id="cfg-toast-border" value="#10b981">
+              </div>
             </div>
             <div class="form-group">
-              <label>ขนาดตัวอักษรทั้งเว็บ (%)</label>
-              <input type="number" id="cfg-font-scale" value="100" min="85" max="125">
+              <label>ระยะเวลาแสดงผลแจ้งเตือน (วินาที)</label>
+              <input type="number" id="cfg-toast-duration" value="3.2" min="1" max="10" step="0.5">
             </div>
-          </div>
-
-          <div class="grid-3">
-            <div class="form-group">
-              <label>ความมนขอบการ์ด (px)</label>
-              <input type="number" id="cfg-radius" value="16" min="0" max="36">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกสไตล์แจ้งเตือน</button>
+              <button type="button" class="btn btn-outline" onclick="showToast('🔔 ตัวอย่างการแจ้งเตือนกลางด้านบนเรียบร้อย!')">👁️ ทดสอบแจ้งเตือน</button>
             </div>
-            <div class="form-group">
-              <label>ความเบลอแก้ว (px)</label>
-              <input type="number" id="cfg-glass-blur" value="10" min="0" max="24">
-            </div>
-            <div class="form-group">
-              <label>ทึบแสงทับพื้นหลัง (0.1-0.95)</label>
-              <input type="number" id="cfg-bg-overlay" value="0.82" min="0.1" max="0.98" step="0.05">
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="form-group">
-              <label>การจัดวางลำดับบล็อกในหน้าหลัก</label>
-              <select id="cfg-home-order">
-                <option value="stats-first">การ์ดสรุปยอดเงินด้านบน -> ตามด้วยรายชื่อ</option>
-                <option value="summary-first">รายชื่อสมาชิกด้านบน -> ตามด้วยการ์ดสรุปยอดเงิน</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>การแสดงผลองค์ประกอบ</label>
-              <select id="cfg-show-marquee">
-                <option value="true">แสดงป้ายประกาศวิ่งด้านบน</option>
-                <option value="false">ซ่อนป้ายประกาศวิ่ง</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- BACKGROUND IMAGE (UPLOAD OR URL) -->
-          <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-            <label>🖼️ รูปภาพพื้นหลังทั้งเว็บ (ซิงค์ทุกเครื่องอัตโนมัติ)</label>
-            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'bgImage', 800, 0.52)">
-            <input type="url" id="cfg-bg-url" placeholder="หรือวางลิงก์รูปภาพ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('bgImage', this.value)">
-            <div id="preview-bgImage"></div>
-          </div>
-
-          <!-- HERO COVER IMAGE (UPLOAD OR URL) -->
-          <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-            <label>🏞️ รูปแบนเนอร์หัวเว็บหน้าหลัก (Hero Cover)</label>
-            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'heroBgImage', 800, 0.55)">
-            <input type="url" id="cfg-hero-url" placeholder="หรือวางลิงก์รูปแบนเนอร์ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('heroBgImage', this.value)">
-            <div id="preview-heroBgImage"></div>
-          </div>
-
-          <!-- LOGO IMAGE (UPLOAD OR URL) -->
-          <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-            <label>🏫 รูปโลโก้ห้องเรียน (มุมซ้ายบน)</label>
-            <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'logoImage', 160, 0.75)">
-            <input type="url" id="cfg-logo-url" placeholder="หรือวางลิงก์รูปโลโก้ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('logoImage', this.value)">
-            <div id="preview-logoImage"></div>
-          </div>
-
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึก &amp; ซิงค์หน้าตา UI</button>
-            <button type="button" class="btn btn-outline" onclick="clearImages()">🗑️ ลบรูปตกแต่งทั้งหมด</button>
           </div>
         </div>
 
-        <!-- QR CODE & TEXTS & MAINTENANCE -->
+        <!-- RIGHT COLUMN: AUDIO, CUSTOM FESTIVALS, QR, TEXTS & MAINTENANCE -->
         <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- FULL CUSTOM AUDIO STUDIO -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">🔊 สตูดิโอจัดการเสียงทั้งหมด (ใส่เสียงเองได้)</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>โทนเสียงสังเคราะห์มาตรฐาน</label>
+                <select id="cfg-sound-theme">
+                  <option value="soft">🎵 นุ่มนวล (Soft Pop)</option>
+                  <option value="arcade">🕹️ เกม 8-Bit (Arcade)</option>
+                  <option value="crystal">💎 คริสตัลใส (Crystal)</option>
+                  <option value="piano">🎹 เปียโน (Piano Note)</option>
+                  <option value="mute">🔇 ปิดเสียงทั้งหมด</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>ระดับความดังเสียง (%)</label>
+                <input type="number" id="cfg-sound-volume" value="70" min="0" max="100">
+              </div>
+            </div>
+
+            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+              <label>1️⃣ เสียงกดปุ่ม / สลับหน้า (อัปโหลด MP3/WAV หรือวางลิงก์)</label>
+              <input type="file" accept="audio/*" onchange="handleAudioUpload(event, 'audioClick')">
+              <input type="url" id="cfg-audio-click-url" placeholder="หรือวางลิงก์ไฟล์เสียง (https://...mp3)" style="margin-top:6px; font-size:0.8rem;" onchange="applyAudioUrl('audioClick', this.value)">
+              <div style="display:flex; gap:6px; margin-top:6px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="playSound('click')">▶️ ทดสอบ</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="clearSingleAudio('audioClick')">ล้างเสียง</button>
+                <span id="status-audioClick" style="font-size:0.75rem; color:#059669; align-self:center;"></span>
+              </div>
+            </div>
+
+            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+              <label>2️⃣ เสียงติ๊กจ่ายเงิน / บันทึกสำเร็จ</label>
+              <input type="file" accept="audio/*" onchange="handleAudioUpload(event, 'audioSuccess')">
+              <input type="url" id="cfg-audio-success-url" placeholder="หรือวางลิงก์ไฟล์เสียง (https://...mp3)" style="margin-top:6px; font-size:0.8rem;" onchange="applyAudioUrl('audioSuccess', this.value)">
+              <div style="display:flex; gap:6px; margin-top:6px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="playSound('success')">▶️ ทดสอบ</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="clearSingleAudio('audioSuccess')">ล้างเสียง</button>
+                <span id="status-audioSuccess" style="font-size:0.75rem; color:#059669; align-self:center;"></span>
+              </div>
+            </div>
+
+            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+              <label>3️⃣ เสียงแจ้งเตือน / รหัสผ่านผิด</label>
+              <input type="file" accept="audio/*" onchange="handleAudioUpload(event, 'audioError')">
+              <input type="url" id="cfg-audio-error-url" placeholder="หรือวางลิงก์ไฟล์เสียง (https://...mp3)" style="margin-top:6px; font-size:0.8rem;" onchange="applyAudioUrl('audioError', this.value)">
+              <div style="display:flex; gap:6px; margin-top:6px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="playSound('error')">▶️ ทดสอบ</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="clearSingleAudio('audioError')">ล้างเสียง</button>
+                <span id="status-audioError" style="font-size:0.75rem; color:#059669; align-self:center;"></span>
+              </div>
+            </div>
+
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกการตั้งค่าเสียงทั้งหมด</button>
+          </div>
+
+          <!-- CUSTOM FESTIVAL & EVENT GENERATOR -->
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom: 12px;">🎉 สร้างกิจกรรม &amp; เทศกาลเอฟเฟกต์ตามใจชอบ</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>เลือกเทศกาลสำเร็จรูป หรือออกแบบเอง</label>
+                <select id="cfg-festival" onchange="onFestivalPresetChange()">
+                  <option value="none">ปิดเอฟเฟกต์</option>
+                  <option value="custom">🎨 กำหนดกิจกรรม/เทศกาลเอง (ใส่สัญลักษณ์เอง)</option>
+                  <option value="snow">❄️ หิมะตก (คริสต์มาส/ปีใหม่)</option>
+                  <option value="confetti">🎉 พลุกระดาษสี (งานฉลอง)</option>
+                  <option value="sakura">🌸 ซากุระโปรย</option>
+                  <option value="hearts">💖 หัวใจลอย (วาเลนไทน์)</option>
+                  <option value="songkran">💦 สงกรานต์ (หยดน้ำ/ปืนฉีดน้ำ)</option>
+                  <option value="cny">🧧 ตรุษจีน (อั่งเปา/โคมแดง)</option>
+                  <option value="halloween">🎃 ฮาโลวีน (ฟักทอง/ผีน้อย)</option>
+                  <option value="loykrathong">🪷 ลอยกระทง (กระทง/โคมลอย)</option>
+                  <option value="stars">✨ ดาววิบวับ</option>
+                  <option value="bubbles">🫧 ฟองสบู่</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>ทิศทางการเคลื่อนที่</label>
+                <select id="cfg-effect-dir">
+                  <option value="fall">⬇️ โปรยตกลงมาจากด้านบน</option>
+                  <option value="rise">⬆️ ลอยขึ้นไปด้านบน</option>
+                  <option value="float">✨ ลอยกระจายอิสระ</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>สัญลักษณ์ / อีโมจิประจำกิจกรรม (คั่นด้วยเว้นวรรค ใส่ได้ไม่จำกัด)</label>
+              <input type="text" id="cfg-custom-emojis" placeholder="เช่น 🎓 📜 💐 ✨ หรือ ⚽ 🏆 🥇">
+            </div>
+
+            <div class="grid-3">
+              <div class="form-group">
+                <label>จำนวนชิ้น (10-120)</label>
+                <input type="number" id="cfg-effect-count" value="35" min="10" max="120">
+              </div>
+              <div class="form-group">
+                <label>ความเร็ว (0.5-5)</label>
+                <input type="number" id="cfg-effect-speed" value="1.5" min="0.5" max="5" step="0.5">
+              </div>
+              <div class="form-group">
+                <label>ขนาดสัญลักษณ์ (px)</label>
+                <input type="number" id="cfg-effect-size" value="20" min="10" max="42">
+              </div>
+            </div>
+
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกกิจกรรม &amp; เอฟเฟกต์</button>
+          </div>
+
           <!-- QR CODE PAYMENT SETTINGS -->
           <div class="card" style="margin-bottom:0;">
-            <h3 style="margin-bottom: 12px;">📱 ตั้งค่าระบบรับเงิน QR Code (ซิงค์ทุกเครื่อง)</h3>
+            <h3 style="margin-bottom: 12px;">📱 ตั้งค่าระบบรับเงิน QR Code</h3>
             <div class="form-group">
               <label>รูปแบบการแสดง QR Code</label>
               <select id="cfg-qr-mode">
                 <option value="promptpay">สร้าง QR พร้อมเพย์อัตโนมัติ (ระบุยอดเงินอัตโนมัติ)</option>
-                <option value="image">ใช้รูปภาพ QR Code ที่อัปโหลดเอง (ซิงค์ข้ามเครื่อง)</option>
+                <option value="image">ใช้รูปภาพ QR Code ที่อัปโหลดเอง</option>
               </select>
             </div>
             <div class="grid-2">
@@ -928,39 +1216,11 @@
             <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกข้อความทั้งหมด</button>
           </div>
 
-          <!-- MAINTENANCE & EFFECTS & PASSWORD -->
+          <!-- MAINTENANCE & PASSWORD -->
           <div class="card" style="margin-bottom:0;">
-            <h3 style="margin-bottom: 12px;">✨ เอฟเฟกต์ เสียง ปิดปรับปรุง &amp; รหัสผ่าน</h3>
-            <div class="grid-3">
-              <div class="form-group">
-                <label>เอฟเฟกต์หน้าเว็บ</label>
-                <select id="cfg-festival">
-                  <option value="none">ปิดเอฟเฟกต์</option>
-                  <option value="snow">❄️ หิมะตก</option>
-                  <option value="confetti">🎉 พลุกระดาษสี</option>
-                  <option value="sakura">🌸 ซากุระโปรย</option>
-                  <option value="hearts">💖 หัวใจลอย</option>
-                  <option value="stars">✨ ดาววิบวับ</option>
-                  <option value="bubbles">🫧 ฟองสบู่</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>จำนวนเอฟเฟกต์</label>
-                <input type="number" id="cfg-effect-count" value="35" min="10" max="120">
-              </div>
-              <div class="form-group">
-                <label>โทนเสียงกดปุ่ม</label>
-                <select id="cfg-sound-theme">
-                  <option value="soft">🎵 นุ่มนวล</option>
-                  <option value="arcade">🕹️ เกม 8-Bit</option>
-                  <option value="crystal">💎 คริสตัลใส</option>
-                  <option value="mute">🔇 ปิดเสียง</option>
-                </select>
-              </div>
-            </div>
-
+            <h3 style="margin-bottom: 12px;">🚧 โหมดปิดปรับปรุง &amp; รหัสผ่าน Admin</h3>
             <div class="form-group">
-              <label>🚧 โหมดปิดปรับปรุงเว็บไซต์ (Maintenance Mode)</label>
+              <label>สถานะเว็บไซต์</label>
               <select id="cfg-maint-enabled">
                 <option value="false">🟢 เปิดใช้งานเว็บไซต์ตามปกติ</option>
                 <option value="true">🔴 ปิดปรับปรุงชั่วคราว (เฉพาะ Admin เข้าได้)</option>
@@ -1055,8 +1315,8 @@
       <input type="hidden" id="edit-patch-id">
       <div class="grid-2">
         <div class="form-group">
-          <label>เวอร์ชันแพทช์ (เช่น v10.0, v10.1)</label>
-          <input type="text" id="edit-patch-version" placeholder="v10.1">
+          <label>เวอร์ชันแพทช์ (เช่น v11.0, v11.1)</label>
+          <input type="text" id="edit-patch-version" placeholder="v11.1">
         </div>
         <div class="form-group">
           <label>วันที่อัปเดต</label>
@@ -1098,7 +1358,7 @@
     </div>
   </div>
 
-  <!-- ==================== LOGIN MODAL (z-index 950 -> works even during Maintenance Mode!) ==================== -->
+  <!-- ==================== LOGIN MODAL ==================== -->
   <div id="login-modal" class="modal-backdrop">
     <div class="modal-box" style="max-width: 400px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1146,10 +1406,10 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    // ==================== EMBEDDED PUBLIC GMAIL GOOGLE SHEETS URL ====================
+    // ==================== EMBEDDED GOOGLE SHEETS URL & CONSTANTS ====================
     const EMBEDDED_GAS_URL = "https://script.google.com/macros/s/AKfycbzT0JDF67JozwwZunqgRirfaHGoHgJwLejeGb3huAD1dwcJ6SuGO2BNfUPp1cN8dyu2TA/exec";
     const DEFAULT_ADMIN_PASS = "33896060853";
-    const STORAGE_KEY = "class_fund_v10_cloud_sync";
+    const STORAGE_KEY = "class_fund_v11_ultimate";
 
     const DEFAULT_STUDENTS = Array.from({ length: 30 }, (_, i) => ({
       id: i + 1,
@@ -1169,10 +1429,10 @@
     const DEFAULT_PATCHES = [
       {
         id: 1,
-        version: "v10.0",
+        version: "v11.0",
         date: "2026-11-14",
-        heading: "แก้บั๊กหน้าต่างเข้าสู่ระบบตอนปิดปรับปรุง, ซิงค์รูปภาพทุกเครื่องอัตโนมัติ, และเพิ่มเครื่องมือ Admin ขั้นสูง",
-        body: "- แก้ไขปัญหาหน้าต่างกรอกรหัสผ่าน Admin ซ้อนอยู่ด้านหลังหน้าจอปิดปรับปรุงระบบ ให้สามารถกดเข้าสู่ระบบได้ทันที\n- อัปเกรดระบบซิงค์รูปภาพ (พื้นหลัง, แบนเนอร์หัวเว็บ, โลโก้, QR Code) ขึ้น Google Sheets แบบบีบอัดอัจฉริยะและรองรับลิงก์ URL ทำให้เครื่องอื่นเห็นรูปภาพเดียวกันทันที\n- เพิ่มเครื่องมือจัดการด่วนสำหรับแอดมิน (ติ๊กจ่ายครบยกพาร์ท, ปรับความเร็วป้ายวิ่ง, ซ่อน/แสดงป้ายประกาศ, แก้ไขหัวข้อปิดปรับปรุง)"
+        heading: "อัปเดตระบบเสียงปรับแต่งเอง, ส่งออก PNG/PDF หน้าเก็บเงิน, ออร่ากรอบเว็บ และตัวกรองสถานะหน้าหลัก",
+        body: "- เพิ่มสตูดิโอเสียงให้แอดมินอัปโหลดเสียงหรือวางลิงก์เสียง MP3 แยกตามเหตุการณ์ได้\n- เพิ่มปุ่มบันทึกตารางเก็บเงินห้องเป็นไฟล์รูปภาพ PNG และ PDF ในหน้าเก็บเงินห้อง\n- เพิ่มตัวสร้างกิจกรรมและเทศกาลตามใจชอบ (ใส่สัญลักษณ์/อีโมจิ ทิศทาง ความเร็ว ขนาดได้เอง)\n- ปรับหน้าหลักให้แยกสถานะ จ่ายครบแล้ว / จ่ายไม่ครบ / ยังไม่จ่าย พร้อมตัวกรองกดดูง่าย\n- ย้ายกล่องแจ้งเตือน (Toast) มาอยู่กึ่งกลางด้านบน และเพิ่มตัวแต่งสี+ออร่ากรอบเว็บไซต์"
       }
     ];
 
@@ -1190,7 +1450,7 @@
       settings: {
         siteTitle: "ระบบจัดการเงินห้องเรียน",
         siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
-        heroBadge: "CLASS FUND DASHBOARD v10.0",
+        heroBadge: "CLASS FUND DASHBOARD v11.0",
         heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
         heroDesc: "อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที",
         marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!",
@@ -1212,10 +1472,24 @@
         logoImage: "",
         arrearsCutoffDate: "",
         festival: "none",
+        customEmojis: "✨ 🎉 🎊",
+        effectDirection: "fall",
         effectCount: 35,
         effectSpeed: 1.5,
+        effectSize: 20,
+        auraMode: "none",
+        auraColor1: "#10b981",
+        auraColor2: "#0284c7",
+        uiAnimMode: "card-hover",
+        toastBg: "#0f172a",
+        toastColor: "#ffffff",
+        toastBorder: "#10b981",
+        toastDuration: 3.2,
         soundTheme: "soft",
-        soundVolume: 60,
+        soundVolume: 70,
+        audioClick: "",
+        audioSuccess: "",
+        audioError: "",
         qrMode: "promptpay",
         qrAccount: "0812345678",
         qrName: "เหรัญญิกประจำห้องเรียน",
@@ -1229,8 +1503,10 @@
     let isAdmin = false;
     let isPushing = false;
     let syncTimer = null;
+    let toastTimer = null;
     let audioCtx = null;
     let isMuted = false;
+    let homeStatusFilter = "all";
 
     // ==================== INITIALIZATION ====================
     window.addEventListener("DOMContentLoaded", () => {
@@ -1251,7 +1527,7 @@
 
     function loadFromLocal() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("class_fund_v9_ultimate");
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("class_fund_v10_cloud_sync") || localStorage.getItem("class_fund_v9_ultimate");
         if (raw) {
           const parsed = JSON.parse(raw);
           appState = {
@@ -1279,7 +1555,7 @@
       }
     }
 
-    // ==================== GOOGLE SHEETS SYNC (CROSS-DEVICE IMAGES & DATA) ====================
+    // ==================== GOOGLE SHEETS SYNC ====================
     function setSyncStatus(state, text) {
       const badge = document.getElementById("sync-status-badge");
       const studioBadge = document.getElementById("studio-sync-status");
@@ -1304,23 +1580,21 @@
 
     function fitPayloadUnderLimit(payload) {
       let jsonStr = JSON.stringify(payload);
-      const imageKeys = ["bgImage", "heroBgImage", "qrImage", "logoImage"];
+      const mediaKeys = ["bgImage", "heroBgImage", "qrImage", "logoImage", "audioClick", "audioSuccess", "audioError"];
       let guard = 0;
 
-      while (jsonStr.length > 47500 && guard < 10) {
+      while (jsonStr.length > 47500 && guard < 12) {
         guard++;
-        // Find largest base64 image and shrink it proportionally
         let largestKey = null;
         let largestLen = 0;
-        imageKeys.forEach(k => {
+        mediaKeys.forEach(k => {
           const val = payload.settings[k] || "";
-          if (val.startsWith("data:image") && val.length > largestLen) {
+          if (val.startsWith("data:") && val.length > largestLen) {
             largestLen = val.length;
             largestKey = k;
           }
         });
-        if (!largestKey || largestLen < 2000) break;
-        // Trim quality via synchronous canvas re-encode if needed, or clear excess
+        if (!largestKey || largestLen < 1500) break;
         payload.settings[largestKey] = "";
         jsonStr = JSON.stringify(payload);
       }
@@ -1392,14 +1666,13 @@
           applyAllSettings();
           renderAll();
           setSyncStatus("synced", "🟢 ซิงค์ทุกเครื่องแล้ว");
-          if (!silent) showToast("✅ ดึงข้อมูลและรูปภาพล่าสุดจาก Google Sheets เรียบร้อย");
+          if (!silent) showToast("✅ ดึงข้อมูลล่าสุดจาก Google Sheets เรียบร้อย");
         } else {
           setSyncStatus("synced", "🟢 เชื่อมต่อแล้ว");
           pushToGoogleSheets();
         }
       } catch (err) {
         clearTimeout(timeoutId);
-        console.warn("Pull sync skipped/timeout:", err);
         setSyncStatus("synced", "🟢 พร้อมใช้งาน");
         if (!silent) showToast("⚠️ การเชื่อมต่อชีตช้า ระบบแสดงข้อมูลล่าสุดในเครื่อง");
       }
@@ -1415,7 +1688,7 @@
       appState.gasUrl = url || EMBEDDED_GAS_URL;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
       playSound("success");
-      showToast("💾 บันทึกและส่งข้อมูล + รูปภาพขึ้น Google Sheets เรียบร้อย!");
+      showToast("💾 บันทึกและส่งข้อมูลขึ้น Google Sheets เรียบร้อย!");
       pushToGoogleSheets();
     }
 
@@ -1423,7 +1696,7 @@
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
       const a = document.createElement("a");
       a.href = dataStr;
-      a.download = `class-fund-v10-backup-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = `class-fund-v11-backup-${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       showToast("⬇️ ดาวน์โหลดไฟล์สำรองข้อมูลเรียบร้อย");
     }
@@ -1448,7 +1721,44 @@
       reader.readAsText(file);
     }
 
-    // ==================== GUARANTEED CROSS-DEVICE IMAGE HANDLING ====================
+    // ==================== EXPORT COLLECTION TO PNG & PDF ====================
+    async function exportCollectionPng() {
+      playSound("click");
+      const target = document.getElementById("collect-export-area");
+      const partSel = document.getElementById("part-selector");
+      const partName = partSel.options[partSel.selectedIndex]?.text || "class-fund";
+      if (!target || typeof html2canvas === "undefined") {
+        showToast("❌ ระบบสร้างรูปภาพยังไม่พร้อม กรุณาลองใหม่");
+        return;
+      }
+      showToast("🖼️ กำลังสร้างไฟล์รูปภาพ PNG...");
+      try {
+        const canvas = await html2canvas(target, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true
+        });
+        const link = document.createElement("a");
+        link.download = `${partName.replace(/[^a-zA-Z0-9ก-๙]/g, "_")}_${new Date().toISOString().split("T")[0]}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        playSound("success");
+        showToast("✅ ดาวน์โหลดรูปภาพ PNG ตารางเก็บเงินเรียบร้อย!");
+      } catch (err) {
+        console.error(err);
+        showToast("❌ เกิดข้อผิดพลาดในการสร้างไฟล์ PNG");
+      }
+    }
+
+    function exportCollectionPdf() {
+      playSound("click");
+      showToast("📄 กำลังเปิดหน้าต่างพิมพ์ / บันทึกเป็น PDF...");
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    }
+
+    // ==================== IMAGE & AUDIO UPLOAD HANDLERS ====================
     function handleCompressedImageUpload(event, targetKey, maxDim, initialQuality) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1475,10 +1785,9 @@
           ctx.fillRect(0, 0, w, h);
           ctx.drawImage(img, 0, 0, w, h);
 
-          // Keep each image compact (~11KB max) so all 4 images fit easily inside Google Sheets 50KB cell limit
           let q = initialQuality;
           let dataUrl = canvas.toDataURL("image/jpeg", q);
-          while (dataUrl.length > 11500 && q > 0.2) {
+          while (dataUrl.length > 11000 && q > 0.2) {
             q -= 0.08;
             dataUrl = canvas.toDataURL("image/jpeg", q);
           }
@@ -1488,7 +1797,7 @@
           applyAllSettings();
           saveData(true);
           playSound("success");
-          showToast(`🖼️ อัปโหลดและซิงค์รูปภาพ (${Math.round(dataUrl.length / 1024)} KB) ให้ทุกเครื่องเห็นแล้ว!`);
+          showToast(`🖼️ อัปโหลดและซิงค์รูปภาพ (${Math.round(dataUrl.length / 1024)} KB) เรียบร้อย!`);
         };
         img.src = e.target.result;
       };
@@ -1542,6 +1851,47 @@
       applyAllSettings();
       saveData(true);
       showToast("🗑️ ลบรูปตกแต่งทั้งหมดแล้ว");
+    }
+
+    // Custom Audio Handlers
+    function handleAudioUpload(event, targetKey) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 350000) {
+        showToast("⚠️ ไฟล์เสียงใหญ่เกิน 350KB กรุณาใช้ไฟล์สั้นๆ หรือวางลิงก์ URL แทน");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        appState.settings[targetKey] = e.target.result;
+        updateAudioStatusLabels();
+        saveData(true);
+        showToast("🔊 อัปโหลดไฟล์เสียงเรียบร้อย!");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyAudioUrl(targetKey, urlVal) {
+      appState.settings[targetKey] = (urlVal || "").trim();
+      updateAudioStatusLabels();
+      saveData(true);
+      if (urlVal) showToast("🔗 บันทึกลิงก์เสียงเรียบร้อย!");
+    }
+
+    function clearSingleAudio(targetKey) {
+      appState.settings[targetKey] = "";
+      updateAudioStatusLabels();
+      saveData(true);
+      showToast("🗑️ ล้างเสียงที่กำหนดเองแล้ว");
+    }
+
+    function updateAudioStatusLabels() {
+      ["audioClick", "audioSuccess", "audioError"].forEach(k => {
+        const el = document.getElementById("status-" + k);
+        if (!el) return;
+        const val = appState.settings[k];
+        el.textContent = val ? (val.startsWith("data:") ? "✓ ใช้ไฟล์เสียงที่อัปโหลด" : "✓ ใช้ลิงก์เสียง URL") : "ใช้เสียงระบบมาตรฐาน";
+      });
     }
 
     // ==================== AUTHENTICATION ====================
@@ -1602,7 +1952,7 @@
       if (tabId === "patch") renderPatchNotes();
     }
 
-    // ==================== CALCULATIONS & ADMIN CUTOFF ARREARS ====================
+    // ==================== CALCULATIONS & HOME CLEAR STATUS ====================
     function getSessionAmount(part, sessionIndex) {
       if (part.customAmounts && part.customAmounts[sessionIndex] !== undefined && part.customAmounts[sessionIndex] !== "") {
         return Number(part.customAmounts[sessionIndex]);
@@ -1677,6 +2027,24 @@
       return { totalOwed, items };
     }
 
+    function getStudentPaymentStatusCategory(studentId) {
+      const paid = calculateStudentPaid(studentId);
+      const owed = getStudentArrearsDetails(studentId, "all", "due").totalOwed;
+
+      if (paid === 0 && owed > 0) return { code: "unpaid", label: "🔴 ยังไม่จ่าย", border: "#ef4444", bg: "#fef2f2", text: "#b91c1c" };
+      if (paid === 0 && owed === 0) return { code: "unpaid", label: "⚪ ยังไม่มียอดเรียกเก็บ", border: "#cbd5e1", bg: "#f8fafc", text: "#475569" };
+      if (paid > 0 && owed > 0) return { code: "partial", label: "🟡 จ่ายไม่ครบ", border: "#f59e0b", bg: "#fffbeb", text: "#b45309" };
+      return { code: "paid", label: "🟢 จ่ายครบแล้ว", border: "#10b981", bg: "#ecfdf5", text: "#047857" };
+    }
+
+    function setHomeStatusFilter(filterCode, btnEl) {
+      playSound("click");
+      homeStatusFilter = filterCode;
+      document.querySelectorAll("#home-status-filters .filter-pill").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      renderHomeSummary();
+    }
+
     function saveArrearsCutoffDate() {
       if (!isAdmin) return;
       const val = document.getElementById("admin-arrears-cutoff").value;
@@ -1736,26 +2104,44 @@
       const container = document.getElementById("home-member-cards");
       container.innerHTML = "";
 
-      appState.students
-        .filter(st => st.name.toLowerCase().includes(keyword) || String(st.no).includes(keyword))
-        .forEach(st => {
-          const paid = calculateStudentPaid(st.id);
-          const owed = getStudentArrearsDetails(st.id, "all", "due").totalOwed;
-          const div = document.createElement("div");
-          div.style.cssText = "border:1px solid var(--border-color); border-radius:12px; padding:12px; background:white; color:#0f172a; display:flex; justify-content:space-between; align-items:center;";
-          div.innerHTML = `
-            <div>
-              <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary-dark); padding:2px 8px; border-radius:99px; font-weight:700;">เลขที่ ${st.no}</span>
-              <div style="font-weight:600; margin-top:4px;">${st.name}</div>
-              ${owed > 0 ? `<div style="font-size:0.74rem; color:#dc2626; font-weight:600;">ค้างชำระ ${owed.toLocaleString()} ฿</div>` : `<div style="font-size:0.74rem; color:#059669;">✓ จ่ายครบแล้ว</div>`}
+      let cntAll = 0, cntPaid = 0, cntPartial = 0, cntUnpaid = 0;
+
+      appState.students.forEach(st => {
+        const statusInfo = getStudentPaymentStatusCategory(st.id);
+        cntAll++;
+        if (statusInfo.code === "paid") cntPaid++;
+        else if (statusInfo.code === "partial") cntPartial++;
+        else cntUnpaid++;
+
+        const matchesSearch = st.name.toLowerCase().includes(keyword) || String(st.no).includes(keyword);
+        const matchesFilter = homeStatusFilter === "all" || statusInfo.code === homeStatusFilter;
+        if (!matchesSearch || !matchesFilter) return;
+
+        const paid = calculateStudentPaid(st.id);
+        const owed = getStudentArrearsDetails(st.id, "all", "due").totalOwed;
+        const div = document.createElement("div");
+        div.style.cssText = `border: 2px solid ${statusInfo.border}; border-left-width: 6px; border-radius: 14px; padding: 12px 14px; background: white; color: #0f172a; display: flex; justify-content: space-between; align-items: center; gap: 8px;`;
+        div.innerHTML = `
+          <div>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span style="font-size:0.74rem; background:#f1f5f9; color:#334155; padding:2px 8px; border-radius:99px; font-weight:700;">เลขที่ ${st.no}</span>
+              <span style="font-size:0.72rem; background:${statusInfo.bg}; color:${statusInfo.text}; padding:2px 8px; border-radius:99px; font-weight:700;">${statusInfo.label}</span>
             </div>
-            <div style="text-align:right;">
-              <div style="font-size:0.75rem; color:#64748b;">ชำระสะสม</div>
-              <div style="font-weight:700; color:var(--primary); font-size:1.05rem;">${paid.toLocaleString()} ฿</div>
-            </div>
-          `;
-          container.appendChild(div);
-        });
+            <div style="font-weight:700; margin-top:5px; font-size:0.95rem;">${st.name}</div>
+            ${owed > 0 ? `<div style="font-size:0.76rem; color:#dc2626; font-weight:600; margin-top:2px;">ค้างชำระอีก ${owed.toLocaleString()} ฿</div>` : `<div style="font-size:0.76rem; color:#059669; margin-top:2px;">ไม่มียอดค้างชำระ</div>`}
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div style="font-size:0.72rem; color:#64748b;">จ่ายแล้ว</div>
+            <div style="font-weight:700; color:var(--primary); font-size:1.1rem;">${paid.toLocaleString()} ฿</div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById("cnt-all").textContent = cntAll;
+      document.getElementById("cnt-paid").textContent = cntPaid;
+      document.getElementById("cnt-partial").textContent = cntPartial;
+      document.getElementById("cnt-unpaid").textContent = cntUnpaid;
     }
 
     // ==================== ARREARS PAGE & STUDENT SELF-PAYMENT ====================
@@ -1899,7 +2285,7 @@
             <div style="font-weight:700;">${colLabel}</div>
             ${colDate ? `<div style="font-size:0.7rem; color:#0284c7; font-weight:600;">📅 ${colDate}</div>` : ''}
             <div style="font-size:0.72rem; color:#059669; font-weight:700;">${colAmt} ฿</div>
-            ${isAdmin ? `<button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px; font-size:0.66rem; margin-top:3px;" onclick="toggleAllInSession(${part.id}, ${s})">✓ ทั้งหมด</button>` : ''}
+            ${isAdmin ? `<button type="button" class="btn btn-outline btn-sm no-print" style="padding:1px 5px; font-size:0.66rem; margin-top:3px;" onclick="toggleAllInSession(${part.id}, ${s})">✓ ทั้งหมด</button>` : ''}
           </th>
         `;
       }
@@ -2171,7 +2557,7 @@
       } else {
         document.getElementById("patch-modal-title").textContent = "📰 เขียนรายงานการอัปเดตแพทช์ใหม่";
         document.getElementById("edit-patch-id").value = "";
-        document.getElementById("edit-patch-version").value = "v10." + appState.patchNotes.length;
+        document.getElementById("edit-patch-version").value = "v11." + appState.patchNotes.length;
         document.getElementById("edit-patch-date").value = new Date().toISOString().split("T")[0];
         document.getElementById("edit-patch-heading").value = "";
         document.getElementById("edit-patch-body").value = "";
@@ -2181,7 +2567,7 @@
 
     function savePatchNote() {
       const idVal = document.getElementById("edit-patch-id").value;
-      const version = document.getElementById("edit-patch-version").value.trim() || "v10.x";
+      const version = document.getElementById("edit-patch-version").value.trim() || "v11.x";
       const date = document.getElementById("edit-patch-date").value || new Date().toISOString().split("T")[0];
       const heading = document.getElementById("edit-patch-heading").value.trim();
       const body = document.getElementById("edit-patch-body").value.trim();
@@ -2340,6 +2726,26 @@
     }
 
     // ==================== SETTINGS & STUDIO ====================
+    function onFestivalPresetChange() {
+      const type = document.getElementById("cfg-festival").value;
+      const presetMap = {
+        snow: { emojis: "❄️ ❅ ⛄ 🎄", dir: "fall" },
+        confetti: { emojis: "🎉 ✨ 🎊 🎈", dir: "fall" },
+        sakura: { emojis: "🌸 🌺 💮", dir: "fall" },
+        hearts: { emojis: "💖 💕 ❤️ 💘", dir: "rise" },
+        songkran: { emojis: "💦 🔫 🌼 💧", dir: "fall" },
+        cny: { emojis: "🧧 🏮 🐉 🪙", dir: "fall" },
+        halloween: { emojis: "🎃 👻 🦇 🕷️", dir: "float" },
+        loykrathong: { emojis: "🪷 🏮 ✨ 🌕", dir: "rise" },
+        stars: { emojis: "✨ ⭐ 🌟 💫", dir: "float" },
+        bubbles: { emojis: "🫧 ⚪ 🔵", dir: "rise" }
+      };
+      if (presetMap[type]) {
+        document.getElementById("cfg-custom-emojis").value = presetMap[type].emojis;
+        document.getElementById("cfg-effect-dir").value = presetMap[type].dir;
+      }
+    }
+
     function populateSettingsForm() {
       const s = appState.settings;
       document.getElementById("cfg-gas-url").value = appState.gasUrl || EMBEDDED_GAS_URL;
@@ -2365,14 +2771,37 @@
       document.getElementById("cfg-home-order").value = s.homeOrder || "stats-first";
       document.getElementById("cfg-site-title").value = s.siteTitle;
       document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
-      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v10.0";
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v11.0";
       document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
-      document.getElementById("cfg-festival").value = s.festival;
+
+      // Aura & Animations
+      document.getElementById("cfg-aura-mode").value = s.auraMode || "none";
+      document.getElementById("cfg-aura-c1").value = s.auraColor1 || "#10b981";
+      document.getElementById("cfg-aura-c2").value = s.auraColor2 || "#0284c7";
+      document.getElementById("cfg-ui-anim").value = s.uiAnimMode || "card-hover";
+
+      // Toast
+      document.getElementById("cfg-toast-bg").value = s.toastBg || "#0f172a";
+      document.getElementById("cfg-toast-color").value = s.toastColor || "#ffffff";
+      document.getElementById("cfg-toast-border").value = s.toastBorder || "#10b981";
+      document.getElementById("cfg-toast-duration").value = s.toastDuration || 3.2;
+
+      // Festival & Custom Events
+      document.getElementById("cfg-festival").value = s.festival || "none";
+      document.getElementById("cfg-custom-emojis").value = s.customEmojis || "✨ 🎉 🎊";
+      document.getElementById("cfg-effect-dir").value = s.effectDirection || "fall";
       document.getElementById("cfg-effect-count").value = s.effectCount || 35;
+      document.getElementById("cfg-effect-speed").value = s.effectSpeed || 1.5;
+      document.getElementById("cfg-effect-size").value = s.effectSize || 20;
+
+      // Sound
       document.getElementById("cfg-sound-theme").value = s.soundTheme || "soft";
+      document.getElementById("cfg-sound-volume").value = s.soundVolume !== undefined ? s.soundVolume : 70;
       document.getElementById("cfg-new-password").value = "";
+
       updateImageThumbPreviews();
+      updateAudioStatusLabels();
     }
 
     function applyPreset(name) {
@@ -2419,9 +2848,30 @@
       s.heroBadge = document.getElementById("cfg-hero-badge").value;
       s.heroTitle = document.getElementById("cfg-hero-title").value;
       s.heroDesc = document.getElementById("cfg-hero-desc").value;
+
+      // Aura & UI Animations
+      s.auraMode = document.getElementById("cfg-aura-mode").value;
+      s.auraColor1 = document.getElementById("cfg-aura-c1").value;
+      s.auraColor2 = document.getElementById("cfg-aura-c2").value;
+      s.uiAnimMode = document.getElementById("cfg-ui-anim").value;
+
+      // Toast
+      s.toastBg = document.getElementById("cfg-toast-bg").value;
+      s.toastColor = document.getElementById("cfg-toast-color").value;
+      s.toastBorder = document.getElementById("cfg-toast-border").value;
+      s.toastDuration = Math.min(10, Math.max(1, Number(document.getElementById("cfg-toast-duration").value) || 3.2));
+
+      // Festival & Custom Events
       s.festival = document.getElementById("cfg-festival").value;
+      s.customEmojis = document.getElementById("cfg-custom-emojis").value.trim() || "✨ 🎉 🎊";
+      s.effectDirection = document.getElementById("cfg-effect-dir").value;
       s.effectCount = Math.min(120, Math.max(10, Number(document.getElementById("cfg-effect-count").value) || 35));
+      s.effectSpeed = Math.min(5, Math.max(0.5, Number(document.getElementById("cfg-effect-speed").value) || 1.5));
+      s.effectSize = Math.min(42, Math.max(10, Number(document.getElementById("cfg-effect-size").value) || 20));
+
+      // Sound
       s.soundTheme = document.getElementById("cfg-sound-theme").value;
+      s.soundVolume = Math.min(100, Math.max(0, Number(document.getElementById("cfg-sound-volume").value) || 70));
 
       const newPass = document.getElementById("cfg-new-password").value.trim();
       if (newPass) {
@@ -2450,6 +2900,29 @@
       root.style.setProperty("--glass-blur", (s.glassBlur || 10) + "px");
       root.style.setProperty("--bg-overlay", s.bgOverlay || 0.82);
       root.style.setProperty("--marquee-speed", (s.marqueeSpeed || 18) + "s");
+
+      // Toast Styles
+      root.style.setProperty("--toast-bg", s.toastBg || "#0f172a");
+      root.style.setProperty("--toast-color", s.toastColor || "#ffffff");
+      root.style.setProperty("--toast-border", s.toastBorder || "#10b981");
+
+      // Screen Aura & UI Animations
+      root.style.setProperty("--aura-color-1", s.auraColor1 || "#10b981");
+      root.style.setProperty("--aura-color-2", s.auraColor2 || "#0284c7");
+      const auraEl = document.getElementById("screen-aura-frame");
+      auraEl.className = "";
+      if (s.auraMode && s.auraMode !== "none") {
+        auraEl.classList.add("active");
+        if (s.auraMode === "pulse") auraEl.classList.add("aura-pulse");
+        if (s.auraMode === "rainbow") auraEl.classList.add("aura-rainbow");
+      }
+
+      document.body.classList.remove("anim-card-hover", "anim-gradient-bg");
+      if (s.uiAnimMode === "card-hover") {
+        document.body.classList.add("anim-card-hover");
+      } else if (s.uiAnimMode === "gradient-bg") {
+        document.body.classList.add("anim-card-hover", "anim-gradient-bg");
+      }
 
       if (s.bgColor === "#0f172a") {
         root.style.setProperty("--card-bg", "rgba(30, 41, 59, 0.92)");
@@ -2483,7 +2956,7 @@
 
       document.getElementById("ui-site-title").textContent = s.siteTitle;
       document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
-      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v10.0";
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v11.0";
       document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
 
@@ -2516,7 +2989,7 @@
         maintOverlay.classList.remove("active");
       }
 
-      startFestivalEffect(s.festival, s.effectCount || 35, 1.5);
+      startFestivalEffect(s.festival, s.effectCount || 35, s.effectSpeed || 1.5);
     }
 
     // ==================== QR CODE MODAL ====================
@@ -2553,7 +3026,7 @@
       });
     }
 
-    // ==================== FESTIVAL PARTICLES ====================
+    // ==================== CUSTOMIZABLE FESTIVAL & EVENT PARTICLES ====================
     let festivalAnimId = null;
     function startFestivalEffect(type, count = 35, speedMultiplier = 1.5) {
       const canvas = document.getElementById("festival-canvas");
@@ -2566,25 +3039,46 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
 
-      const symbols = {
-        snow: ["❄️", "❅", "•"],
+      const s = appState.settings;
+      const presetSymbols = {
+        snow: ["❄️", "❅", "⛄"],
         confetti: ["🎉", "✨", "🎊"],
-        sakura: ["🌸", "🌺"],
+        sakura: ["🌸", "🌺", "💮"],
         hearts: ["💖", "💕", "❤️"],
+        songkran: ["💦", "🔫", "🌼"],
+        cny: ["🧧", "🏮", "🪙"],
+        halloween: ["🎃", "👻", "🦇"],
+        loykrathong: ["🪷", "🏮", "✨"],
         stars: ["✨", "⭐", "🌟"],
         bubbles: ["🫧", "⚪"]
       };
-      const chars = symbols[type] || ["✨"];
-      const isRising = (type === "bubbles" || type === "hearts");
 
-      const particles = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: 12 + Math.random() * 14,
-        speedY: (0.6 + Math.random() * 1.4) * speedMultiplier * (isRising ? -1 : 1),
-        speedX: -0.5 + Math.random() * 1,
-        char: chars[Math.floor(Math.random() * chars.length)]
-      }));
+      let chars = presetSymbols[type] || ["✨", "🎉"];
+      if (type === "custom" && s.customEmojis) {
+        const parsed = s.customEmojis.split(/\s+/).filter(Boolean);
+        if (parsed.length > 0) chars = parsed;
+      }
+
+      const dir = s.effectDirection || ((type === "bubbles" || type === "hearts" || type === "loykrathong") ? "rise" : "fall");
+      const baseSize = s.effectSize || 20;
+
+      const particles = Array.from({ length: count }, () => {
+        let vy = (0.6 + Math.random() * 1.4) * speedMultiplier;
+        let vx = -0.5 + Math.random() * 1;
+        if (dir === "rise") vy = -vy;
+        else if (dir === "float") {
+          vy = (-0.6 + Math.random() * 1.2) * speedMultiplier;
+          vx = (-0.8 + Math.random() * 1.6) * speedMultiplier;
+        }
+        return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: baseSize * (0.75 + Math.random() * 0.55),
+          speedY: vy,
+          speedX: vx,
+          char: chars[Math.floor(Math.random() * chars.length)]
+        };
+      });
 
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -2593,12 +3087,17 @@
           ctx.fillText(p.char, p.x, p.y);
           p.y += p.speedY;
           p.x += p.speedX;
-          if (!isRising && p.y > canvas.height) {
+          if (dir === "fall" && p.y > canvas.height + 20) {
             p.y = -20;
             p.x = Math.random() * canvas.width;
-          } else if (isRising && p.y < -20) {
+          } else if (dir === "rise" && p.y < -20) {
             p.y = canvas.height + 20;
             p.x = Math.random() * canvas.width;
+          } else if (dir === "float") {
+            if (p.x < -20) p.x = canvas.width + 20;
+            if (p.x > canvas.width + 20) p.x = -20;
+            if (p.y < -20) p.y = canvas.height + 20;
+            if (p.y > canvas.height + 20) p.y = -20;
           }
         });
         festivalAnimId = requestAnimationFrame(animate);
@@ -2606,22 +3105,45 @@
       animate();
     }
 
-    // ==================== AUDIO ====================
+    // ==================== FULL CUSTOM AUDIO ENGINE ====================
     function playSound(type) {
-      const theme = appState.settings.soundTheme || "soft";
+      const s = appState.settings;
+      const theme = s.soundTheme || "soft";
       if (isMuted || theme === "mute") return;
-      const vol = 0.08;
+
+      const volRatio = (s.soundVolume !== undefined ? s.soundVolume : 70) / 100;
+      if (volRatio <= 0) return;
+
+      // Check custom uploaded/URL audio first
+      const customSrc = type === "success" ? s.audioSuccess : (type === "error" ? s.audioError : s.audioClick);
+      if (customSrc) {
+        try {
+          const audio = new Audio(customSrc);
+          audio.volume = Math.min(1, Math.max(0, volRatio));
+          audio.play().catch(() => {});
+          return;
+        } catch (e) {}
+      }
+
+      // Fallback to synthesized themes
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
+
         osc.type = theme === "arcade" ? "square" : (theme === "crystal" ? "triangle" : "sine");
-        osc.frequency.setValueAtTime(type === "success" ? 880 : 520, audioCtx.currentTime);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        let freq = 520;
+        if (type === "success") freq = theme === "piano" ? 1046.5 : 880;
+        else if (type === "error") freq = 220;
+        else freq = theme === "piano" ? 587.3 : 520;
+
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12 * volRatio, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
+        osc.stop(audioCtx.currentTime + 0.14);
       } catch (e) {}
     }
 
@@ -2633,9 +3155,11 @@
 
     function showToast(msg) {
       const t = document.getElementById("toast");
+      const dur = ((appState.settings.toastDuration || 3.2) * 1000);
       t.textContent = msg;
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 3200);
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), dur);
     }
   </script>
 </body>
