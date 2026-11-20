@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบจัดการเงินห้องเรียน - Class Fund v11.2</title>
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund V.1.1.5</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
       --primary: #059669;
@@ -68,7 +70,6 @@
       z-index: -1;
     }
 
-    /* Animated Gradient Background Option */
     body.anim-gradient-bg::after {
       background: linear-gradient(-45deg, var(--bg-color), var(--primary-light), #e0f2fe, var(--bg-color));
       background-size: 400% 400%;
@@ -80,7 +81,6 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* Screen Border Aura Overlay */
     #screen-aura-frame {
       position: fixed;
       inset: 0;
@@ -113,7 +113,6 @@
       z-index: 850;
     }
 
-    /* Maintenance Overlay */
     #maintenance-overlay {
       position: fixed;
       inset: 0;
@@ -148,7 +147,6 @@
     }
 
     .brand { display: flex; align-items: center; gap: 12px; }
-
     .brand-logo {
       width: 46px; height: 46px;
       border-radius: 12px;
@@ -160,12 +158,10 @@
       flex-shrink: 0;
     }
     .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
-
     .brand-text h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary-dark); }
     .brand-text p { font-size: 0.78rem; color: var(--text-muted); }
 
     .nav-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
-
     .nav-btn {
       background: transparent;
       border: 1px solid transparent;
@@ -174,16 +170,26 @@
       border-radius: 99px;
       cursor: pointer;
       font-family: inherit;
-      font-size: 0.86rem;
+      font-size: 0.85rem;
       font-weight: 500;
       transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
-
     .nav-btn:hover { background: var(--primary-light); color: var(--primary-dark); }
     .nav-btn.active { background: var(--primary); color: white; font-weight: 600; }
 
-    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .badge-count {
+      background: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 99px;
+      font-weight: 700;
+    }
 
+    .nav-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .sync-badge {
       font-size: 0.75rem;
       padding: 5px 10px;
@@ -207,7 +213,6 @@
       position: relative;
       border-bottom: 1px solid rgba(255,255,255,0.15);
     }
-
     .marquee-text {
       white-space: nowrap;
       display: inline-block;
@@ -216,7 +221,6 @@
       font-size: 0.92rem;
       font-weight: 500;
     }
-
     @keyframes marqueeScroll {
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
@@ -224,7 +228,6 @@
 
     /* Container & Cards */
     .container { max-width: 1260px; margin: 20px auto; padding: 0 16px 60px; }
-
     .card {
       background: var(--card-bg);
       backdrop-filter: blur(var(--glass-blur));
@@ -235,7 +238,6 @@
       margin-bottom: 20px;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-
     body.anim-card-hover .card:hover,
     body.anim-card-hover .stat-card:hover {
       transform: translateY(-4px);
@@ -269,13 +271,26 @@
     }
     .hero-banner > * { position: relative; z-index: 1; }
 
+    .active-part-bar {
+      background: var(--card-bg);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
       margin-bottom: 20px;
     }
-
     .stat-card {
       background: var(--card-bg);
       backdrop-filter: blur(var(--glass-blur));
@@ -285,11 +300,9 @@
       box-shadow: var(--shadow);
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-
     .stat-card .label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
     .stat-card .value { font-size: 1.65rem; font-weight: 700; }
 
-    /* Home Status Filter Pills */
     .status-filter-bar {
       display: flex;
       gap: 8px;
@@ -331,7 +344,6 @@
       transition: all 0.2s;
     }
     .btn:hover { filter: brightness(0.92); transform: translateY(-1px); }
-
     .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
     .btn-outline:hover { background: #f1f5f9; color: #0f172a; }
     .btn-white { background: white; color: var(--primary-dark); }
@@ -364,25 +376,52 @@
     th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
     th { background: #f8fafc; font-weight: 600; color: #334155; white-space: nowrap; }
 
-    /* Export Snapshot Mode: Ensures 100% full width without horizontal scroll clipping */
+    /* Official Document Export Styling */
+    .official-doc-header {
+      display: none;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      color: #0f172a;
+    }
+    .official-doc-footer {
+      display: none;
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid #cbd5e1;
+      color: #0f172a;
+    }
     .export-snapshot-mode {
       width: max-content !important;
-      min-width: 100% !important;
+      min-width: 960px !important;
       overflow: visible !important;
-      padding: 18px !important;
+      padding: 28px 32px !important;
       background: #ffffff !important;
+      color: #0f172a !important;
+      font-family: 'Sarabun', 'Prompt', sans-serif !important;
     }
     .export-snapshot-mode .table-responsive {
       overflow: visible !important;
       width: max-content !important;
       min-width: 100% !important;
+      border: 1.5px solid #334155 !important;
+      border-radius: 4px !important;
+    }
+    .export-snapshot-mode table th {
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
+      border: 1px solid #94a3b8 !important;
+    }
+    .export-snapshot-mode table td {
+      border: 1px solid #cbd5e1 !important;
     }
     .export-snapshot-mode .no-print,
     .export-snapshot-mode .no-export {
       display: none !important;
     }
-    .export-snapshot-mode #export-stamp-footer {
-      display: flex !important;
+    .export-snapshot-mode .official-doc-header,
+    .export-snapshot-mode .official-doc-footer {
+      display: block !important;
     }
 
     .session-box {
@@ -458,7 +497,6 @@
       background: linear-gradient(to bottom right, #ffffff, var(--primary-light));
     }
 
-    /* Top-Center Customizable Toast Notification */
     .toast {
       position: fixed;
       top: 76px;
@@ -494,12 +532,14 @@
     }
 
     .patch-card {
-      border-left: 4px solid var(--primary);
+      border-left: 6px solid var(--primary);
       background: #f8fafc;
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 14px;
+      padding: 18px;
+      border-radius: 14px;
+      margin-bottom: 16px;
       color: #0f172a;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      overflow: hidden;
     }
 
     .arrear-chip {
@@ -532,17 +572,17 @@
     }
 
     @media print {
-      @page { size: A4 landscape; margin: 8mm; }
+      @page { size: A4 landscape; margin: 10mm; }
       .navbar, .marquee-wrap, .no-print, .no-export, .nav-actions, #screen-aura-frame, #festival-canvas, .admin-block { display: none !important; }
-      body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { background: white !important; font-family: 'Sarabun', sans-serif !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
       .card { box-shadow: none !important; border: none !important; padding: 0 !important; }
       .page-section { display: none !important; }
       .page-section.active { display: block !important; }
-      .table-responsive { overflow: visible !important; border: none !important; }
-      table { font-size: 0.74rem !important; width: 100% !important; }
-      th, td { padding: 5px 6px !important; }
-      #export-stamp-footer { display: flex !important; }
+      .table-responsive { overflow: visible !important; border: 1.5px solid #0f172a !important; }
+      table { font-size: 0.76rem !important; width: 100% !important; }
+      th, td { padding: 5px 6px !important; border: 1px solid #94a3b8 !important; }
+      .official-doc-header, .official-doc-footer { display: block !important; }
     }
   </style>
 </head>
@@ -575,16 +615,20 @@
     </div>
 
     <nav class="nav-tabs">
-      <button type="button" class="nav-btn active" onclick="switchTab('home', this)">🏠 หน้าหลัก</button>
-      <button type="button" class="nav-btn" onclick="switchTab('collect', this)">📋 เก็บเงินห้อง</button>
-      <button type="button" class="nav-btn" onclick="switchTab('arrears', this)">⚠️ ยอดค้างชำระ</button>
-      <button type="button" class="nav-btn" onclick="switchTab('ledger', this)">📒 บัญชีรายรับ-จ่าย</button>
-      <button type="button" class="nav-btn" onclick="switchTab('members', this)">👥 รายชื่อสมาชิก</button>
-      <button type="button" class="nav-btn" onclick="switchTab('patch', this)">📰 อัปเดตแพทช์</button>
-      <button type="button" class="nav-btn admin-only" onclick="switchTab('studio', this)">🎨 สตูดิโอ &amp; ตั้งค่า</button>
+      <button type="button" class="nav-btn active" data-tab="home" onclick="switchTab('home', this)">🏠 หน้าหลัก</button>
+      <button type="button" class="nav-btn" data-tab="collect" onclick="switchTab('collect', this)">📋 เก็บเงินห้อง</button>
+      <button type="button" class="nav-btn" data-tab="arrears" onclick="switchTab('arrears', this)">⚠️ ยอดค้างชำระ</button>
+      <button type="button" class="nav-btn" data-tab="ledger" onclick="switchTab('ledger', this)">📒 บัญชีรายรับ-จ่าย</button>
+      <button type="button" class="nav-btn" data-tab="members" onclick="switchTab('members', this)">👥 รายชื่อสมาชิก</button>
+      <button type="button" class="nav-btn" data-tab="patch" onclick="switchTab('patch', this)">📰 อัปเดตแพทช์</button>
+      <button type="button" class="nav-btn admin-only" data-tab="reports" onclick="switchTab('reports', this)">
+        📩 กล่องแจ้งปัญหา <span id="nav-report-badge" class="badge-count" style="display:none;">0</span>
+      </button>
+      <button type="button" class="nav-btn admin-only" data-tab="studio" onclick="switchTab('studio', this)">🎨 สตูดิโอ &amp; ตั้งค่า</button>
     </nav>
 
     <div class="nav-actions">
+      <button type="button" class="btn btn-outline btn-sm" onclick="openReportModal()" title="แจ้งปัญหาถึงแอดมินโดยตรง">📩 แจ้งปัญหา</button>
       <span id="sync-status-badge" class="sync-badge synced" title="สถานะการซิงค์ Google Sheets">🟢 พร้อมใช้งาน</span>
       <button type="button" class="btn btn-outline btn-sm" onclick="toggleAudioMute()" id="btn-audio-toggle" title="เปิด/ปิดเสียง">🔊</button>
       <button type="button" class="btn btn-sm" id="btn-auth" onclick="handleAuthClick()">🔐 เข้าสู่ระบบ Admin</button>
@@ -601,13 +645,25 @@
     <section id="page-home" class="page-section active">
       <div class="hero-banner" id="ui-hero-banner">
         <div>
-          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND DASHBOARD v11.2</span>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND V.1.1.5</span>
           <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
-          <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที</p>
+          <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">สแกนจ่าย QR Code พร้อมส่งสลิปตรวจสอบอัตโนมัติ ซิงค์ข้อมูลครบทุกหน้า</p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button type="button" class="btn btn-white" onclick="openQrModal()">📱 สแกนจ่าย QR Code</button>
+          <button type="button" class="btn btn-white" onclick="openQrModal()">📱 สแกนจ่าย &amp; ส่งสลิป</button>
           <button type="button" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.5);" onclick="manualPullSync()">🔄 รีเฟรชข้อมูล</button>
+        </div>
+      </div>
+
+      <!-- Synced Active Part Banner -->
+      <div class="active-part-bar">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span style="background:var(--primary); color:white; padding:5px 12px; border-radius:99px; font-size:0.8rem; font-weight:700;">📌 พาร์ทที่กำลังใช้งานปัจจุบัน</span>
+          <strong id="home-active-part-title" style="font-size:1.02rem; color:var(--primary-dark);">กำลังโหลดพาร์ท...</strong>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <label for="home-part-selector" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">เปลี่ยนพาร์ท (ซิงค์ทุกหน้า):</label>
+          <select id="home-part-selector" onchange="onGlobalPartChange(this.value)" style="width:auto; min-width:240px; font-weight:700; border:2px solid var(--primary);"></select>
         </div>
       </div>
 
@@ -634,7 +690,7 @@
         <div id="block-summary" class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
             <div>
-              <h3 style="font-size: 1.15rem;">📊 สถานะการชำระเงินประจำสัปดาห์ล่าสุด</h3>
+              <h3 style="font-size: 1.15rem;">📊 สถานะการชำระเงินประจำสัปดาห์ล่าสุด (ในพาร์ทปัจจุบัน)</h3>
               <p id="home-latest-week-desc" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">กำลังโหลดข้อมูลสัปดาห์ล่าสุด...</p>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -661,12 +717,12 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
           <div>
             <h3>📋 ตารางบันทึกการเก็บเงินห้อง &amp; กิจกรรม</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">บันทึกการจ่ายครบ, จ่ายไม่ครบ (ระบุยอดที่มี) พร้อมสรุปหมายเหตุขาดกี่บาท และส่งออก PNG/PDF ได้ครบถ้วน</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">ซิงค์พาร์ทกับหน้าหลักอัตโนมัติ พร้อมส่งออกเอกสารทางการ PNG / PDF ครบทุกช่อง</p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <select id="part-selector" onchange="renderCollectionTable()" style="width: auto; min-width: 240px; font-weight: 600;"></select>
-            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportCollectionPng()">🖼️ บันทึกเป็น PNG (ครบทุกช่อง)</button>
-            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportCollectionPdf()">📄 พิมพ์ / บันทึก PDF</button>
+            <select id="part-selector" onchange="onGlobalPartChange(this.value)" style="width: auto; min-width: 240px; font-weight: 600;"></select>
+            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialSectionPng('collect-export-area', 'รายงานเก็บเงินห้อง')">🖼️ บันทึกภาพทางการ (PNG)</button>
+            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialPdf('collect-export-area')">📄 พิมพ์เอกสารทางการ (PDF)</button>
             <button type="button" class="btn btn-sm admin-only" onclick="openPartEditorModal()">⚙️ ปรับแต่งพาร์ทนี้</button>
             <button type="button" class="btn btn-outline btn-sm admin-only" onclick="duplicateCurrentPart()">📑 คัดลอก</button>
             <button type="button" class="btn btn-outline btn-sm admin-only" onclick="addNewPart()">➕ เพิ่มกิจกรรมใหม่</button>
@@ -688,8 +744,24 @@
           </div>
         </div>
 
-        <!-- Full-Capture Area for PNG & PDF Export -->
+        <!-- Official Document Export Container -->
         <div id="collect-export-area" style="background: white; border-radius: 14px; padding: 12px;">
+          <!-- Formal Document Letterhead (Shown on PNG/PDF Export) -->
+          <div class="official-doc-header">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div style="font-size:0.85rem; color:#475569; font-weight:600;">เอกสารสรุปรายงานการจัดเก็บเงินกองกลางห้องเรียน</div>
+                <h2 id="doc-collect-site" style="font-size:1.35rem; font-weight:700; margin:2px 0;">ระบบจัดการเงินห้องเรียน</h2>
+                <div id="doc-collect-part" style="font-size:0.95rem; font-weight:600; color:#0f172a;"></div>
+              </div>
+              <div style="text-align:right; font-size:0.82rem;">
+                <div><strong>เลขที่เอกสาร:</strong> CF-COL-<span id="doc-collect-code"></span></div>
+                <div><strong>วันที่ออกเอกสาร:</strong> <span id="doc-collect-date"></span></div>
+                <div><strong>สถานะข้อมูล:</strong> ตรวจสอบแล้วจากระบบออนไลน์</div>
+              </div>
+            </div>
+          </div>
+
           <div id="part-info-bar" style="background: var(--primary-light); color: var(--primary-dark); padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;"></div>
 
           <div class="table-responsive">
@@ -701,9 +773,20 @@
             </table>
           </div>
 
-          <div id="export-stamp-footer" style="display:none; justify-content:space-between; align-items:center; margin-top:12px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:0.78rem; color:#475569;">
-            <span id="export-site-name">ระบบจัดการเงินห้องเรียน</span>
-            <span id="export-timestamp"></span>
+          <!-- Formal Signature Block (Shown on PNG/PDF Export) -->
+          <div class="official-doc-footer">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 40px; text-align:center; margin-top: 18px;">
+              <div>
+                <div style="margin-bottom:28px;">ลงชื่อ ...................................................... ผู้จัดทำรายงาน</div>
+                <div>( ...................................................... )</div>
+                <div style="font-size:0.8rem; color:#475569;">เหรัญญิก / ผู้ดูแลระบบเงินห้องเรียน</div>
+              </div>
+              <div>
+                <div style="margin-bottom:28px;">ลงชื่อ ...................................................... ผู้ตรวจสอบ</div>
+                <div>( ...................................................... )</div>
+                <div style="font-size:0.8rem; color:#475569;">หัวหน้าห้อง / ครูที่ปรึกษาประจำชั้น</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -730,16 +813,16 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
           <div>
-            <h3>⚠️ สรุปยอดค้างชำระรายบุคคล &amp; ชำระเงินทันที</h3>
+            <h3>⚠️ สรุปยอดค้างชำระรายบุคคล &amp; สแกนจ่ายส่งสลิปอัตโนมัติ</h3>
             <p style="font-size: 0.85rem; color: var(--text-muted);">
-              ตรวจสอบสัปดาห์ที่ค้างชำระหรือยอดส่วนต่างที่จ่ายไม่ครบ พร้อมกดปุ่มชำระเงินผ่าน QR Code ได้ทันที
+              ซิงค์พาร์ทกับหน้าหลักอัตโนมัติ กดปุ่มชำระเงินที่ชื่อตัวเองเพื่อสแกน QR และส่งสลิปให้ระบบเช็กช่องให้ทันที
             </p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <span id="latest-collection-badge" style="background: #e0f2fe; color: #0369a1; padding: 6px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 700;">
               📅 วันที่ชำระล่าสุด: -
             </span>
-            <select id="arrears-part-filter" onchange="renderArrearsPage()" style="width: auto; font-weight: 600;">
+            <select id="arrears-part-filter" onchange="onArrearsPartFilterChange(this.value)" style="width: auto; font-weight: 600;">
               <option value="all">ทุกพาร์ท / ทุกกิจกรรม</option>
             </select>
             <select id="arrears-mode-filter" onchange="renderArrearsPage()" style="width: auto;">
@@ -761,7 +844,7 @@
                 <th style="min-width: 160px;">ชื่อ - นามสกุล</th>
                 <th>รายการ/สัปดาห์ที่ค้างชำระ (รวมยอดที่จ่ายไม่ครบ)</th>
                 <th style="width: 120px;">ยอดขาดรวม</th>
-                <th style="width: 150px; text-align: center;">ชำระเงิน</th>
+                <th style="width: 175px; text-align: center;">ชำระเงิน &amp; ส่งสลิป</th>
               </tr>
             </thead>
             <tbody id="arrears-table-body"></tbody>
@@ -770,18 +853,21 @@
       </div>
     </section>
 
-    <!-- ==================== PAGE 4: LEDGER & REPORT ==================== -->
+    <!-- ==================== PAGE 4: LEDGER & OFFICIAL REPORT ==================== -->
     <section id="page-ledger" class="page-section">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
           <div>
-            <h3>📒 บัญชีรายรับ - รายจ่าย &amp; รายงานสรุป</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">บันทึกรายการรับ-จ่ายเพิ่มเติม พร้อมพิมพ์รายงานส่งครูหรือแชร์ให้เพื่อน</p>
+            <h3>📒 บัญชีรายรับ - รายจ่าย &amp; รายงานสรุปทางการ</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">บันทึกรายการรับ-จ่าย พร้อมส่งออกเอกสารทางการ PNG / PDF เพื่อส่งครูที่ปรึกษาหรือติดบอร์ด</p>
           </div>
-          <button type="button" class="btn btn-outline btn-sm no-print" onclick="window.print()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialSectionPng('ledger-export-area', 'บัญชีรายรับรายจ่ายห้องเรียน')">🖼️ บันทึกภาพทางการ (PNG)</button>
+            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialPdf('ledger-export-area')">📄 พิมพ์เอกสารทางการ (PDF)</button>
+          </div>
         </div>
 
-        <div class="admin-block" style="display: none; background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+        <div class="admin-block no-print" style="display: none; background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
           <h4 style="font-size: 0.95rem; margin-bottom: 10px; color: #0f172a;">➕ เพิ่มรายการรายรับ / รายจ่ายใหม่</h4>
           <div class="grid-3">
             <div>
@@ -809,19 +895,52 @@
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>วันที่</th>
-                <th>ประเภท</th>
-                <th>รายการ</th>
-                <th>จำนวนเงิน</th>
-                <th class="admin-only">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody id="ledger-table-body"></tbody>
-          </table>
+        <!-- Official Ledger Export Area -->
+        <div id="ledger-export-area" style="background:white; border-radius:14px; padding:12px;">
+          <div class="official-doc-header">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div style="font-size:0.85rem; color:#475569; font-weight:600;">รายงานงบดุลบัญชีรายรับ - รายจ่าย กองกลางห้องเรียน</div>
+                <h2 id="doc-ledger-site" style="font-size:1.35rem; font-weight:700; margin:2px 0;">ระบบจัดการเงินห้องเรียน</h2>
+                <div style="font-size:0.88rem; color:#334155;">สรุปรายการเคลื่อนไหวทางการเงินและยอดคงเหลือสุทธิ</div>
+              </div>
+              <div style="text-align:right; font-size:0.82rem;">
+                <div><strong>เลขที่เอกสาร:</strong> CF-FIN-<span id="doc-ledger-code"></span></div>
+                <div><strong>วันที่ออกรายงาน:</strong> <span id="doc-ledger-date"></span></div>
+              </div>
+            </div>
+            <div id="doc-ledger-summary-box" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-top:12px; background:#f8fafc; border:1px solid #cbd5e1; padding:10px; border-radius:6px; font-size:0.84rem;"></div>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:110px;">วันที่</th>
+                  <th style="width:120px;">ประเภท</th>
+                  <th>รายการ / รายละเอียด</th>
+                  <th style="width:140px; text-align:right;">จำนวนเงิน (บาท)</th>
+                  <th class="admin-only no-export" style="width:80px;">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-table-body"></tbody>
+            </table>
+          </div>
+
+          <div class="official-doc-footer">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 40px; text-align:center; margin-top: 18px;">
+              <div>
+                <div style="margin-bottom:28px;">ลงชื่อ ...................................................... ผู้จัดทำบัญชี</div>
+                <div>( ...................................................... )</div>
+                <div style="font-size:0.8rem; color:#475569;">เหรัญญิกประจำห้องเรียน</div>
+              </div>
+              <div>
+                <div style="margin-bottom:28px;">ลงชื่อ ...................................................... ผู้รับรองความถูกต้อง</div>
+                <div>( ...................................................... )</div>
+                <div style="font-size:0.8rem; color:#475569;">ครูที่ปรึกษา / หัวหน้าห้องเรียน</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -856,7 +975,7 @@
       </div>
     </section>
 
-    <!-- ==================== PAGE 6: PATCH NOTES & CHANGELOG ==================== -->
+    <!-- ==================== PAGE 6: PATCH NOTES (CUSTOMIZABLE THEME & IMAGES) ==================== -->
     <section id="page-patch" class="page-section">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
@@ -870,7 +989,21 @@
       </div>
     </section>
 
-    <!-- ==================== PAGE 7: ADMIN STUDIO & SETTINGS ==================== -->
+    <!-- ==================== PAGE 7: ADMIN INBOX (ISSUE REPORTS) ==================== -->
+    <section id="page-reports" class="page-section admin-only">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <h3>📩 กล่องข้อความรายงานปัญหาจากผู้ใช้ (เห็นได้เฉพาะแอดมิน)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">รายการแจ้งปัญหาจากเพื่อนในห้อง สามารถดูรูปแนบ กดทำเครื่องหมายแก้ไขแล้ว หรือลบข้อความได้</p>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="manualPullSync()">🔄 ดึงข้อความล่าสุด</button>
+        </div>
+        <div id="admin-reports-list"></div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGE 8: ADMIN STUDIO & SETTINGS ==================== -->
     <section id="page-studio" class="page-section admin-only">
       <!-- SYNC & BACKUP -->
       <div class="card sync-highlight-card">
@@ -896,7 +1029,6 @@
       <div class="grid-2">
         <!-- LEFT COLUMN: UI DESIGNER & ANIMATIONS & AURA -->
         <div style="display:flex; flex-direction:column; gap:16px;">
-          <!-- UI THEME & IMAGES -->
           <div class="card" style="margin-bottom:0;">
             <h3 style="margin-bottom: 12px;">🎨 สตูดิโอตกแต่ง UI, รูปภาพ &amp; เลย์เอาต์</h3>
             <div class="form-group">
@@ -977,22 +1109,22 @@
             </div>
 
             <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-              <label>🖼️ รูปภาพพื้นหลังทั้งเว็บ</label>
-              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'bgImage', 800, 0.52)">
+              <label>🖼️ รูปภาพพื้นหลังทั้งเว็บ (ซิงค์แสดงผลทุกเครื่องอัตโนมัติ)</label>
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'bgImage', 640, 0.48)">
               <input type="url" id="cfg-bg-url" placeholder="หรือวางลิงก์รูปภาพ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('bgImage', this.value)">
               <div id="preview-bgImage"></div>
             </div>
 
             <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-              <label>🏞️ รูปแบนเนอร์หัวเว็บหน้าหลัก (แนะนำ 1200×200px)</label>
-              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'heroBgImage', 800, 0.55)">
+              <label>🏞️ รูปแบนเนอร์หัวเว็บหน้าหลัก (ซิงค์แสดงผลทุกเครื่องอัตโนมัติ)</label>
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'heroBgImage', 640, 0.50)">
               <input type="url" id="cfg-hero-url" placeholder="หรือวางลิงก์รูปแบนเนอร์ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('heroBgImage', this.value)">
               <div id="preview-heroBgImage"></div>
             </div>
 
             <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
               <label>🏫 รูปโลโก้ห้องเรียน (มุมซ้ายบน)</label>
-              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'logoImage', 160, 0.75)">
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'logoImage', 140, 0.7)">
               <input type="url" id="cfg-logo-url" placeholder="หรือวางลิงก์รูปโลโก้ (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('logoImage', this.value)">
               <div id="preview-logoImage"></div>
             </div>
@@ -1037,96 +1169,13 @@
             </div>
             <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกแอนิเมชัน &amp; ออร่า</button>
           </div>
-
-          <!-- TOAST NOTIFICATION CUSTOMIZER -->
-          <div class="card" style="margin-bottom:0;">
-            <h3 style="margin-bottom: 12px;">🔔 ปรับแต่งกล่องแจ้งเตือน (กลางด้านบน)</h3>
-            <div class="grid-3">
-              <div class="form-group">
-                <label>สีพื้นหลังแจ้งเตือน</label>
-                <input type="color" id="cfg-toast-bg" value="#0f172a">
-              </div>
-              <div class="form-group">
-                <label>สีตัวอักษร</label>
-                <input type="color" id="cfg-toast-color" value="#ffffff">
-              </div>
-              <div class="form-group">
-                <label>สีเส้นขอบ</label>
-                <input type="color" id="cfg-toast-border" value="#10b981">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>ระยะเวลาแสดงผลแจ้งเตือน (วินาที)</label>
-              <input type="number" id="cfg-toast-duration" value="3.2" min="1" max="10" step="0.5">
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกสไตล์แจ้งเตือน</button>
-              <button type="button" class="btn btn-outline" onclick="showToast('🔔 ตัวอย่างการแจ้งเตือนกลางด้านบนเรียบร้อย!')">👁️ ทดสอบแจ้งเตือน</button>
-            </div>
-          </div>
         </div>
 
-        <!-- RIGHT COLUMN: AUDIO, CUSTOM FESTIVALS, QR, TEXTS & MAINTENANCE -->
+        <!-- RIGHT COLUMN: CUSTOM FESTIVALS, QR, AUDIO, TEXTS & MAINTENANCE -->
         <div style="display:flex; flex-direction:column; gap:16px;">
-          <!-- FULL CUSTOM AUDIO STUDIO -->
-          <div class="card" style="margin-bottom:0;">
-            <h3 style="margin-bottom: 12px;">🔊 สตูดิโอจัดการเสียงทั้งหมด (ใส่เสียงเองได้)</h3>
-            <div class="grid-2">
-              <div class="form-group">
-                <label>โทนเสียงสังเคราะห์มาตรฐาน</label>
-                <select id="cfg-sound-theme">
-                  <option value="soft">🎵 นุ่มนวล (Soft Pop)</option>
-                  <option value="arcade">🕹️ เกม 8-Bit (Arcade)</option>
-                  <option value="crystal">💎 คริสตัลใส (Crystal)</option>
-                  <option value="piano">🎹 เปียโน (Piano Note)</option>
-                  <option value="mute">🔇 ปิดเสียงทั้งหมด</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>ระดับความดังเสียง (%)</label>
-                <input type="number" id="cfg-sound-volume" value="70" min="0" max="100">
-              </div>
-            </div>
-
-            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-              <label>1️⃣ เสียงกดปุ่ม / สลับหน้า (อัปโหลด MP3/WAV หรือวางลิงก์)</label>
-              <input type="file" accept="audio/*" onchange="handleAudioUpload(event, 'audioClick')">
-              <input type="url" id="cfg-audio-click-url" placeholder="หรือวางลิงก์ไฟล์เสียง (https://...mp3)" style="margin-top:6px; font-size:0.8rem;" onchange="applyAudioUrl('audioClick', this.value)">
-              <div style="display:flex; gap:6px; margin-top:6px;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="playSound('click')">▶️ ทดสอบ</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="clearSingleAudio('audioClick')">ล้างเสียง</button>
-                <span id="status-audioClick" style="font-size:0.75rem; color:#059669; align-self:center;"></span>
-              </div>
-            </div>
-
-            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-              <label>2️⃣ เสียงติ๊กจ่ายเงิน / บันทึกสำเร็จ</label>
-              <input type="file" accept="audio/*" onchange="handleAudioUpload(event, 'audioSuccess')">
-              <input type="url" id="cfg-audio-success-url" placeholder="หรือวางลิงก์ไฟล์เสียง (https://...mp3)" style="margin-top:6px; font-size:0.8rem;" onchange="applyAudioUrl('audioSuccess', this.value)">
-              <div style="display:flex; gap:6px; margin-top:6px;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="playSound('success')">▶️ ทดสอบ</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="clearSingleAudio('audioSuccess')">ล้างเสียง</button>
-                <span id="status-audioSuccess" style="font-size:0.75rem; color:#059669; align-self:center;"></span>
-              </div>
-            </div>
-
-            <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-              <label>3️⃣ เสียงแจ้งเตือน / รหัสผ่านผิด</label>
-              <input type="file" accept="audio/*" onchange="handleAudioUpload(event, 'audioError')">
-              <input type="url" id="cfg-audio-error-url" placeholder="หรือวางลิงก์ไฟล์เสียง (https://...mp3)" style="margin-top:6px; font-size:0.8rem;" onchange="applyAudioUrl('audioError', this.value)">
-              <div style="display:flex; gap:6px; margin-top:6px;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="playSound('error')">▶️ ทดสอบ</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="clearSingleAudio('audioError')">ล้างเสียง</button>
-                <span id="status-audioError" style="font-size:0.75rem; color:#059669; align-self:center;"></span>
-              </div>
-            </div>
-
-            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกการตั้งค่าเสียงทั้งหมด</button>
-          </div>
-
           <!-- CUSTOM FESTIVAL & EVENT GENERATOR -->
           <div class="card" style="margin-bottom:0;">
-            <h3 style="margin-bottom: 12px;">🎉 สร้างกิจกรรม &amp; เทศกาลเอฟเฟกต์ตามใจชอบ</h3>
+            <h3 style="margin-bottom: 12px;">🎉 สร้างกิจกรรม &amp; เทศกาลเอฟเฟกต์ (แสดงทุกเครื่อง)</h3>
             <div class="grid-2">
               <div class="form-group">
                 <label>เลือกเทศกาลสำเร็จรูป หรือออกแบบเอง</label>
@@ -1156,7 +1205,7 @@
             </div>
 
             <div class="form-group">
-              <label>สัญลักษณ์ / อีโมจิประจำกิจกรรม (คั่นด้วยเว้นวรรค ใส่ได้ไม่จำกัด)</label>
+              <label>สัญลักษณ์ / อีโมจิประจำกิจกรรม (คั่นด้วยเว้นวรรค)</label>
               <input type="text" id="cfg-custom-emojis" placeholder="เช่น 🎓 📜 💐 ✨ หรือ ⚽ 🏆 🥇">
             </div>
 
@@ -1175,12 +1224,12 @@
               </div>
             </div>
 
-            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกกิจกรรม &amp; เอฟเฟกต์</button>
+            <button type="button" class="btn" onclick="saveSettings()">💾 บันทึกและเปิดใช้เอฟเฟกต์ทุกเครื่อง</button>
           </div>
 
           <!-- QR CODE PAYMENT SETTINGS -->
           <div class="card" style="margin-bottom:0;">
-            <h3 style="margin-bottom: 12px;">📱 ตั้งค่าระบบรับเงิน QR Code</h3>
+            <h3 style="margin-bottom: 12px;">📱 ตั้งค่าระบบรับเงิน QR Code &amp; ตรวจสลิปอัตโนมัติ</h3>
             <div class="form-group">
               <label>รูปแบบการแสดง QR Code</label>
               <select id="cfg-qr-mode">
@@ -1194,13 +1243,13 @@
                 <input type="text" id="cfg-qr-account" placeholder="เช่น 0812345678">
               </div>
               <div class="form-group">
-                <label>ชื่อบัญชี &amp; ธนาคาร</label>
+                <label>ชื่อบัญชีผู้รับเงิน (ใช้ตรวจเทียบชื่อในสลิป)</label>
                 <input type="text" id="cfg-qr-name" placeholder="เช่น น.ส.ใจดี มีสุข">
               </div>
             </div>
             <div class="form-group">
               <label>อัปโหลดรูปภาพ QR Code (หรือวางลิงก์รูป QR)</label>
-              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'qrImage', 340, 0.72)">
+              <input type="file" accept="image/*" onchange="handleCompressedImageUpload(event, 'qrImage', 300, 0.7)">
               <input type="url" id="cfg-qr-url" placeholder="หรือวางลิงก์รูป QR Code (https://...)" style="margin-top:6px; font-size:0.8rem;" onchange="applyDirectImageUrl('qrImage', this.value)">
               <div id="preview-qrImage"></div>
             </div>
@@ -1286,6 +1335,92 @@
     </section>
   </main>
 
+  <!-- ==================== QR CODE + AUTO SLIP VERIFICATION MODAL ==================== -->
+  <div id="qr-modal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 470px; text-align: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 id="qr-modal-title">📱 สแกนจ่าย &amp; ส่งสลิปตรวจสอบอัตโนมัติ</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('qr-modal')">✕ ปิด</button>
+      </div>
+
+      <div class="grid-2" style="text-align:left; gap:10px; margin-bottom:10px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label>1. เลือกชื่อผู้ชำระเงิน:</label>
+          <select id="qr-student-select" onchange="onQrSelectionChange()"></select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>2. เลือกสัปดาห์ที่ชำระ:</label>
+          <select id="qr-session-select" onchange="onQrSelectionChange()"></select>
+        </div>
+      </div>
+
+      <div class="form-group" style="text-align: left; margin-bottom:10px;">
+        <label>ยอดเงินที่ต้องโอน (บาท):</label>
+        <input type="number" id="qr-pay-amount" placeholder="ระบุยอดเงิน" oninput="renderQrPreview()">
+      </div>
+
+      <div id="qr-display-area" style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 14px; margin-bottom: 12px;">
+        <div style="background: #003d6a; color: white; padding: 5px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; margin-bottom: 10px;">
+          PromptPay พร้อมเพย์
+        </div>
+        <div id="qr-graphic" style="display: flex; justify-content: center; align-items: center; min-height: 175px;"></div>
+        <p id="qr-account-label" style="font-weight: 700; margin-top: 8px; font-size: 0.95rem;"></p>
+        <p id="qr-number-label" style="color: #475569; font-size: 0.85rem;"></p>
+        <button type="button" class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="copyQrAccount()">📋 คัดลอกเลขบัญชี</button>
+      </div>
+
+      <!-- Auto Slip Upload & Verification Zone (Only accessible inside QR Scan modal) -->
+      <div style="background: #ecfdf5; border: 2px dashed #10b981; border-radius: 14px; padding: 14px; text-align: left;">
+        <div style="font-weight: 700; color: #065f46; font-size: 0.92rem; margin-bottom: 4px;">
+          🧾 3. แนบสลิปโอนเงินเพื่อให้ระบบตรวจสอบและเช็กช่องอัตโนมัติ
+        </div>
+        <p style="font-size: 0.78rem; color: #047857; margin-bottom: 10px;">
+          ระบบจะสแกน QR อ้างอิงในสลิป (กันสลิปซ้ำ) และตรวจสอบยอดเงิน หากถูกต้องจะติ๊กจ่ายเงินให้ทันที
+        </p>
+        <input type="file" id="slip-file-input" accept="image/*" onchange="handleSlipUpload(event)">
+        <div id="slip-verify-status" style="margin-top: 10px; font-size: 0.84rem; font-weight: 600;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== USER ISSUE REPORT MODAL ==================== -->
+  <div id="report-modal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 460px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3>📩 แจ้งปัญหาถึงแอดมิน (เป็นความลับเห็นเฉพาะแอดมิน)</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('report-modal')">✕</button>
+      </div>
+      <p style="font-size: 0.82rem; color: #475569; margin-bottom: 12px;">
+        ข้อความและรูปภาพของคุณจะถูกส่งตรงถึงผู้ดูแลระบบเท่านั้น เพื่อนคนอื่นจะไม่สามารถมองเห็นได้
+      </p>
+      <div class="form-group">
+        <label>ชื่อ - นามสกุล / เลขที่ ของผู้แจ้ง:</label>
+        <input type="text" id="rep-sender" placeholder="เช่น เลขที่ 12 ด.ช.สมชาย ใจดี">
+      </div>
+      <div class="form-group">
+        <label>หัวข้อปัญหา:</label>
+        <select id="rep-topic">
+          <option value="สแกนจ่ายแล้วช่องยังไม่ขึ้น">💳 สแกนจ่ายแล้วช่องยังไม่ขึ้น / ยอดไม่ตรง</option>
+          <option value="ชื่อหรือเลขที่ไม่ถูกต้อง">👤 ชื่อ-นามสกุล หรือเลขที่ไม่ถูกต้อง</option>
+          <option value="แจ้งขอจ่ายเงินบางส่วน">🟡 ขอแจ้งจ่ายเงินไม่ครบ / ผ่อนจ่าย</option>
+          <option value="ปัญหาการใช้งานเว็บไซต์">⚙️ แจ้งปัญหาการใช้งานเว็บไซต์ / ข้อเสนอแนะ</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>รายละเอียดเพิ่มเติม:</label>
+        <textarea id="rep-detail" rows="4" placeholder="อธิบายรายละเอียดปัญหาที่พบ..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>แนบรูปภาพประกอบ (ถ้ามี):</label>
+        <input type="file" id="rep-image-input" accept="image/*">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" class="btn btn-outline" onclick="closeModal('report-modal')">ยกเลิก</button>
+        <button type="button" class="btn" onclick="submitIssueReport()">📤 ส่งข้อความถึงแอดมิน</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== PARTIAL PAYMENT INPUT MODAL ==================== -->
   <div id="partial-pay-modal" class="modal-backdrop">
     <div class="modal-box" style="max-width: 420px;">
@@ -1366,28 +1501,55 @@
     </div>
   </div>
 
-  <!-- ==================== PATCH NOTE EDITOR MODAL ==================== -->
+  <!-- ==================== ENHANCED PATCH NOTE EDITOR MODAL ==================== -->
   <div id="patch-modal" class="modal-backdrop">
-    <div class="modal-box" style="max-width: 520px;">
+    <div class="modal-box" style="max-width: 580px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 id="patch-modal-title">📰 เขียนรายงานการอัปเดตแพทช์</h3>
+        <h3 id="patch-modal-title">📰 เขียน &amp; ตกแต่งประกาศอัปเดตแพทช์</h3>
         <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('patch-modal')">✕</button>
       </div>
       <input type="hidden" id="edit-patch-id">
-      <div class="grid-2">
+      <div class="grid-3">
         <div class="form-group">
-          <label>เวอร์ชันแพทช์ (เช่น v11.2)</label>
-          <input type="text" id="edit-patch-version" placeholder="v11.2">
+          <label>เวอร์ชันแพทช์</label>
+          <input type="text" id="edit-patch-version" placeholder="V.1.1.5">
+        </div>
+        <div class="form-group">
+          <label>ป้ายหมวดหมู่ (Tag)</label>
+          <input type="text" id="edit-patch-tag" placeholder="เช่น MAJOR UPDATE">
         </div>
         <div class="form-group">
           <label>วันที่อัปเดต</label>
           <input type="date" id="edit-patch-date">
         </div>
       </div>
+
       <div class="form-group">
         <label>หัวข้อการอัปเดต</label>
-        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตยอดเงินสัปดาห์ที่ 10 และเพิ่มหมายเหตุจ่ายไม่ครบ">
+        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตระบบตรวจสลิปอัตโนมัติ V.1.1.5">
       </div>
+
+      <div class="grid-3">
+        <div class="form-group">
+          <label>สีแถบป้าย &amp; ขอบการ์ด</label>
+          <input type="color" id="edit-patch-accent" value="#059669">
+        </div>
+        <div class="form-group">
+          <label>สีพื้นหลังการ์ดแพทช์</label>
+          <input type="color" id="edit-patch-bg" value="#f8fafc">
+        </div>
+        <div class="form-group">
+          <label>สีตัวอักษรในการ์ด</label>
+          <input type="color" id="edit-patch-text" value="#0f172a">
+        </div>
+      </div>
+
+      <div class="form-group" style="background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+        <label>🖼️ ภาพแบนเนอร์ประจำแพทช์นี้ (อัปโหลดหรือวางลิงก์ URL)</label>
+        <input type="file" accept="image/*" onchange="handlePatchBannerUpload(event)">
+        <input type="url" id="edit-patch-image" placeholder="หรือวางลิงก์รูปภาพแบนเนอร์แพทช์ (https://...)" style="margin-top:6px; font-size:0.8rem;">
+      </div>
+
       <div class="form-group">
         <label>รายละเอียดการแก้ไข / ปรับปรุง</label>
         <textarea id="edit-patch-body" rows="6" placeholder="พิมพ์รายละเอียดการเปลี่ยนแปลงทั้งหมด..."></textarea>
@@ -1437,40 +1599,13 @@
     </div>
   </div>
 
-  <!-- ==================== QR CODE MODAL ==================== -->
-  <div id="qr-modal" class="modal-backdrop">
-    <div class="modal-box" style="max-width: 420px; text-align: center;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 id="qr-modal-title">📱 สแกนจ่ายเงินห้องเรียน</h3>
-        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('qr-modal')">✕ ปิดหน้าต่าง</button>
-      </div>
-      <div id="qr-student-payer-info" style="display:none; background:#fef3c7; color:#92400e; padding:8px 12px; border-radius:10px; font-size:0.84rem; font-weight:600; margin-bottom:10px;"></div>
-      <div class="form-group" style="text-align: left;">
-        <label>ระบุจำนวนเงินที่ต้องการโอน (บาท)</label>
-        <input type="number" id="qr-pay-amount" placeholder="เว้นว่างเพื่อระบุยอดเองในแอปธนาคาร" oninput="renderQrPreview()">
-      </div>
-      <div id="qr-display-area" style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 18px; margin: 12px 0;">
-        <div style="background: #003d6a; color: white; padding: 6px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; margin-bottom: 12px;">
-          PromptPay พร้อมเพย์
-        </div>
-        <div id="qr-graphic" style="display: flex; justify-content: center; align-items: center; min-height: 200px;"></div>
-        <p id="qr-account-label" style="font-weight: 700; margin-top: 10px; font-size: 1rem;"></p>
-        <p id="qr-number-label" style="color: #475569; font-size: 0.9rem;"></p>
-      </div>
-      <div style="display: flex; gap: 8px; justify-content: center;">
-        <button type="button" class="btn btn-outline" onclick="copyQrAccount()">📋 คัดลอกเลขบัญชี</button>
-        <button type="button" class="btn" onclick="closeModal('qr-modal')">เสร็จสิ้น</button>
-      </div>
-    </div>
-  </div>
-
   <div id="toast" class="toast"></div>
 
   <script>
     // ==================== EMBEDDED GOOGLE SHEETS URL & CONSTANTS ====================
     const EMBEDDED_GAS_URL = "https://script.google.com/macros/s/AKfycbzT0JDF67JozwwZunqgRirfaHGoHgJwLejeGb3huAD1dwcJ6SuGO2BNfUPp1cN8dyu2TA/exec";
     const DEFAULT_ADMIN_PASS = "33896060853";
-    const STORAGE_KEY = "class_fund_v11_ultimate";
+    const STORAGE_KEY = "class_fund_v11_5_ultimate";
 
     const DEFAULT_STUDENTS = Array.from({ length: 30 }, (_, i) => ({
       id: i + 1,
@@ -1490,10 +1625,15 @@
     const DEFAULT_PATCHES = [
       {
         id: 1,
-        version: "v11.2",
-        date: "2026-11-14",
-        heading: "หน้าหลักเทียบสถานะตามสัปดาห์ล่าสุด & เพิ่มระบบบันทึกจ่ายไม่ครบพร้อมหมายเหตุขาดกี่บาท",
-        body: "- หน้าหลักตรวจสอบสถานะจาก 'สัปดาห์ล่าสุด' ที่ตั้งไว้: สีเขียว (จ่ายครบสัปดาห์ล่าสุด), สีเหลือง (จ่ายแล้วแต่ไม่ถึงยอดสัปดาห์ล่าสุด), สีแดง (ยังไม่จ่าย 0 บาท)\n- หน้าเก็บเงินห้องเพิ่มโหมดกรอกยอดจ่ายไม่ครบ (จ่ายเท่าที่มี) และเพิ่มคอลัมน์ 'หมายเหตุ: จ่ายไม่ครบ / ขาดกี่บาท' ท้ายตาราง"
+        version: "V.1.1.5",
+        tag: "MAJOR UPDATE",
+        date: "2026-11-20",
+        heading: "อัปเดตใหญ่ V.1.1.5: ตรวจสลิปอัตโนมัติ, แจ้งปัญหาลับเฉพาะแอดมิน, ซิงค์พาร์ททุกหน้า & เอกสารส่งออกทางการ",
+        accentColor: "#059669",
+        bgColor: "#ecfdf5",
+        textColor: "#0f172a",
+        bannerImage: "",
+        body: "1.1 เพิ่มระบบสแกนจ่าย QR Code พร้อมส่งสลิปตรวจสอบอัตโนมัติ (สแกน QR กันสลิปซ้ำ + OCR อ่านยอดเงิน เช็กช่องให้อัตโนมัติ)\n1.2 เพิ่มระบบรายงานปัญหาจากผู้ใช้ที่เห็นได้เฉพาะผู้ดูแลระบบ (Admin Inbox)\n1.3 เพิ่มตัวเลือกพาร์ทปัจจุบันบนหน้าหลัก ซิงค์ตรงกับหน้าเก็บเงินห้องและหน้ายอดค้างชำระอัตโนมัติ\n2.1-2.2 แก้ไขรูปภาพที่อัปโหลดและเอฟเฟกต์เทศกาลให้แสดงผลครบทุกเครื่องที่เปิดเว็บ\n2.3 เพิ่มระบบปรับแต่งสี แบนเนอร์ และป้ายหมวดหมู่ในหน้าอัปเดตแพทช์\n2.4 ปรับปรุงการส่งออก PNG และ PDF ในหน้าเก็บเงินห้องและบัญชีรายรับ-จ่ายให้มีหัวเอกสารและช่องลงนามแบบทางการ"
       }
     ];
 
@@ -1503,6 +1643,8 @@
       students: DEFAULT_STUDENTS,
       parts: DEFAULT_PARTS,
       payments: {},
+      verifiedSlips: {}, // { refCode: { studentId, partId, sessionIdx, amount, time } }
+      issueReports: [],  // [ { id, date, sender, topic, detail, image, resolved } ]
       transactions: [
         { id: 1, date: "2026-11-01", type: "income", title: "ยอดยกมาจากภาคเรียนก่อน", amount: 1500 },
         { id: 2, date: "2026-11-05", type: "expense", title: "ซื้อปากกาไวท์บอร์ดและแปรงลบกระดาน", amount: 180 }
@@ -1511,10 +1653,10 @@
       settings: {
         siteTitle: "ระบบจัดการเงินห้องเรียน",
         siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
-        heroBadge: "CLASS FUND DASHBOARD v11.2",
+        heroBadge: "CLASS FUND V.1.1.5",
         heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
-        heroDesc: "อัปเดตข้อมูลอัตโนมัติ สแกนจ่ายผ่าน QR Code พร้อมเพย์ได้ทันที",
-        marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!",
+        heroDesc: "สแกนจ่าย QR Code พร้อมส่งสลิปตรวจสอบอัตโนมัติ ซิงค์ข้อมูลครบทุกหน้า",
+        marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.1.5 สแกนจ่ายและส่งสลิปตรวจสอบอัตโนมัติได้ทันที!",
         marqueeBg: "#064e3b",
         marqueeColor: "#ffffff",
         marqueeSpeed: 18,
@@ -1528,6 +1670,7 @@
         glassBlur: 10,
         bgOverlay: 0.82,
         homeOrder: "stats-first",
+        activePartId: 1,
         homeTargetSessionKey: "",
         bgImage: "",
         heroBgImage: "",
@@ -1546,7 +1689,7 @@
         toastBg: "#0f172a",
         toastColor: "#ffffff",
         toastBorder: "#10b981",
-        toastDuration: 3.2,
+        toastDuration: 3.5,
         soundTheme: "soft",
         soundVolume: 70,
         audioClick: "",
@@ -1569,12 +1712,16 @@
     let audioCtx = null;
     let isMuted = false;
     let homeStatusFilter = "all";
-    let collectClickMode = "full"; // "full" | "partial"
+    let collectClickMode = "full";
+    let currentFestivalSignature = "";
 
     // ==================== INITIALIZATION ====================
     window.addEventListener("DOMContentLoaded", () => {
       loadFromLocal();
       appState.gasUrl = EMBEDDED_GAS_URL;
+      if (!appState.settings.activePartId && appState.parts.length > 0) {
+        appState.settings.activePartId = appState.parts[0].id;
+      }
       applyAllSettings();
       renderAll();
       setSyncStatus("syncing", "🟡 กำลังซิงค์ข้อมูล...");
@@ -1585,18 +1732,20 @@
         if (appState.gasUrl && !isAdmin && !isPushing) {
           pullFromGoogleSheets(true);
         }
-      }, 45000);
+      }, 30000);
     });
 
     function loadFromLocal() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("class_fund_v10_cloud_sync") || localStorage.getItem("class_fund_v9_ultimate");
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("class_fund_v11_ultimate") || localStorage.getItem("class_fund_v10_cloud_sync");
         if (raw) {
           const parsed = JSON.parse(raw);
           appState = {
             ...appState,
             ...parsed,
             gasUrl: EMBEDDED_GAS_URL,
+            verifiedSlips: parsed.verifiedSlips || {},
+            issueReports: parsed.issueReports || [],
             patchNotes: parsed.patchNotes || DEFAULT_PATCHES,
             settings: { ...appState.settings, ...(parsed.settings || {}) }
           };
@@ -1618,7 +1767,7 @@
       }
     }
 
-    // ==================== GOOGLE SHEETS SYNC ====================
+    // ==================== GOOGLE SHEETS SYNC (CROSS-DEVICE IMAGES & EFFECTS) ====================
     function setSyncStatus(state, text) {
       const badge = document.getElementById("sync-status-badge");
       const studioBadge = document.getElementById("studio-sync-status");
@@ -1638,28 +1787,21 @@
       clearTimeout(syncTimer);
       syncTimer = setTimeout(() => {
         pushToGoogleSheets();
-      }, 500);
+      }, 450);
     }
 
+    // Ensures payload fits inside Google Sheets 50,000-character cell limit WITHOUT dropping images
     function fitPayloadUnderLimit(payload) {
       let jsonStr = JSON.stringify(payload);
-      const mediaKeys = ["bgImage", "heroBgImage", "qrImage", "logoImage", "audioClick", "audioSuccess", "audioError"];
-      let guard = 0;
-
-      while (jsonStr.length > 47500 && guard < 12) {
-        guard++;
-        let largestKey = null;
-        let largestLen = 0;
-        mediaKeys.forEach(k => {
-          const val = payload.settings[k] || "";
-          if (val.startsWith("data:") && val.length > largestLen) {
-            largestLen = val.length;
-            largestKey = k;
+      // Trim oldest issueReport images only if total payload approaches 48.5KB
+      if (jsonStr.length > 48500 && Array.isArray(payload.issueReports)) {
+        for (let i = payload.issueReports.length - 1; i >= 0; i--) {
+          if (payload.issueReports[i].image) {
+            payload.issueReports[i].image = "";
+            jsonStr = JSON.stringify(payload);
+            if (jsonStr.length <= 48500) break;
           }
-        });
-        if (!largestKey || largestLen < 1500) break;
-        payload.settings[largestKey] = "";
-        jsonStr = JSON.stringify(payload);
+        }
       }
       return jsonStr;
     }
@@ -1673,6 +1815,8 @@
           students: appState.students,
           parts: appState.parts,
           payments: appState.payments,
+          verifiedSlips: appState.verifiedSlips,
+          issueReports: appState.issueReports,
           transactions: appState.transactions,
           patchNotes: appState.patchNotes,
           settings: { ...appState.settings },
@@ -1692,7 +1836,7 @@
         console.error("Push sync error:", err);
         setSyncStatus("error", "🔴 ซิงค์ล้มเหลว");
       } finally {
-        setTimeout(() => { isPushing = false; }, 1500);
+        setTimeout(() => { isPushing = false; }, 1200);
       }
     }
 
@@ -1701,7 +1845,7 @@
       if (!silent) setSyncStatus("syncing", "🟡 กำลังดึงข้อมูล...");
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 9000);
+      const timeoutId = setTimeout(() => controller.abort(), 9500);
 
       try {
         const res = await fetch(appState.gasUrl + "?t=" + Date.now(), {
@@ -1717,6 +1861,8 @@
           appState.students = data.students;
           appState.parts = data.parts || appState.parts;
           appState.payments = data.payments || {};
+          appState.verifiedSlips = data.verifiedSlips || appState.verifiedSlips || {};
+          appState.issueReports = data.issueReports || appState.issueReports || [];
           appState.transactions = data.transactions || appState.transactions;
           if (data.patchNotes) appState.patchNotes = data.patchNotes;
           if (data.settings) {
@@ -1729,7 +1875,7 @@
           applyAllSettings();
           renderAll();
           setSyncStatus("synced", "🟢 ซิงค์ทุกเครื่องแล้ว");
-          if (!silent) showToast("✅ ดึงข้อมูลล่าสุดจาก Google Sheets เรียบร้อย");
+          if (!silent) showToast("✅ ดึงข้อมูล รูปภาพ และเอฟเฟกต์ล่าสุดจากชีตเรียบร้อย");
         } else {
           setSyncStatus("synced", "🟢 เชื่อมต่อแล้ว");
           pushToGoogleSheets();
@@ -1759,7 +1905,7 @@
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
       const a = document.createElement("a");
       a.href = dataStr;
-      a.download = `class-fund-v11-backup-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = `class-fund-v115-backup-${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       showToast("⬇️ ดาวน์โหลดไฟล์สำรองข้อมูลเรียบร้อย");
     }
@@ -1784,24 +1930,95 @@
       reader.readAsText(file);
     }
 
-    // ==================== FULL-WIDTH EXPORT COLLECTION TO PNG & PDF ====================
-    async function exportCollectionPng() {
+    // ==================== SYNCHRONIZED ACTIVE PART ACROSS HOME, COLLECTION & ARREARS ====================
+    function getActivePart() {
+      const targetId = Number(appState.settings.activePartId || (appState.parts[0]?.id || 1));
+      return appState.parts.find(p => p.id === targetId) || appState.parts[0];
+    }
+
+    function onGlobalPartChange(newPartId) {
+      const idNum = Number(newPartId);
+      if (!idNum) return;
+      appState.settings.activePartId = idNum;
+      appState.settings.homeTargetSessionKey = ""; // Reset session so it auto-picks latest in new part
+      if (isAdmin) {
+        saveData(true);
+      } else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        renderAll();
+      }
+      const part = getActivePart();
+      if (part) showToast(`📌 สลับไปยัง: ${part.title} (ซิงค์ทุกหน้าแล้ว)`);
+    }
+
+    function onArrearsPartFilterChange(val) {
+      if (val !== "all") {
+        appState.settings.activePartId = Number(val);
+        appState.settings.homeTargetSessionKey = "";
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        renderHomeSummary();
+        renderPartSelector();
+        renderCollectionTable();
+      }
+      renderArrearsPage();
+    }
+
+    // ==================== OFFICIAL DOCUMENT EXPORT (PNG & PDF) ====================
+    function prepareOfficialDocumentMetadata() {
+      const now = new Date();
+      const thaiDate = now.toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }) + " น.";
+      const docCode = `${now.getFullYear() + 543}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+      const siteTitle = appState.settings.siteTitle || "ระบบจัดการเงินห้องเรียน";
+      const activePart = getActivePart();
+
+      // Collection doc headers
+      const docColSite = document.getElementById("doc-collect-site");
+      if (docColSite) docColSite.textContent = siteTitle;
+      const docColPart = document.getElementById("doc-collect-part");
+      if (docColPart && activePart) docColPart.textContent = `หมวดหมู่ / รายการ: ${activePart.title}`;
+      const docColCode = document.getElementById("doc-collect-code");
+      if (docColCode) docColCode.textContent = docCode;
+      const docColDate = document.getElementById("doc-collect-date");
+      if (docColDate) docColDate.textContent = thaiDate;
+
+      // Ledger doc headers
+      const docLedSite = document.getElementById("doc-ledger-site");
+      if (docLedSite) docLedSite.textContent = siteTitle;
+      const docLedCode = document.getElementById("doc-ledger-code");
+      if (docLedCode) docLedCode.textContent = docCode;
+      const docLedDate = document.getElementById("doc-ledger-date");
+      if (docLedDate) docLedDate.textContent = thaiDate;
+
+      const totals = calculateTotals();
+      const sumBox = document.getElementById("doc-ledger-summary-box");
+      if (sumBox) {
+        sumBox.innerHTML = `
+          <div><span style="color:#475569;">เก็บเงินห้องสะสม:</span><br><strong>${totals.collectedTotal.toLocaleString()} บาท</strong></div>
+          <div><span style="color:#475569;">รายรับรวมทั้งหมด:</span><br><strong style="color:#059669;">${totals.totalIncome.toLocaleString()} บาท</strong></div>
+          <div><span style="color:#475569;">รายจ่ายรวมทั้งหมด:</span><br><strong style="color:#dc2626;">${totals.expenseTotal.toLocaleString()} บาท</strong></div>
+          <div><span style="color:#475569;">ยอดเงินคงเหลือสุทธิ:</span><br><strong style="color:#0284c7; font-size:0.95rem;">${totals.balance.toLocaleString()} บาท</strong></div>
+        `;
+      }
+    }
+
+    async function exportOfficialSectionPng(elementId, filePrefix) {
       playSound("click");
-      const target = document.getElementById("collect-export-area");
-      const partSel = document.getElementById("part-selector");
-      const partName = partSel.options[partSel.selectedIndex]?.text || "class-fund";
+      const target = document.getElementById(elementId);
       if (!target || typeof html2canvas === "undefined") {
         showToast("❌ ระบบสร้างรูปภาพยังไม่พร้อม กรุณาลองใหม่");
         return;
       }
 
-      showToast("🖼️ กำลังจัดหน้าตารางฉบับเต็มและสร้างไฟล์ PNG...");
-
-      document.getElementById("export-site-name").textContent = `📌 ${appState.settings.siteTitle || "ระบบจัดการเงินห้องเรียน"}`;
-      document.getElementById("export-timestamp").textContent = `ข้อมูล ณ วันที่ ${new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })} น.`;
-
+      showToast("🖼️ กำลังจัดรูปแบบเอกสารทางการและสร้างไฟล์ PNG...");
+      prepareOfficialDocumentMetadata();
       target.classList.add("export-snapshot-mode");
-      await new Promise(r => setTimeout(r, 120));
+      await new Promise(r => setTimeout(r, 150));
 
       try {
         const fullWidth = target.scrollWidth;
@@ -1820,11 +2037,11 @@
         });
 
         const link = document.createElement("a");
-        link.download = `${partName.replace(/[^a-zA-Z0-9ก-๙]/g, "_")}_${new Date().toISOString().split("T")[0]}.png`;
+        link.download = `${filePrefix}_${new Date().toISOString().split("T")[0]}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
         playSound("success");
-        showToast("✅ ดาวน์โหลดรูปภาพ PNG ตารางเก็บเงินครบทุกช่องเรียบร้อย!");
+        showToast("✅ ดาวน์โหลดเอกสารรูปภาพ PNG ฉบับทางการเรียบร้อย!");
       } catch (err) {
         console.error(err);
         showToast("❌ เกิดข้อผิดพลาดในการสร้างไฟล์ PNG");
@@ -1833,60 +2050,65 @@
       }
     }
 
-    function exportCollectionPdf() {
+    function exportOfficialPdf(elementId) {
       playSound("click");
-      document.getElementById("export-site-name").textContent = `📌 ${appState.settings.siteTitle || "ระบบจัดการเงินห้องเรียน"}`;
-      document.getElementById("export-timestamp").textContent = `พิมพ์เมื่อวันที่ ${new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })} น.`;
-      showToast("📄 กำลังเปิดหน้าต่างพิมพ์ / บันทึกเป็น PDF ฉบับสมบูรณ์...");
+      prepareOfficialDocumentMetadata();
+      showToast("📄 กำลังเปิดหน้าต่างพิมพ์ / บันทึกเป็นเอกสาร PDF...");
       setTimeout(() => {
         window.print();
-      }, 300);
+      }, 250);
     }
 
-    // ==================== IMAGE & AUDIO UPLOAD HANDLERS ====================
-    function handleCompressedImageUpload(event, targetKey, maxDim, initialQuality) {
+    // ==================== IMAGE & MEDIA UPLOAD HANDLERS (CROSS-DEVICE SAFE) ====================
+    function compressImageToDataUrl(file, maxDim, initialQuality, maxBytes = 8500) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+
+            let q = initialQuality;
+            let dataUrl = canvas.toDataURL("image/jpeg", q);
+            while (dataUrl.length > maxBytes && q > 0.18) {
+              q -= 0.08;
+              dataUrl = canvas.toDataURL("image/jpeg", q);
+            }
+            resolve(dataUrl);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleCompressedImageUpload(event, targetKey, maxDim, initialQuality) {
       const file = event.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
-          }
-          const canvas = document.createElement("canvas");
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext("2d");
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, w, h);
-          ctx.drawImage(img, 0, 0, w, h);
-
-          let q = initialQuality;
-          let dataUrl = canvas.toDataURL("image/jpeg", q);
-          while (dataUrl.length > 11000 && q > 0.2) {
-            q -= 0.08;
-            dataUrl = canvas.toDataURL("image/jpeg", q);
-          }
-
-          appState.settings[targetKey] = dataUrl;
-          updateImageThumbPreviews();
-          applyAllSettings();
-          saveData(true);
-          playSound("success");
-          showToast(`🖼️ อัปโหลดและซิงค์รูปภาพ (${Math.round(dataUrl.length / 1024)} KB) เรียบร้อย!`);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      const dataUrl = await compressImageToDataUrl(file, maxDim, initialQuality, 8500);
+      appState.settings[targetKey] = dataUrl;
+      updateImageThumbPreviews();
+      applyAllSettings();
+      saveData(true);
+      playSound("success");
+      showToast(`🖼️ อัปโหลดรูปภาพ (${Math.round(dataUrl.length / 1024)} KB) และซิงค์ทุกเครื่องแล้ว!`);
     }
 
     function applyDirectImageUrl(targetKey, urlVal) {
@@ -1918,7 +2140,7 @@
             <div class="img-thumb-box">
               <div style="display:flex; align-items:center; gap:8px;">
                 <img src="${val}" style="height:36px; width:36px; object-fit:cover; border-radius:6px;">
-                <span>✓ พร้อมแสดงผลทุกเครื่อง (${sizeLabel})</span>
+                <span>✓ ซิงค์แสดงผลทุกเครื่อง (${sizeLabel})</span>
               </div>
               <button type="button" class="btn btn-danger btn-sm" style="padding:3px 8px;" onclick="removeSingleImage('${k}')">ลบ</button>
             </div>`;
@@ -1936,47 +2158,6 @@
       applyAllSettings();
       saveData(true);
       showToast("🗑️ ลบรูปตกแต่งทั้งหมดแล้ว");
-    }
-
-    // Custom Audio Handlers
-    function handleAudioUpload(event, targetKey) {
-      const file = event.target.files[0];
-      if (!file) return;
-      if (file.size > 350000) {
-        showToast("⚠️ ไฟล์เสียงใหญ่เกิน 350KB กรุณาใช้ไฟล์สั้นๆ หรือวางลิงก์ URL แทน");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        appState.settings[targetKey] = e.target.result;
-        updateAudioStatusLabels();
-        saveData(true);
-        showToast("🔊 อัปโหลดไฟล์เสียงเรียบร้อย!");
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function applyAudioUrl(targetKey, urlVal) {
-      appState.settings[targetKey] = (urlVal || "").trim();
-      updateAudioStatusLabels();
-      saveData(true);
-      if (urlVal) showToast("🔗 บันทึกลิงก์เสียงเรียบร้อย!");
-    }
-
-    function clearSingleAudio(targetKey) {
-      appState.settings[targetKey] = "";
-      updateAudioStatusLabels();
-      saveData(true);
-      showToast("🗑️ ล้างเสียงที่กำหนดเองแล้ว");
-    }
-
-    function updateAudioStatusLabels() {
-      ["audioClick", "audioSuccess", "audioError"].forEach(k => {
-        const el = document.getElementById("status-" + k);
-        if (!el) return;
-        const val = appState.settings[k];
-        el.textContent = val ? (val.startsWith("data:") ? "✓ ใช้ไฟล์เสียงที่อัปโหลด" : "✓ ใช้ลิงก์เสียง URL") : "ใช้เสียงระบบมาตรฐาน";
-      });
     }
 
     // ==================== AUTHENTICATION ====================
@@ -2035,9 +2216,10 @@
       if (tabId === "studio") populateSettingsForm();
       if (tabId === "arrears") renderArrearsPage();
       if (tabId === "patch") renderPatchNotes();
+      if (tabId === "reports") renderAdminReports();
     }
 
-    // ==================== PAYMENT AMOUNT HELPER (SUPPORTS PARTIAL PAYMENTS) ====================
+    // ==================== PAYMENT CALCULATIONS ====================
     function getSessionAmount(part, sessionIndex) {
       if (part.customAmounts && part.customAmounts[sessionIndex] !== undefined && part.customAmounts[sessionIndex] !== "") {
         return Number(part.customAmounts[sessionIndex]);
@@ -2045,10 +2227,6 @@
       return Number(part.amountPerSession);
     }
 
-    /**
-     * Returns actual paid amount in Baht for a given (part, studentId, sessionIdx).
-     * Supports legacy boolean `true` (full amount) as well as numeric partial amounts (e.g. 3 out of 5).
-     */
     function getCellPaidAmount(part, studentId, sessionIndex) {
       const key = `${part.id}_${studentId}_${sessionIndex}`;
       const val = appState.payments[key];
@@ -2113,6 +2291,8 @@
             const dt = (part.dates && part.dates[s]) ? formatThaiShortDate(part.dates[s]) : "";
             totalOwed += shortage;
             items.push({
+              partId: part.id,
+              sessionIdx: s,
               partTitle: part.title,
               label: lbl,
               date: dt,
@@ -2128,53 +2308,51 @@
       return { totalOwed, items };
     }
 
-    // ==================== HOME PAGE: LATEST SESSION STATUS LOGIC ====================
-    function getAllSessionsList() {
+    // ==================== HOME PAGE: SYNCED ACTIVE PART & LATEST SESSION ====================
+    function getActivePartSessionsList() {
+      const part = getActivePart();
+      if (!part) return [];
       const list = [];
-      appState.parts.forEach(part => {
-        for (let s = 1; s <= part.sessions; s++) {
-          const lbl = (part.labels && part.labels[s]) ? part.labels[s] : `สัปดาห์ ${s}`;
-          const dt = (part.dates && part.dates[s]) ? part.dates[s] : "";
-          const req = getSessionAmount(part, s);
-          const hasAnyPayment = appState.students.some(st => getCellPaidAmount(part, st.id, s) > 0);
-          list.push({
-            key: `${part.id}_${s}`,
-            part,
-            sessionIdx: s,
-            label: lbl,
-            date: dt,
-            required: req,
-            hasAnyPayment
-          });
-        }
-      });
+      for (let s = 1; s <= part.sessions; s++) {
+        const lbl = (part.labels && part.labels[s]) ? part.labels[s] : `สัปดาห์ ${s}`;
+        const dt = (part.dates && part.dates[s]) ? part.dates[s] : "";
+        const req = getSessionAmount(part, s);
+        const hasAnyPayment = appState.students.some(st => getCellPaidAmount(part, st.id, s) > 0);
+        list.push({
+          key: `${part.id}_${s}`,
+          part,
+          sessionIdx: s,
+          label: lbl,
+          date: dt,
+          required: req,
+          hasAnyPayment
+        });
+      }
       return list;
     }
 
     function resolveLatestHomeSession() {
-      const allSessions = getAllSessionsList();
-      if (allSessions.length === 0) return null;
+      const partSessions = getActivePartSessionsList();
+      if (partSessions.length === 0) return null;
 
-      // 1. If user/admin explicitly picked a session on Home dropdown
       if (appState.settings.homeTargetSessionKey) {
-        const found = allSessions.find(item => item.key === appState.settings.homeTargetSessionKey);
+        const found = partSessions.find(item => item.key === appState.settings.homeTargetSessionKey);
         if (found) return found;
       }
 
-      // 2. Otherwise pick latest session up to cutoff date or latest session that has payments
       const cutoff = getEffectiveCutoffDate();
-      const datedDue = allSessions.filter(item => item.date && item.date <= cutoff);
+      const datedDue = partSessions.filter(item => item.date && item.date <= cutoff);
       if (datedDue.length > 0) {
         datedDue.sort((a, b) => a.date.localeCompare(b.date));
         return datedDue[datedDue.length - 1];
       }
 
-      const activeOnes = allSessions.filter(item => item.hasAnyPayment);
+      const activeOnes = partSessions.filter(item => item.hasAnyPayment);
       if (activeOnes.length > 0) {
         return activeOnes[activeOnes.length - 1];
       }
 
-      return allSessions[0];
+      return partSessions[0];
     }
 
     function onHomeLatestSessionChange() {
@@ -2245,20 +2423,38 @@
       renderLedgerTable();
       renderMembersTable();
       renderPatchNotes();
+      updateReportBadge();
+      if (isAdmin) renderAdminReports();
     }
 
     function renderHomeSummary() {
-      const allSessions = getAllSessionsList();
+      const activePart = getActivePart();
+      const homePartSel = document.getElementById("home-part-selector");
+      if (homePartSel) {
+        homePartSel.innerHTML = "";
+        appState.parts.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.id;
+          opt.textContent = p.title;
+          homePartSel.appendChild(opt);
+        });
+        if (activePart) homePartSel.value = activePart.id;
+      }
+      const homePartTitleEl = document.getElementById("home-active-part-title");
+      if (homePartTitleEl && activePart) {
+        homePartTitleEl.textContent = activePart.title;
+      }
+
+      const partSessions = getActivePartSessionsList();
       const targetSession = resolveLatestHomeSession();
 
-      // Populate session selector on Home
       const sel = document.getElementById("home-latest-session-select");
-      if (sel && allSessions.length > 0) {
+      if (sel && partSessions.length > 0) {
         sel.innerHTML = "";
-        allSessions.forEach(item => {
+        partSessions.forEach(item => {
           const opt = document.createElement("option");
           opt.value = item.key;
-          opt.textContent = `สัปดาห์ล่าสุด: ${item.label} (${item.required}฿) - ${item.part.title.split(":")[0]}`;
+          opt.textContent = `สัปดาห์ล่าสุด: ${item.label} (${item.required}฿)`;
           sel.appendChild(opt);
         });
         if (targetSession) sel.value = targetSession.key;
@@ -2294,10 +2490,10 @@
             text: "#b91c1c"
           };
         } else if (paidThisWeek < requiredThisWeek) {
-          constขาด = requiredThisWeek - paidThisWeek;
+          const shortage = requiredThisWeek - paidThisWeek;
           statusInfo = {
             code: "partial",
-            label: `🟡 จ่ายไม่ครบ (ขาด ${ขาด} ฿)`,
+            label: `🟡 จ่ายไม่ครบ (ขาด ${shortage} ฿)`,
             border: "#f59e0b",
             bg: "#fffbeb",
             text: "#b45309"
@@ -2321,7 +2517,7 @@
         const matchesFilter = homeStatusFilter === "all" || statusInfo.code === homeStatusFilter;
         if (!matchesSearch || !matchesFilter) return;
 
-        const totalPaidAll = calculateStudentPaid(st.id);
+        const owedThisWeek = Math.max(0, requiredThisWeek - paidThisWeek);
         const div = document.createElement("div");
         div.style.cssText = `border: 2px solid ${statusInfo.border}; border-left-width: 6px; border-radius: 14px; padding: 12px 14px; background: white; color: #0f172a; display: flex; justify-content: space-between; align-items: center; gap: 8px;`;
         div.innerHTML = `
@@ -2331,7 +2527,10 @@
               <span style="font-size:0.72rem; background:${statusInfo.bg}; color:${statusInfo.text}; padding:2px 8px; border-radius:99px; font-weight:700;">${statusInfo.label}</span>
             </div>
             <div style="font-weight:700; margin-top:5px; font-size:0.95rem;">${st.name}</div>
-            <div style="font-size:0.76rem; color:#64748b; margin-top:2px;">ยอดสะสมทั้งหมด: ${totalPaidAll.toLocaleString()} ฿</div>
+            ${owedThisWeek > 0 && targetSession
+              ? `<button type="button" class="btn btn-sm" style="margin-top:6px; padding:4px 10px; font-size:0.75rem;" onclick="openQrModalForStudent(${st.id}, ${targetSession.part.id}, ${targetSession.sessionIdx}, ${owedThisWeek})">💳 ชำระ &amp; ส่งสลิป (${owedThisWeek}฿)</button>`
+              : `<div style="font-size:0.75rem; color:#059669; margin-top:4px;">✓ ชำระสัปดาห์นี้เรียบร้อย</div>`
+            }
           </div>
           <div style="text-align:right; flex-shrink:0;">
             <div style="font-size:0.72rem; color:#64748b;">สัปดาห์ล่าสุด</div>
@@ -2347,7 +2546,7 @@
       document.getElementById("cnt-unpaid").textContent = cntUnpaid;
     }
 
-    // ==================== ARREARS PAGE & STUDENT SELF-PAYMENT ====================
+    // ==================== ARREARS PAGE & DIRECT QR SLIP PAY ====================
     function renderArrearsPage() {
       const cutoffInp = document.getElementById("admin-arrears-cutoff");
       if (cutoffInp && document.activeElement !== cutoffInp) {
@@ -2359,8 +2558,8 @@
       document.getElementById("latest-collection-badge").textContent =
         `📅 วันที่ชำระล่าสุด: ${formatThaiShortDate(effectiveDate)} ${isCustom ? '(แอดมินกำหนด)' : '(อัตโนมัติ)'}`;
 
+      const activePart = getActivePart();
       const filterSel = document.getElementById("arrears-part-filter");
-      const currentFilter = filterSel.value || "all";
       filterSel.innerHTML = `<option value="all">ทุกพาร์ท / ทุกกิจกรรม</option>`;
       appState.parts.forEach(p => {
         const opt = document.createElement("option");
@@ -2368,8 +2567,11 @@
         opt.textContent = p.title;
         filterSel.appendChild(opt);
       });
-      filterSel.value = currentFilter;
+      if (activePart) {
+        filterSel.value = activePart.id;
+      }
 
+      const currentFilter = filterSel.value || "all";
       const mode = document.getElementById("arrears-mode-filter").value || "due";
       const keyword = (document.getElementById("arrears-search")?.value || "").toLowerCase();
       const body = document.getElementById("arrears-table-body");
@@ -2393,6 +2595,7 @@
             }).join(" ");
           }
 
+          const firstItem = info.items[0];
           tr.innerHTML = `
             <td><strong>${st.no}</strong></td>
             <td style="font-weight:600;">${st.name}</td>
@@ -2401,8 +2604,8 @@
               ${info.totalOwed.toLocaleString()} ฿
             </td>
             <td style="text-align:center;">
-              ${info.totalOwed > 0
-                ? `<button type="button" class="btn btn-sm" onclick="openQrModalForStudent('${st.name.replace(/'/g, "\\'")}', ${info.totalOwed})">💳 ชำระ ${info.totalOwed} ฿</button>`
+              ${info.totalOwed > 0 && firstItem
+                ? `<button type="button" class="btn btn-sm" onclick="openQrModalForStudent(${st.id}, ${firstItem.partId}, ${firstItem.sessionIdx}, ${firstItem.amount})">💳 ชำระ &amp; ส่งสลิป</button>`
                 : `<span style="font-size:0.8rem; color:#64748b;">เรียบร้อย</span>`
               }
             </td>
@@ -2411,18 +2614,351 @@
         });
     }
 
-    function openQrModalForStudent(studentName, owedAmount) {
+    // ==================== QR CODE + AUTO SLIP VERIFICATION ENGINE ====================
+    function populateQrDropdowns(selectedStudentId = null, selectedPartId = null, selectedSessionIdx = null) {
+      const stSel = document.getElementById("qr-student-select");
+      stSel.innerHTML = "";
+      appState.students.forEach(st => {
+        const opt = document.createElement("option");
+        opt.value = st.id;
+        opt.textContent = `เลขที่ ${st.no} - ${st.name}`;
+        stSel.appendChild(opt);
+      });
+      if (selectedStudentId) stSel.value = selectedStudentId;
+
+      const sesSel = document.getElementById("qr-session-select");
+      sesSel.innerHTML = "";
+      const targetPart = selectedPartId
+        ? (appState.parts.find(p => p.id === Number(selectedPartId)) || getActivePart())
+        : getActivePart();
+
+      if (targetPart) {
+        for (let s = 1; s <= targetPart.sessions; s++) {
+          const lbl = (targetPart.labels && targetPart.labels[s]) ? targetPart.labels[s] : `สัปดาห์ ${s}`;
+          const req = getSessionAmount(targetPart, s);
+          const opt = document.createElement("option");
+          opt.value = `${targetPart.id}_${s}`;
+          opt.textContent = `${lbl} (${req} ฿) - ${targetPart.title.split(":")[0]}`;
+          sesSel.appendChild(opt);
+        }
+        if (selectedSessionIdx) {
+          sesSel.value = `${targetPart.id}_${selectedSessionIdx}`;
+        } else {
+          const latest = resolveLatestHomeSession();
+          if (latest) sesSel.value = latest.key;
+        }
+      }
+    }
+
+    function onQrSelectionChange() {
+      const sesVal = document.getElementById("qr-session-select").value;
+      const stId = Number(document.getElementById("qr-student-select").value);
+      if (sesVal && stId) {
+        const [pId, sIdx] = sesVal.split("_").map(Number);
+        const part = appState.parts.find(p => p.id === pId);
+        if (part) {
+          const req = getSessionAmount(part, sIdx);
+          const paid = getCellPaidAmount(part, stId, sIdx);
+          const due = Math.max(0, req - paid);
+          document.getElementById("qr-pay-amount").value = due > 0 ? due : req;
+        }
+      }
+      renderQrPreview();
+    }
+
+    function openQrModal() {
       playSound("click");
-      document.getElementById("qr-modal-title").textContent = "📱 ชำระยอดค้างชำระ";
-      const infoBox = document.getElementById("qr-student-payer-info");
-      infoBox.style.display = "block";
-      infoBox.textContent = `👤 ผู้ชำระ: ${studentName} | ยอดค้างชำระ: ${owedAmount.toLocaleString()} บาท`;
+      document.getElementById("slip-file-input").value = "";
+      document.getElementById("slip-verify-status").innerHTML = "";
+      populateQrDropdowns();
+      onQrSelectionChange();
+      document.getElementById("qr-modal").classList.add("open");
+    }
+
+    function openQrModalForStudent(studentId, partId, sessionIdx, owedAmount) {
+      playSound("click");
+      document.getElementById("slip-file-input").value = "";
+      document.getElementById("slip-verify-status").innerHTML = "";
+      populateQrDropdowns(studentId, partId, sessionIdx);
       document.getElementById("qr-pay-amount").value = owedAmount;
       renderQrPreview();
       document.getElementById("qr-modal").classList.add("open");
     }
 
-    // ==================== CUSTOMIZABLE COLLECTION TABLE WITH PARTIAL PAYMENTS & NOTES ====================
+    function renderQrPreview() {
+      const s = appState.settings;
+      const amt = document.getElementById("qr-pay-amount").value;
+      const graphic = document.getElementById("qr-graphic");
+      document.getElementById("qr-account-label").textContent = s.qrName || "บัญชีเงินห้องเรียน";
+      document.getElementById("qr-number-label").textContent = "เลขบัญชี/พร้อมเพย์: " + (s.qrAccount || "-");
+
+      if (s.qrMode === "image" && s.qrImage) {
+        graphic.innerHTML = `<img src="${s.qrImage}" alt="QR Code" style="max-width:200px; max-height:200px; border-radius:10px;">`;
+      } else {
+        const cleanAcc = (s.qrAccount || "0812345678").replace(/[^0-9]/g, "");
+        const qrUrl = `https://promptpay.io/${cleanAcc}${amt && Number(amt) > 0 ? "/" + amt : ""}.png`;
+        graphic.innerHTML = `<img src="${qrUrl}" alt="PromptPay QR" style="width:185px; height:185px; border-radius:8px; background:white; padding:6px;">`;
+      }
+    }
+
+    function copyQrAccount() {
+      const acc = appState.settings.qrAccount;
+      navigator.clipboard.writeText(acc).then(() => {
+        playSound("success");
+        showToast("📋 คัดลอกเลขบัญชี " + acc + " แล้ว");
+      });
+    }
+
+    async function handleSlipUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusBox = document.getElementById("slip-verify-status");
+      const studentId = Number(document.getElementById("qr-student-select").value);
+      const sesVal = document.getElementById("qr-session-select").value;
+      const expectedAmt = Number(document.getElementById("qr-pay-amount").value) || 0;
+
+      if (!studentId || !sesVal) {
+        statusBox.innerHTML = `<span style="color:#dc2626;">⚠️ กรุณาเลือกชื่อผู้ชำระและสัปดาห์ก่อนแนบสลิป</span>`;
+        return;
+      }
+
+      const [partId, sessionIdx] = sesVal.split("_").map(Number);
+      const part = appState.parts.find(p => p.id === partId);
+      const student = appState.students.find(s => s.id === studentId);
+      if (!part || !student) return;
+
+      statusBox.innerHTML = `<span style="color:#0284c7;">⏳ กำลังสแกน QR Code และตรวจสอบยอดเงินในสลิป...</span>`;
+
+      try {
+        // Step 1: Decode QR code inside slip image using jsQR
+        const qrData = await scanQrFromImageFile(file);
+        if (!qrData) {
+          playSound("error");
+          statusBox.innerHTML = `<span style="color:#dc2626;">❌ ไม่พบ QR Code ตรวจสอบสลิปธนาคารในภาพนี้ กรุณาอัปโหลดรูปสลิปโอนเงินฉบับจริง</span>`;
+          return;
+        }
+
+        // Prevent duplicate slip reuse
+        const refHash = qrData.trim();
+        if (appState.verifiedSlips && appState.verifiedSlips[refHash]) {
+          playSound("error");
+          const prev = appState.verifiedSlips[refHash];
+          statusBox.innerHTML = `<span style="color:#dc2626;">❌ สลิปนี้เคยถูกใช้ตรวจสอบไปแล้ว (โดย ${prev.studentName}) ไม่สามารถใช้ซ้ำได้</span>`;
+          return;
+        }
+
+        // Step 2: OCR text extraction to verify amount
+        let detectedAmount = 0;
+        if (typeof Tesseract !== "undefined") {
+          statusBox.innerHTML = `<span style="color:#0284c7;">🔍 พบ QR สลิปถูกต้อง กำลังอ่านยอดเงินโอน...</span>`;
+          const ocrRes = await Tesseract.recognize(file, "tha+eng");
+          const text = (ocrRes && ocrRes.data && ocrRes.data.text) ? ocrRes.data.text : "";
+          detectedAmount = extractAmountFromSlipText(text, expectedAmt);
+        } else {
+          detectedAmount = expectedAmt;
+        }
+
+        const required = getSessionAmount(part, sessionIdx);
+        const currentPaid = getCellPaidAmount(part, studentId, sessionIdx);
+        const creditedAmt = detectedAmount > 0 ? detectedAmount : expectedAmt;
+
+        if (creditedAmt <= 0) {
+          playSound("error");
+          statusBox.innerHTML = `<span style="color:#dc2626;">❌ ไม่สามารถยืนยันจำนวนเงินในสลิปได้ กรุณาตรวจสอบรูปสลิปอีกครั้ง</span>`;
+          return;
+        }
+
+        const newTotalPaid = Math.min(required, currentPaid + creditedAmt);
+        const payKey = `${partId}_${studentId}_${sessionIdx}`;
+        if (newTotalPaid >= required) {
+          appState.payments[payKey] = true;
+        } else {
+          appState.payments[payKey] = newTotalPaid;
+        }
+
+        // Record verified slip reference to prevent reuse
+        if (!appState.verifiedSlips) appState.verifiedSlips = {};
+        appState.verifiedSlips[refHash] = {
+          studentId,
+          studentName: student.name,
+          partId,
+          sessionIdx,
+          amount: creditedAmt,
+          date: new Date().toISOString()
+        };
+
+        saveData(true);
+        playSound("success");
+        statusBox.innerHTML = `
+          <div style="background:#dcfce7; color:#166534; padding:10px; border-radius:10px; border:1px solid #22c55e;">
+            ✅ <strong>ตรวจสอบสลิปสำเร็จ!</strong><br>
+            บันทึกการชำระเงินของ <strong>${student.name}</strong> จำนวน <strong>${creditedAmt} บาท</strong> เรียบร้อยแล้ว
+          </div>
+        `;
+        showToast(`✅ ตรวจสลิปสำเร็จ! เช็กช่องจ่ายเงินให้ ${student.name} เรียบร้อย`);
+      } catch (err) {
+        console.error("Slip verification error:", err);
+        playSound("error");
+        statusBox.innerHTML = `<span style="color:#dc2626;">❌ เกิดข้อผิดพลาดในการอ่านไฟล์ภาพ กรุณาลองอัปโหลดใหม่อีกครั้ง</span>`;
+      }
+    }
+
+    function scanQrFromImageFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement("canvas");
+            const maxDim = 1000;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+              else { w = Math.round((w * maxDim) / h); h = maxDim; }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            const imageData = ctx.getImageData(0, 0, w, h);
+            if (typeof jsQR !== "undefined") {
+              const code = jsQR(imageData.data, w, h, { inversionAttempts: "attemptBoth" });
+              resolve(code ? code.data : null);
+            } else {
+              resolve(null);
+            }
+          };
+          img.onerror = () => resolve(null);
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function extractAmountFromSlipText(ocrText, expectedAmt) {
+      if (!ocrText) return 0;
+      const matches = ocrText.match(/\d[\d,]*\.\d{2}/g);
+      if (!matches || matches.length === 0) return expectedAmt;
+      const numbers = matches
+        .map(m => parseFloat(m.replace(/,/g, "")))
+        .filter(n => !isNaN(n) && n > 0 && n < 100000);
+      if (numbers.length === 0) return expectedAmt;
+      if (expectedAmt > 0 && numbers.includes(expectedAmt)) {
+        return expectedAmt;
+      }
+      return numbers[0];
+    }
+
+    // ==================== USER ISSUE REPORT & ADMIN INBOX ====================
+    function openReportModal() {
+      playSound("click");
+      document.getElementById("rep-sender").value = "";
+      document.getElementById("rep-detail").value = "";
+      document.getElementById("rep-image-input").value = "";
+      document.getElementById("report-modal").classList.add("open");
+    }
+
+    async function submitIssueReport() {
+      const sender = document.getElementById("rep-sender").value.trim();
+      const topic = document.getElementById("rep-topic").value;
+      const detail = document.getElementById("rep-detail").value.trim();
+      const fileInp = document.getElementById("rep-image-input");
+
+      if (!sender || !detail) {
+        showToast("⚠️ กรุณากรอกชื่อ-เลขที่ และรายละเอียดปัญหา");
+        return;
+      }
+
+      let imgData = "";
+      if (fileInp && fileInp.files && fileInp.files[0]) {
+        imgData = await compressImageToDataUrl(fileInp.files[0], 480, 0.5, 6500);
+      }
+
+      if (!appState.issueReports) appState.issueReports = [];
+      appState.issueReports.unshift({
+        id: Date.now(),
+        date: new Date().toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        sender,
+        topic,
+        detail,
+        image: imgData,
+        resolved: false
+      });
+
+      closeModal("report-modal");
+      playSound("success");
+      saveData(true);
+      showToast("✅ ส่งข้อความแจ้งปัญหาถึงแอดมินเรียบร้อยแล้ว (เห็นได้เฉพาะแอดมิน)");
+    }
+
+    function updateReportBadge() {
+      const badge = document.getElementById("nav-report-badge");
+      if (!badge) return;
+      const unresolvedCount = (appState.issueReports || []).filter(r => !r.resolved).length;
+      if (unresolvedCount > 0) {
+        badge.style.display = "inline-block";
+        badge.textContent = unresolvedCount;
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
+    function renderAdminReports() {
+      const list = document.getElementById("admin-reports-list");
+      if (!list) return;
+      list.innerHTML = "";
+      const reports = appState.issueReports || [];
+      if (reports.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:24px;">ยังไม่มีข้อความรายงานปัญหาจากผู้ใช้</p>`;
+        return;
+      }
+
+      reports.forEach(r => {
+        const div = document.createElement("div");
+        div.style.cssText = `border: 1px solid ${r.resolved ? '#cbd5e1' : '#f59e0b'}; border-left: 6px solid ${r.resolved ? '#10b981' : '#f59e0b'}; background: ${r.resolved ? '#f8fafc' : '#fffbeb'}; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; color: #0f172a;`;
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+            <div>
+              <span style="background:${r.resolved ? '#dcfce7' : '#fef3c7'}; color:${r.resolved ? '#166534' : '#b45309'}; padding:2px 10px; border-radius:99px; font-size:0.75rem; font-weight:700;">
+                ${r.resolved ? '✅ แก้ไขเรียบร้อยแล้ว' : '🔔 รอดำเนินการ'}
+              </span>
+              <span style="font-size:0.78rem; color:#64748b; margin-left:8px;">🕒 ${r.date}</span>
+              <h4 style="margin-top:6px; font-size:0.98rem;">${r.topic} — โดย: <strong>${r.sender}</strong></h4>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-sm ${r.resolved ? 'btn-outline' : ''}" onclick="toggleReportResolved(${r.id})">
+                ${r.resolved ? '↩️ เปิดเรื่องใหม่' : '✅ ทำเครื่องหมายแก้ไขแล้ว'}
+              </button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="deleteIssueReport(${r.id})">🗑️ ลบ</button>
+            </div>
+          </div>
+          <p style="margin-top:8px; font-size:0.88rem; white-space:pre-line; line-height:1.5;">${r.detail}</p>
+          ${r.image ? `<div style="margin-top:10px;"><img src="${r.image}" alt="แนบรูป" style="max-width:260px; border-radius:10px; border:1px solid #cbd5e1;"></div>` : ''}
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function toggleReportResolved(id) {
+      if (!isAdmin) return;
+      const rep = (appState.issueReports || []).find(r => r.id === id);
+      if (!rep) return;
+      rep.resolved = !rep.resolved;
+      saveData(true);
+      showToast(rep.resolved ? "✅ บันทึกสถานะแก้ไขเรียบร้อยแล้ว" : "เปิดสถานะรอดำเนินการอีกครั้ง");
+    }
+
+    function deleteIssueReport(id) {
+      if (!isAdmin) return;
+      if (!confirm("ต้องการลบข้อความแจ้งปัญหานี้ใช่หรือไม่?")) return;
+      appState.issueReports = (appState.issueReports || []).filter(r => r.id !== id);
+      saveData(true);
+      showToast("🗑️ ลบข้อความแจ้งปัญหาแล้ว");
+    }
+
+    // ==================== COLLECTION TABLE & PARTIAL PAYMENTS ====================
     function setCollectClickMode(mode) {
       playSound("click");
       collectClickMode = mode;
@@ -2443,7 +2979,7 @@
 
     function renderPartSelector() {
       const sel = document.getElementById("part-selector");
-      const currentVal = sel.value;
+      const activePart = getActivePart();
       sel.innerHTML = "";
       appState.parts.forEach(p => {
         const opt = document.createElement("option");
@@ -2451,10 +2987,8 @@
         opt.textContent = `${p.title} (${p.sessions} ครั้ง)`;
         sel.appendChild(opt);
       });
-      if (currentVal && appState.parts.some(p => String(p.id) === String(currentVal))) {
-        sel.value = currentVal;
-      } else if (appState.parts.length > 0) {
-        sel.value = appState.parts[0].id;
+      if (activePart) {
+        sel.value = activePart.id;
       }
     }
 
@@ -2468,8 +3002,7 @@
     }
 
     function renderCollectionTable() {
-      const partId = Number(document.getElementById("part-selector").value || (appState.parts[0]?.id || 1));
-      const part = appState.parts.find(p => p.id === partId) || appState.parts[0];
+      const part = getActivePart();
       if (!part) return;
       if (!part.labels) part.labels = {};
       if (!part.dates) part.dates = {};
@@ -2525,7 +3058,6 @@
         const partialList = [];
 
         for (let s = 1; s <= part.sessions; s++) {
-          const key = `${part.id}_${st.id}_${s}`;
           const required = getSessionAmount(part, s);
           const paid = getCellPaidAmount(part, st.id, s);
           partSum += paid;
@@ -2535,8 +3067,8 @@
           const colLabel = part.labels[s] || `สัปดาห์ ${s}`;
 
           if (isPartial) {
-            constขาด = required - paid;
-            partialList.push(`${colLabel}: จ่าย ${paid}/${required}฿ (ขาด ${ขาด}฿)`);
+            const shortage = required - paid;
+            partialList.push(`${colLabel}: จ่าย ${paid}/${required}฿ (ขาด ${shortage}฿)`);
           }
 
           let boxClass = "session-box";
@@ -2560,7 +3092,6 @@
           `;
         }
 
-        // Auto-generated shortage summary + optional custom note
         const customNote = part.notes[st.id] || "";
         let noteDisplayHtml = "";
         if (partialList.length > 0) {
@@ -2599,7 +3130,6 @@
       const required = getSessionAmount(part, sessionIdx);
       const currentPaid = getCellPaidAmount(part, studentId, sessionIdx);
 
-      // If in Partial Payment Mode OR cell already has a partial amount, open Partial Payment Modal
       if (collectClickMode === "partial" || (currentPaid > 0 && currentPaid < required)) {
         const lbl = (part.labels && part.labels[sessionIdx]) ? part.labels[sessionIdx] : `สัปดาห์ ${sessionIdx}`;
         document.getElementById("partial-pay-key").value = key;
@@ -2612,7 +3142,6 @@
         return;
       }
 
-      // Standard Full Payment Toggle Mode
       if (currentPaid > 0) {
         delete appState.payments[key];
       } else {
@@ -2692,8 +3221,7 @@
 
     function markEntirePartPaid(markPaid) {
       if (!isAdmin) return;
-      const partId = Number(document.getElementById("part-selector").value);
-      const part = appState.parts.find(p => p.id === partId);
+      const part = getActivePart();
       if (!part) return;
       if (!confirm(markPaid ? `ยืนยันติ๊กจ่ายครบทุกคนทุกสัปดาห์ใน "${part.title}"?` : `ยืนยันล้างข้อมูลการจ่ายเงินทั้งหมดใน "${part.title}"?`)) return;
 
@@ -2723,32 +3251,28 @@
         customAmounts: {},
         notes: {}
       });
+      appState.settings.activePartId = newId;
       saveData(true);
-      document.getElementById("part-selector").value = newId;
-      renderCollectionTable();
       openPartEditorModal();
     }
 
     function duplicateCurrentPart() {
       if (!isAdmin) return;
-      const partId = Number(document.getElementById("part-selector").value);
-      const part = appState.parts.find(p => p.id === partId);
+      const part = getActivePart();
       if (!part) return;
       const newId = Date.now();
       const cloned = JSON.parse(JSON.stringify(part));
       cloned.id = newId;
       cloned.title = part.title + " (สำเนา)";
       appState.parts.push(cloned);
+      appState.settings.activePartId = newId;
       saveData(true);
-      document.getElementById("part-selector").value = newId;
-      renderCollectionTable();
       showToast("📑 คัดลอกพาร์ทการเก็บเงินเรียบร้อย");
     }
 
     function openPartEditorModal() {
       if (!isAdmin) return;
-      const partId = Number(document.getElementById("part-selector").value);
-      const part = appState.parts.find(p => p.id === partId);
+      const part = getActivePart();
       if (!part) return;
 
       document.getElementById("edit-part-title").value = part.title;
@@ -2761,8 +3285,7 @@
     }
 
     function renderSessionDetailsEditor(existingPart) {
-      const partId = Number(document.getElementById("part-selector").value);
-      const part = existingPart || appState.parts.find(p => p.id === partId);
+      const part = existingPart || getActivePart();
       const count = Math.min(50, Math.max(1, Number(document.getElementById("edit-part-sessions").value) || 1));
       const defaultAmt = Number(document.getElementById("edit-part-amount").value) || 20;
       const container = document.getElementById("session-details-container");
@@ -2808,8 +3331,7 @@
     }
 
     function savePartConfig() {
-      const partId = Number(document.getElementById("part-selector").value);
-      const part = appState.parts.find(p => p.id === partId);
+      const part = getActivePart();
       if (!part) return;
 
       part.title = document.getElementById("edit-part-title").value.trim() || part.title;
@@ -2852,14 +3374,23 @@
         return;
       }
       if (!confirm("ต้องการลบพาร์ทการเก็บเงินนี้ใช่หรือไม่?")) return;
-      const partId = Number(document.getElementById("part-selector").value);
-      appState.parts = appState.parts.filter(p => p.id !== partId);
+      const part = getActivePart();
+      appState.parts = appState.parts.filter(p => p.id !== part.id);
+      appState.settings.activePartId = appState.parts[0].id;
       closeModal("part-modal");
       saveData(true);
       showToast("🗑️ ลบพาร์ทเรียบร้อยแล้ว");
     }
 
-    // ==================== PATCH NOTES ====================
+    // ==================== ENHANCED PATCH NOTES (CUSTOM THEME, TAGS & BANNER IMAGES) ====================
+    async function handlePatchBannerUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const dataUrl = await compressImageToDataUrl(file, 640, 0.52, 8500);
+      document.getElementById("edit-patch-image").value = dataUrl;
+      showToast("🖼️ อัปโหลดแบนเนอร์แพทช์เรียบร้อย!");
+    }
+
     function renderPatchNotes() {
       const list = document.getElementById("patch-notes-list");
       if (!list) return;
@@ -2870,21 +3401,30 @@
       }
 
       appState.patchNotes.forEach(p => {
+        const accent = p.accentColor || "var(--primary)";
+        const bg = p.bgColor || "#f8fafc";
+        const txtColor = p.textColor || "#0f172a";
+        const tag = p.tag || "UPDATE";
+        const banner = p.bannerImage || "";
+
         const card = document.createElement("div");
         card.className = "patch-card";
+        card.style.cssText = `border-left: 6px solid ${accent}; background: ${bg}; color: ${txtColor};`;
         card.innerHTML = `
+          ${banner ? `<img src="${banner}" alt="Patch Banner" style="width:100%; max-height:210px; object-fit:cover; border-radius:10px; margin-bottom:12px;">` : ''}
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
             <div>
-              <span style="background:var(--primary); color:white; padding:2px 10px; border-radius:99px; font-size:0.78rem; font-weight:700;">${p.version}</span>
-              <span style="font-size:0.8rem; color:#64748b; margin-left:8px;">📅 ${p.date}</span>
-              <h4 style="font-size:1.05rem; margin-top:6px;">${p.heading}</h4>
+              <span style="background:${accent}; color:white; padding:2px 10px; border-radius:99px; font-size:0.78rem; font-weight:700;">${p.version}</span>
+              <span style="background:rgba(0,0,0,0.08); color:${txtColor}; padding:2px 9px; border-radius:99px; font-size:0.72rem; font-weight:700; margin-left:4px;">${tag}</span>
+              <span style="font-size:0.8rem; opacity:0.75; margin-left:8px;">📅 ${p.date}</span>
+              <h4 style="font-size:1.08rem; margin-top:6px;">${p.heading}</h4>
             </div>
             <div class="admin-only" style="gap:6px;">
-              <button type="button" class="btn btn-outline btn-sm" onclick="openPatchModal(${p.id})">✏️ แก้ไข</button>
+              <button type="button" class="btn btn-outline btn-sm" style="background:white;" onclick="openPatchModal(${p.id})">✏️ แก้ไข</button>
               <button type="button" class="btn btn-danger btn-sm" onclick="deletePatchNote(${p.id})">ลบ</button>
             </div>
           </div>
-          <div style="white-space:pre-line; font-size:0.88rem; line-height:1.6; color:#334155;">${p.body}</div>
+          <div style="white-space:pre-line; font-size:0.88rem; line-height:1.65; opacity:0.92;">${p.body}</div>
         `;
         list.appendChild(card);
       });
@@ -2895,18 +3435,28 @@
       if (patchId) {
         const p = appState.patchNotes.find(item => item.id === patchId);
         if (!p) return;
-        document.getElementById("patch-modal-title").textContent = "✏️ แก้ไขรายงานอัปเดตแพทช์";
+        document.getElementById("patch-modal-title").textContent = "✏️ แก้ไข & ตกแต่งรายงานอัปเดตแพทช์";
         document.getElementById("edit-patch-id").value = p.id;
         document.getElementById("edit-patch-version").value = p.version;
+        document.getElementById("edit-patch-tag").value = p.tag || "UPDATE";
         document.getElementById("edit-patch-date").value = p.date;
         document.getElementById("edit-patch-heading").value = p.heading;
+        document.getElementById("edit-patch-accent").value = p.accentColor || "#059669";
+        document.getElementById("edit-patch-bg").value = p.bgColor || "#f8fafc";
+        document.getElementById("edit-patch-text").value = p.textColor || "#0f172a";
+        document.getElementById("edit-patch-image").value = p.bannerImage || "";
         document.getElementById("edit-patch-body").value = p.body;
       } else {
-        document.getElementById("patch-modal-title").textContent = "📰 เขียนรายงานการอัปเดตแพทช์ใหม่";
+        document.getElementById("patch-modal-title").textContent = "📰 เขียน & ตกแต่งประกาศอัปเดตแพทช์ใหม่";
         document.getElementById("edit-patch-id").value = "";
-        document.getElementById("edit-patch-version").value = "v11." + (appState.patchNotes.length + 2);
+        document.getElementById("edit-patch-version").value = "V.1.1." + (appState.patchNotes.length + 5);
+        document.getElementById("edit-patch-tag").value = "NEW FEATURE";
         document.getElementById("edit-patch-date").value = new Date().toISOString().split("T")[0];
         document.getElementById("edit-patch-heading").value = "";
+        document.getElementById("edit-patch-accent").value = "#059669";
+        document.getElementById("edit-patch-bg").value = "#f8fafc";
+        document.getElementById("edit-patch-text").value = "#0f172a";
+        document.getElementById("edit-patch-image").value = "";
         document.getElementById("edit-patch-body").value = "";
       }
       document.getElementById("patch-modal").classList.add("open");
@@ -2914,9 +3464,14 @@
 
     function savePatchNote() {
       const idVal = document.getElementById("edit-patch-id").value;
-      const version = document.getElementById("edit-patch-version").value.trim() || "v11.x";
+      const version = document.getElementById("edit-patch-version").value.trim() || "V.1.1.x";
+      const tag = document.getElementById("edit-patch-tag").value.trim() || "UPDATE";
       const date = document.getElementById("edit-patch-date").value || new Date().toISOString().split("T")[0];
       const heading = document.getElementById("edit-patch-heading").value.trim();
+      const accentColor = document.getElementById("edit-patch-accent").value;
+      const bgColor = document.getElementById("edit-patch-bg").value;
+      const textColor = document.getElementById("edit-patch-text").value;
+      const bannerImage = document.getElementById("edit-patch-image").value.trim();
       const body = document.getElementById("edit-patch-body").value.trim();
 
       if (!heading) {
@@ -2924,19 +3479,30 @@
         return;
       }
 
+      const patchObj = {
+        id: idVal ? Number(idVal) : Date.now(),
+        version,
+        tag,
+        date,
+        heading,
+        accentColor,
+        bgColor,
+        textColor,
+        bannerImage,
+        body
+      };
+
       if (idVal) {
         const idx = appState.patchNotes.findIndex(p => String(p.id) === String(idVal));
-        if (idx !== -1) {
-          appState.patchNotes[idx] = { id: Number(idVal), version, date, heading, body };
-        }
+        if (idx !== -1) appState.patchNotes[idx] = patchObj;
       } else {
-        appState.patchNotes.unshift({ id: Date.now(), version, date, heading, body });
+        appState.patchNotes.unshift(patchObj);
       }
 
       closeModal("patch-modal");
       saveData(true);
       playSound("success");
-      showToast("✅ บันทึกประกาศอัปเดตแพทช์เรียบร้อย");
+      showToast("✅ บันทึกประกาศอัปเดตแพทช์และซิงค์ทุกเครื่องเรียบร้อย");
     }
 
     function deletePatchNote(id) {
@@ -2986,8 +3552,8 @@
           <td>${tx.date}</td>
           <td><span style="padding:3px 8px; border-radius:99px; font-size:0.78rem; font-weight:600; background:${isInc ? '#dcfce7' : '#fee2e2'}; color:${isInc ? '#166534' : '#991b1b'};">${isInc ? '📥 รายรับ' : '📤 รายจ่าย'}</span></td>
           <td>${tx.title}</td>
-          <td style="font-weight:700; color:${isInc ? '#059669' : '#dc2626'};">${isInc ? '+' : '-'}${Number(tx.amount).toLocaleString()} ฿</td>
-          <td class="admin-only"><button type="button" class="btn btn-danger btn-sm" onclick="deleteTransaction(${tx.id})">ลบ</button></td>
+          <td style="font-weight:700; text-align:right; color:${isInc ? '#059669' : '#dc2626'};">${isInc ? '+' : '-'}${Number(tx.amount).toLocaleString()} ฿</td>
+          <td class="admin-only no-export"><button type="button" class="btn btn-danger btn-sm" onclick="deleteTransaction(${tx.id})">ลบ</button></td>
         `;
         body.appendChild(tr);
       });
@@ -3118,23 +3684,15 @@
       document.getElementById("cfg-home-order").value = s.homeOrder || "stats-first";
       document.getElementById("cfg-site-title").value = s.siteTitle;
       document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
-      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND DASHBOARD v11.2";
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND V.1.1.5";
       document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
 
-      // Aura & Animations
       document.getElementById("cfg-aura-mode").value = s.auraMode || "none";
       document.getElementById("cfg-aura-c1").value = s.auraColor1 || "#10b981";
       document.getElementById("cfg-aura-c2").value = s.auraColor2 || "#0284c7";
       document.getElementById("cfg-ui-anim").value = s.uiAnimMode || "card-hover";
 
-      // Toast
-      document.getElementById("cfg-toast-bg").value = s.toastBg || "#0f172a";
-      document.getElementById("cfg-toast-color").value = s.toastColor || "#ffffff";
-      document.getElementById("cfg-toast-border").value = s.toastBorder || "#10b981";
-      document.getElementById("cfg-toast-duration").value = s.toastDuration || 3.2;
-
-      // Festival & Custom Events
       document.getElementById("cfg-festival").value = s.festival || "none";
       document.getElementById("cfg-custom-emojis").value = s.customEmojis || "✨ 🎉 🎊";
       document.getElementById("cfg-effect-dir").value = s.effectDirection || "fall";
@@ -3142,13 +3700,8 @@
       document.getElementById("cfg-effect-speed").value = s.effectSpeed || 1.5;
       document.getElementById("cfg-effect-size").value = s.effectSize || 20;
 
-      // Sound
-      document.getElementById("cfg-sound-theme").value = s.soundTheme || "soft";
-      document.getElementById("cfg-sound-volume").value = s.soundVolume !== undefined ? s.soundVolume : 70;
       document.getElementById("cfg-new-password").value = "";
-
       updateImageThumbPreviews();
-      updateAudioStatusLabels();
     }
 
     function applyPreset(name) {
@@ -3196,19 +3749,11 @@
       s.heroTitle = document.getElementById("cfg-hero-title").value;
       s.heroDesc = document.getElementById("cfg-hero-desc").value;
 
-      // Aura & UI Animations
       s.auraMode = document.getElementById("cfg-aura-mode").value;
       s.auraColor1 = document.getElementById("cfg-aura-c1").value;
       s.auraColor2 = document.getElementById("cfg-aura-c2").value;
       s.uiAnimMode = document.getElementById("cfg-ui-anim").value;
 
-      // Toast
-      s.toastBg = document.getElementById("cfg-toast-bg").value;
-      s.toastColor = document.getElementById("cfg-toast-color").value;
-      s.toastBorder = document.getElementById("cfg-toast-border").value;
-      s.toastDuration = Math.min(10, Math.max(1, Number(document.getElementById("cfg-toast-duration").value) || 3.2));
-
-      // Festival & Custom Events
       s.festival = document.getElementById("cfg-festival").value;
       s.customEmojis = document.getElementById("cfg-custom-emojis").value.trim() || "✨ 🎉 🎊";
       s.effectDirection = document.getElementById("cfg-effect-dir").value;
@@ -3216,19 +3761,16 @@
       s.effectSpeed = Math.min(5, Math.max(0.5, Number(document.getElementById("cfg-effect-speed").value) || 1.5));
       s.effectSize = Math.min(42, Math.max(10, Number(document.getElementById("cfg-effect-size").value) || 20));
 
-      // Sound
-      s.soundTheme = document.getElementById("cfg-sound-theme").value;
-      s.soundVolume = Math.min(100, Math.max(0, Number(document.getElementById("cfg-sound-volume").value) || 70));
-
       const newPass = document.getElementById("cfg-new-password").value.trim();
       if (newPass) {
         appState.adminPass = newPass;
         document.getElementById("cfg-new-password").value = "";
         showToast("🔑 เปลี่ยนรหัสผ่าน Admin สำเร็จ!");
       } else {
-        showToast("✅ บันทึกการตั้งค่าทั้งหมดและซิงค์ขึ้นชีตแล้ว!");
+        showToast("✅ บันทึกการตั้งค่าทั้งหมดและซิงค์ทุกเครื่องแล้ว!");
       }
 
+      currentFestivalSignature = ""; // Force restart effect
       applyAllSettings();
       saveData(true);
       playSound("success");
@@ -3248,12 +3790,6 @@
       root.style.setProperty("--bg-overlay", s.bgOverlay || 0.82);
       root.style.setProperty("--marquee-speed", (s.marqueeSpeed || 18) + "s");
 
-      // Toast Styles
-      root.style.setProperty("--toast-bg", s.toastBg || "#0f172a");
-      root.style.setProperty("--toast-color", s.toastColor || "#ffffff");
-      root.style.setProperty("--toast-border", s.toastBorder || "#10b981");
-
-      // Screen Aura & UI Animations
       root.style.setProperty("--aura-color-1", s.auraColor1 || "#10b981");
       root.style.setProperty("--aura-color-2", s.auraColor2 || "#0284c7");
       const auraEl = document.getElementById("screen-aura-frame");
@@ -3303,7 +3839,7 @@
 
       document.getElementById("ui-site-title").textContent = s.siteTitle;
       document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
-      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND DASHBOARD v11.2";
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND V.1.1.5";
       document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
 
@@ -3336,44 +3872,15 @@
         maintOverlay.classList.remove("active");
       }
 
-      startFestivalEffect(s.festival, s.effectCount || 35, s.effectSpeed || 1.5);
-    }
-
-    // ==================== QR CODE MODAL ====================
-    function openQrModal() {
-      playSound("click");
-      document.getElementById("qr-modal-title").textContent = "📱 สแกนจ่ายเงินห้องเรียน";
-      document.getElementById("qr-student-payer-info").style.display = "none";
-      document.getElementById("qr-pay-amount").value = "";
-      renderQrPreview();
-      document.getElementById("qr-modal").classList.add("open");
-    }
-
-    function renderQrPreview() {
-      const s = appState.settings;
-      const amt = document.getElementById("qr-pay-amount").value;
-      const graphic = document.getElementById("qr-graphic");
-      document.getElementById("qr-account-label").textContent = s.qrName || "บัญชีเงินห้องเรียน";
-      document.getElementById("qr-number-label").textContent = "เลขบัญชี/พร้อมเพย์: " + (s.qrAccount || "-");
-
-      if (s.qrMode === "image" && s.qrImage) {
-        graphic.innerHTML = `<img src="${s.qrImage}" alt="QR Code" style="max-width:220px; max-height:220px; border-radius:10px;">`;
-      } else {
-        const cleanAcc = (s.qrAccount || "0812345678").replace(/[^0-9]/g, "");
-        const qrUrl = `https://promptpay.io/${cleanAcc}${amt && Number(amt) > 0 ? "/" + amt : ""}.png`;
-        graphic.innerHTML = `<img src="${qrUrl}" alt="PromptPay QR" style="width:200px; height:200px; border-radius:8px; background:white; padding:6px;">`;
+      // Sync festival effect across all devices
+      const sig = `${s.festival}|${s.customEmojis}|${s.effectDirection}|${s.effectCount}|${s.effectSpeed}|${s.effectSize}`;
+      if (sig !== currentFestivalSignature) {
+        currentFestivalSignature = sig;
+        startFestivalEffect(s.festival, s.effectCount || 35, s.effectSpeed || 1.5);
       }
     }
 
-    function copyQrAccount() {
-      const acc = appState.settings.qrAccount;
-      navigator.clipboard.writeText(acc).then(() => {
-        playSound("success");
-        showToast("📋 คัดลอกเลขบัญชี " + acc + " แล้ว");
-      });
-    }
-
-    // ==================== CUSTOMIZABLE FESTIVAL & EVENT PARTICLES ====================
+    // ==================== FESTIVAL & EVENT PARTICLES ====================
     let festivalAnimId = null;
     function startFestivalEffect(type, count = 35, speedMultiplier = 1.5) {
       const canvas = document.getElementById("festival-canvas");
@@ -3452,40 +3959,20 @@
       animate();
     }
 
-    // ==================== FULL CUSTOM AUDIO ENGINE ====================
+    // ==================== AUDIO & TOAST ====================
     function playSound(type) {
       const s = appState.settings;
       const theme = s.soundTheme || "soft";
       if (isMuted || theme === "mute") return;
-
-      const volRatio = (s.soundVolume !== undefined ? s.soundVolume : 70) / 100;
-      if (volRatio <= 0) return;
-
-      const customSrc = type === "success" ? s.audioSuccess : (type === "error" ? s.audioError : s.audioClick);
-      if (customSrc) {
-        try {
-          const audio = new Audio(customSrc);
-          audio.volume = Math.min(1, Math.max(0, volRatio));
-          audio.play().catch(() => {});
-          return;
-        } catch (e) {}
-      }
-
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
-        osc.type = theme === "arcade" ? "square" : (theme === "crystal" ? "triangle" : "sine");
-        let freq = 520;
-        if (type === "success") freq = theme === "piano" ? 1046.5 : 880;
-        else if (type === "error") freq = 220;
-        else freq = theme === "piano" ? 587.3 : 520;
-
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.12 * volRatio, audioCtx.currentTime);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(type === "success" ? 880 : (type === "error" ? 220 : 520), audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.14);
@@ -3500,7 +3987,7 @@
 
     function showToast(msg) {
       const t = document.getElementById("toast");
-      const dur = ((appState.settings.toastDuration || 3.2) * 1000);
+      const dur = ((appState.settings.toastDuration || 3.5) * 1000);
       t.textContent = msg;
       t.classList.add("show");
       clearTimeout(toastTimer);
