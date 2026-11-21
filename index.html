@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบจัดการเงินห้องเรียน - Class Fund V.1.2.0</title>
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund V.1.2.1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -656,6 +656,16 @@
     }
 
     @media print {
+      body:not(.is-admin) * { display: none !important; }
+      body:not(.is-admin)::before {
+        content: "🔒 สงวนสิทธิ์การพิมพ์เอกสารเฉพาะผู้ดูแลระบบ (Admin) เท่านั้น";
+        display: block !important;
+        font-size: 18pt;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 80px;
+        color: #0f172a;
+      }
       @page { size: A4 landscape; margin: 10mm; }
       .navbar, .marquee-wrap, .no-print, .no-export, .nav-actions, #screen-aura-frame, #festival-canvas, .admin-block { display: none !important; }
       body { background: white !important; font-family: 'Sarabun', sans-serif !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -728,7 +738,7 @@
 
   <!-- Marquee Banner -->
   <div class="marquee-wrap" id="ui-marquee-wrap">
-    <div class="marquee-text" id="ui-marquee-text">📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.0 ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!</div>
+    <div class="marquee-text" id="ui-marquee-text">📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.1 ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!</div>
   </div>
 
   <main class="container">
@@ -736,7 +746,7 @@
     <section id="page-home" class="page-section active">
       <div class="hero-banner" id="ui-hero-banner">
         <div>
-          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND V.1.2.0</span>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND V.1.2.1</span>
           <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
           <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">สแกนจ่าย QR Code พร้อมส่งสลิปตรวจสอบอัตโนมัติ ซิงค์ข้อมูลครบทุกหน้า</p>
         </div>
@@ -812,8 +822,8 @@
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <select id="part-selector" onchange="onCollectionPartChange(this.value)" style="width: auto; min-width: 240px; font-weight: 600;"></select>
-            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialSectionPng('collect-export-area', 'รายงานทะเบียนคุมการจัดเก็บเงิน')">🖼️ บันทึกเอกสารทางการ (PNG)</button>
-            <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialPdf()">📄 พิมพ์เอกสารทางการ (PDF)</button>
+            <button type="button" class="btn btn-outline btn-sm no-print admin-only" onclick="exportOfficialSectionPng('collect-export-area', 'รายงานทะเบียนคุมการจัดเก็บเงิน')">🖼️ บันทึกเอกสารทางการ (PNG)</button>
+            <button type="button" class="btn btn-outline btn-sm no-print admin-only" onclick="exportOfficialPdf()">📄 พิมพ์เอกสารทางการ (PDF)</button>
             <button type="button" class="btn btn-sm admin-only" onclick="openPartEditorModal()">⚙️ ปรับแต่งพาร์ทนี้</button>
             <button type="button" class="btn btn-outline btn-sm admin-only" onclick="duplicateCurrentPart()">📑 คัดลอก</button>
             <button type="button" class="btn btn-outline btn-sm admin-only" onclick="addNewPart()">➕ เพิ่มกิจกรรมใหม่</button>
@@ -973,10 +983,10 @@
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
           <div>
-            <h3>📒 บัญชีรายรับ - รายจ่าย &amp; งบดุลทางการระดับบริษัท</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">ส่งออกงบการเงินระดับองค์กร / บริษัท (PNG / PDF) พร้อมสรุปยอดยกมา รายรับ รายจ่าย และช่องลงนาม 3 ฝ่าย</p>
+            <h3>📒 บัญชีรายรับ - รายจ่าย</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">บันทึกรายการรายรับ - รายจ่าย และตรวจสอบยอดเงินคงเหลือสุทธิของห้องเรียน</p>
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <div class="admin-only no-print" style="gap:8px; flex-wrap:wrap;">
             <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialSectionPng('ledger-export-area', 'งบดุลบัญชีรายรับรายจ่าย')">🖼️ บันทึกเอกสารทางการ (PNG)</button>
             <button type="button" class="btn btn-outline btn-sm no-print" onclick="exportOfficialPdf()">📄 พิมพ์เอกสารทางการ (PDF)</button>
           </div>
@@ -1796,7 +1806,7 @@
       <div class="grid-3">
         <div class="form-group">
           <label>เวอร์ชันแพทช์</label>
-          <input type="text" id="edit-patch-version" placeholder="V.1.2.0">
+          <input type="text" id="edit-patch-version" placeholder="V.1.2.1">
         </div>
         <div class="form-group">
           <label>ป้ายหมวดหมู่ (Tag)</label>
@@ -1810,7 +1820,7 @@
 
       <div class="form-group">
         <label>หัวข้อการอัปเดต</label>
-        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตระบบ V.1.2.0">
+        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตระบบ V.1.2.1">
       </div>
 
       <div class="grid-3">
@@ -1891,10 +1901,10 @@
     const DEFAULT_PATCHES = [
       {
         id: 1,
-        version: "V.1.2.0",
+        version: "V.1.2.1",
         tag: "CORPORATE & STABILITY",
         date: "2026-11-21",
-        heading: "อัปเดตระบบ V.1.2.0: ล็อกสิทธิ์หน้าหลักสำหรับ Admin, สแกนจ่ายรวมยอดค้างอดีต, เอกสารระดับบริษัท & ระบบความเสถียรสูง",
+        heading: "อัปเดตระบบ V.1.2.1: ล็อกสิทธิ์หน้าหลักสำหรับ Admin, สแกนจ่ายรวมยอดค้างอดีต, เอกสารระดับบริษัท & ระบบความเสถียรสูง",
         accentColor: "#059669",
         bgColor: "#ecfdf5",
         textColor: "#0f172a",
@@ -1925,10 +1935,10 @@
         signName3: "",
         siteTitle: "ระบบจัดการเงินห้องเรียน",
         siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
-        heroBadge: "CLASS FUND V.1.2.0",
+        heroBadge: "CLASS FUND V.1.2.1",
         heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
         heroDesc: "สแกนจ่าย QR Code พร้อมส่งสลิปตรวจสอบอัตโนมัติ ซิงค์ข้อมูลครบทุกหน้า",
-        marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.0 ตรวจสอบยอดและสแกนชำระเงินได้ตลอด 24 ชั่วโมง!",
+        marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.1 ตรวจสอบยอดและสแกนชำระเงินได้ตลอด 24 ชั่วโมง!",
         marqueeBg: "#064e3b",
         marqueeColor: "#ffffff",
         marqueeSpeed: 18,
@@ -2005,7 +2015,13 @@
         if (appState.gasUrl && !isAdmin && !isPushing) {
           pullFromGoogleSheets(true);
         }
-      }, 30000);
+      }, 25000);
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && appState.gasUrl && !isAdmin && !isPushing) {
+          pullFromGoogleSheets(true);
+        }
+      });
     });
 
     function sanitizeAppState() {
@@ -2094,14 +2110,96 @@
       }, 450);
     }
 
-    function fitPayloadUnderLimit(payload) {
+    function normalizeImageUrl(url) {
+      if (!url || typeof url !== "string") return "";
+      const trimmed = url.trim();
+      if (trimmed.startsWith("data:")) return trimmed;
+      // Auto-convert Google Drive share links to direct embeddable image URLs
+      const driveFileMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (driveFileMatch && driveFileMatch[1]) {
+        return `https://lh3.googleusercontent.com/d/${driveFileMatch[1]}`;
+      }
+      const driveOpenMatch = trimmed.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+      if (driveOpenMatch && driveOpenMatch[1]) {
+        return `https://lh3.googleusercontent.com/d/${driveOpenMatch[1]}`;
+      }
+      return trimmed;
+    }
+
+    function recompressDataUrlSync(dataUrl, maxDim = 420, quality = 0.42) {
+      return new Promise((resolve) => {
+        if (!dataUrl || !dataUrl.startsWith("data:image")) {
+          resolve(dataUrl);
+          return;
+        }
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+            else { w = Math.round((w * maxDim) / h); h = maxDim; }
+          }
+          const c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          const ctx = c.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    }
+
+    async function fitPayloadUnderLimit(payload) {
+      const SAFE_CHAR_LIMIT = 46500; // Google Sheets single-cell hard limit is 50,000 chars
+      const imgKeys = ["bgImage", "heroBgImage", "maintBgImage", "maintImage", "qrImage", "logoImage"];
+      if (payload.settings) {
+        imgKeys.forEach(k => {
+          if (payload.settings[k]) payload.settings[k] = normalizeImageUrl(payload.settings[k]);
+        });
+      }
+      if (Array.isArray(payload.patchNotes)) {
+        payload.patchNotes.forEach(p => {
+          if (p.bannerImage) p.bannerImage = normalizeImageUrl(p.bannerImage);
+        });
+      }
+
       let jsonStr = JSON.stringify(payload);
-      if (jsonStr.length > 48500 && Array.isArray(payload.issueReports)) {
+      if (jsonStr.length <= SAFE_CHAR_LIMIT) return jsonStr;
+
+      // Step 1: Compress setting images progressively so ALL images fit in Google Sheets cell
+      const tiers = [
+        { dim: 480, q: 0.45 },
+        { dim: 360, q: 0.36 },
+        { dim: 260, q: 0.28 }
+      ];
+      for (const tier of tiers) {
+        if (jsonStr.length <= SAFE_CHAR_LIMIT) break;
+        for (const k of imgKeys) {
+          if (payload.settings && payload.settings[k] && payload.settings[k].startsWith("data:")) {
+            const dim = k === "logoImage" ? Math.min(120, tier.dim) : tier.dim;
+            payload.settings[k] = await recompressDataUrlSync(payload.settings[k], dim, tier.q);
+          }
+        }
+        if (Array.isArray(payload.patchNotes)) {
+          for (const p of payload.patchNotes) {
+            if (p.bannerImage && p.bannerImage.startsWith("data:")) {
+              p.bannerImage = await recompressDataUrlSync(p.bannerImage, tier.dim, tier.q);
+            }
+          }
+        }
+        jsonStr = JSON.stringify(payload);
+      }
+
+      // Step 2: Trim old issueReport images if still over limit
+      if (jsonStr.length > SAFE_CHAR_LIMIT && Array.isArray(payload.issueReports)) {
         for (let i = payload.issueReports.length - 1; i >= 0; i--) {
           if (payload.issueReports[i].image) {
             payload.issueReports[i].image = "";
             jsonStr = JSON.stringify(payload);
-            if (jsonStr.length <= 48500) break;
+            if (jsonStr.length <= SAFE_CHAR_LIMIT) break;
           }
         }
       }
@@ -2125,7 +2223,7 @@
           adminPass: appState.adminPass
         };
 
-        const safeBody = fitPayloadUnderLimit(payload);
+        const safeBody = await fitPayloadUnderLimit(payload);
 
         await fetch(appState.gasUrl, {
           method: "POST",
@@ -2345,6 +2443,10 @@
     }
 
     async function exportOfficialSectionPng(elementId, filePrefix) {
+      if (!isAdmin) {
+        showToast("🔒 สงวนสิทธิ์การบันทึกและส่งออกเอกสารเฉพาะผู้ดูแลระบบ (Admin) เท่านั้น");
+        return;
+      }
       playSound("click");
       const target = document.getElementById(elementId);
       if (!target || typeof html2canvas === "undefined") {
@@ -2388,6 +2490,10 @@
     }
 
     function exportOfficialPdf() {
+      if (!isAdmin) {
+        showToast("🔒 สงวนสิทธิ์การพิมพ์เอกสารเฉพาะผู้ดูแลระบบ (Admin) เท่านั้น");
+        return;
+      }
       playSound("click");
       prepareOfficialDocumentMetadata();
       showToast("📄 กำลังเปิดหน้าต่างพิมพ์ / บันทึกเอกสาร PDF ฉบับทางการ...");
@@ -2439,7 +2545,8 @@
     async function handleCompressedImageUpload(event, targetKey, maxDim, initialQuality) {
       const file = event.target.files[0];
       if (!file) return;
-      const dataUrl = await compressImageToDataUrl(file, maxDim, initialQuality, 8500);
+      const budget = targetKey === "logoImage" ? 3000 : 5200;
+      const dataUrl = await compressImageToDataUrl(file, Math.min(maxDim, 520), initialQuality, budget);
       appState.settings[targetKey] = dataUrl;
       updateImageThumbPreviews();
       applyAllSettings();
@@ -2449,12 +2556,12 @@
     }
 
     function applyDirectImageUrl(targetKey, urlVal) {
-      const clean = (urlVal || "").trim();
+      const clean = normalizeImageUrl(urlVal || "");
       appState.settings[targetKey] = clean;
       updateImageThumbPreviews();
       applyAllSettings();
       saveData(true);
-      if (clean) showToast("🔗 บันทึกลิงก์รูปภาพและซิงค์ทุกเครื่องแล้ว!");
+      if (clean) showToast("🔗 บันทึกลิงก์รูปภาพ (รองรับลิงก์เว็บและ Google Drive) และซิงค์ทุกเครื่องแล้ว!");
     }
 
     function removeSingleImage(targetKey) {
@@ -4159,7 +4266,7 @@
       document.getElementById("cfg-bg-overlay").value = s.bgOverlay || 0.84;
       document.getElementById("cfg-site-title").value = s.siteTitle;
       document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
-      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND V.1.2.0";
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND V.1.2.1";
       document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
 
@@ -4320,11 +4427,13 @@
         root.style.setProperty("--border-color", "#cbd5e1");
       }
 
-      root.style.setProperty("--bg-image", s.bgImage ? `url("${s.bgImage}")` : "none");
+      const bgImgUrl = normalizeImageUrl(s.bgImage);
+      root.style.setProperty("--bg-image", bgImgUrl ? `url("${bgImgUrl}")` : "none");
 
       const heroEl = document.getElementById("ui-hero-banner");
-      if (s.heroBgImage) {
-        root.style.setProperty("--hero-bg-image", `url("${s.heroBgImage}")`);
+      const heroImgUrl = normalizeImageUrl(s.heroBgImage);
+      if (heroImgUrl) {
+        root.style.setProperty("--hero-bg-image", `url("${heroImgUrl}")`);
         heroEl.classList.add("has-cover");
       } else {
         root.style.setProperty("--hero-bg-image", "none");
@@ -4332,15 +4441,16 @@
       }
 
       const logoEl = document.getElementById("ui-brand-logo");
-      if (s.logoImage) {
-        logoEl.innerHTML = `<img src="${s.logoImage}" alt="Logo">`;
+      const logoImgUrl = normalizeImageUrl(s.logoImage);
+      if (logoImgUrl) {
+        logoEl.innerHTML = `<img src="${logoImgUrl}" alt="Logo" onerror="this.parentElement.textContent='💰'">`;
       } else {
         logoEl.textContent = "💰";
       }
 
       document.getElementById("ui-site-title").textContent = s.siteTitle;
       document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
-      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND V.1.2.0";
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND V.1.2.1";
       document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
 
@@ -4352,10 +4462,12 @@
       mText.textContent = s.marqueeText;
 
       const maintOverlay = document.getElementById("maintenance-overlay");
-      maintOverlay.style.backgroundImage = s.maintBgImage ? `url("${s.maintBgImage}")` : "none";
+      const maintBgUrl = normalizeImageUrl(s.maintBgImage);
+      const maintMainUrl = normalizeImageUrl(s.maintImage);
+      maintOverlay.style.backgroundImage = maintBgUrl ? `url("${maintBgUrl}")` : "none";
       const maintImgWrap = document.getElementById("ui-maint-image-wrap");
-      if (s.maintImage) {
-        maintImgWrap.innerHTML = `<img src="${s.maintImage}" alt="Maintenance" style="max-width:100%; max-height:240px; border-radius:18px; border:2px solid rgba(255,255,255,0.28); box-shadow:0 12px 28px rgba(0,0,0,0.45);">`;
+      if (maintMainUrl) {
+        maintImgWrap.innerHTML = `<img src="${maintMainUrl}" alt="Maintenance" style="max-width:100%; max-height:240px; border-radius:18px; border:2px solid rgba(255,255,255,0.28); box-shadow:0 12px 28px rgba(0,0,0,0.45);" onerror="this.style.display='none'">`;
       } else {
         maintImgWrap.innerHTML = `<div style="font-size: 4rem;">🚧</div>`;
       }
