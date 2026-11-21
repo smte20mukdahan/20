@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบจัดการเงินห้องเรียน - Class Fund V.1.2.1</title>
+  <title>ระบบจัดการเงินห้องเรียน - Class Fund V.1.2.2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Itim&family=Kanit:wght@300;400;500;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -655,6 +655,178 @@
       font-size: 0.84rem;
     }
 
+    /* ==================== MOBILE RESPONSIVE ENHANCEMENTS ==================== */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 10px 12px;
+        gap: 8px;
+      }
+      .brand {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .brand-logo {
+        width: 38px;
+        height: 38px;
+        font-size: 1.15rem;
+      }
+      .brand-text h1 {
+        font-size: 1rem;
+      }
+      .brand-text p {
+        font-size: 0.72rem;
+      }
+      .nav-tabs {
+        width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        gap: 6px;
+        scrollbar-width: none;
+      }
+      .nav-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-btn {
+        flex-shrink: 0;
+        padding: 7px 12px;
+        font-size: 0.82rem;
+      }
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .nav-actions .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.78rem;
+      }
+      .container {
+        margin: 12px auto;
+        padding: 0 10px 48px;
+      }
+      .card {
+        padding: 14px 12px;
+        border-radius: 14px;
+        margin-bottom: 14px;
+      }
+      .hero-banner {
+        padding: 18px 16px;
+        gap: 12px;
+      }
+      .hero-banner h2 {
+        font-size: 1.25rem !important;
+      }
+      .hero-banner p {
+        font-size: 0.82rem !important;
+      }
+      .hero-banner > div:last-child {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px !important;
+      }
+      .hero-banner > div:last-child .btn {
+        justify-content: center;
+        padding: 9px 10px;
+        font-size: 0.8rem;
+      }
+      .active-part-bar {
+        padding: 12px;
+        gap: 8px;
+      }
+      .active-part-bar select {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .stat-card {
+        padding: 12px;
+      }
+      .stat-card .label {
+        font-size: 0.74rem;
+      }
+      .stat-card .value {
+        font-size: 1.25rem;
+      }
+      #home-search, #arrears-search, #member-search, #part-selector, #arrears-part-filter, #arrears-mode-filter, #home-latest-session-select {
+        max-width: 100% !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      .status-filter-bar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .status-filter-bar::-webkit-scrollbar {
+        display: none;
+      }
+      .filter-pill {
+        flex-shrink: 0;
+        font-size: 0.78rem;
+        padding: 6px 11px;
+      }
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      /* Sticky first 2 columns in collection table for easy mobile horizontal scrolling */
+      #collect-export-area table th:nth-child(1),
+      #collect-export-area table td:nth-child(1) {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: #f8fafc;
+        min-width: 44px;
+        max-width: 44px;
+        text-align: center;
+      }
+      #collect-export-area table td:nth-child(1) {
+        background: #ffffff;
+      }
+      #collect-export-area table th:nth-child(2),
+      #collect-export-area table td:nth-child(2) {
+        position: sticky;
+        left: 44px;
+        z-index: 2;
+        background: #f8fafc;
+        min-width: 125px !important;
+        max-width: 135px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.06);
+      }
+      #collect-export-area table td:nth-child(2) {
+        background: #ffffff;
+      }
+      .session-box {
+        min-width: 36px;
+        height: 34px;
+        font-size: 0.76rem;
+      }
+      .modal-backdrop {
+        padding: 10px;
+        align-items: flex-end;
+      }
+      .modal-box {
+        padding: 18px 14px;
+        border-radius: 20px 20px 14px 14px;
+        max-height: 88vh;
+      }
+      .session-edit-row {
+        grid-template-columns: 32px 1fr 1fr 0.75fr;
+        gap: 4px;
+      }
+    }
+
     @media print {
       body:not(.is-admin) * { display: none !important; }
       body:not(.is-admin)::before {
@@ -738,7 +910,7 @@
 
   <!-- Marquee Banner -->
   <div class="marquee-wrap" id="ui-marquee-wrap">
-    <div class="marquee-text" id="ui-marquee-text">📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.1 ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!</div>
+    <div class="marquee-text" id="ui-marquee-text">📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.2 ตรวจสอบสถานะการชำระเงินและยอดคงเหลือได้แบบเรียลไทม์!</div>
   </div>
 
   <main class="container">
@@ -746,7 +918,7 @@
     <section id="page-home" class="page-section active">
       <div class="hero-banner" id="ui-hero-banner">
         <div>
-          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND V.1.2.1</span>
+          <span id="ui-hero-badge" style="background: rgba(255,255,255,0.22); padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">CLASS FUND V.1.2.2</span>
           <h2 id="ui-hero-title" style="font-size: 1.55rem; margin: 8px 0 4px;">สรุปภาพรวมการเก็บเงินห้อง</h2>
           <p id="ui-hero-desc" style="opacity: 0.92; font-size: 0.9rem;">สแกนจ่าย QR Code พร้อมส่งสลิปตรวจสอบอัตโนมัติ ซิงค์ข้อมูลครบทุกหน้า</p>
         </div>
@@ -818,7 +990,6 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
           <div>
             <h3>📋 ตารางบันทึกการเก็บเงินห้อง &amp; กิจกรรม</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">ส่งออกเอกสารรายงานทางการระดับองค์กร/บริษัท (PNG / PDF) พร้อมเลขที่เอกสารและช่องลงนามครบถ้วน</p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <select id="part-selector" onchange="onCollectionPartChange(this.value)" style="width: auto; min-width: 240px; font-weight: 600;"></select>
@@ -1806,7 +1977,7 @@
       <div class="grid-3">
         <div class="form-group">
           <label>เวอร์ชันแพทช์</label>
-          <input type="text" id="edit-patch-version" placeholder="V.1.2.1">
+          <input type="text" id="edit-patch-version" placeholder="V.1.2.2">
         </div>
         <div class="form-group">
           <label>ป้ายหมวดหมู่ (Tag)</label>
@@ -1820,7 +1991,7 @@
 
       <div class="form-group">
         <label>หัวข้อการอัปเดต</label>
-        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตระบบ V.1.2.1">
+        <input type="text" id="edit-patch-heading" placeholder="เช่น อัปเดตระบบ V.1.2.2">
       </div>
 
       <div class="grid-3">
@@ -1901,10 +2072,10 @@
     const DEFAULT_PATCHES = [
       {
         id: 1,
-        version: "V.1.2.1",
+        version: "V.1.2.2",
         tag: "CORPORATE & STABILITY",
         date: "2026-11-21",
-        heading: "อัปเดตระบบ V.1.2.1: ล็อกสิทธิ์หน้าหลักสำหรับ Admin, สแกนจ่ายรวมยอดค้างอดีต, เอกสารระดับบริษัท & ระบบความเสถียรสูง",
+        heading: "อัปเดตระบบ V.1.2.2: ล็อกสิทธิ์หน้าหลักสำหรับ Admin, สแกนจ่ายรวมยอดค้างอดีต, เอกสารระดับบริษัท & ระบบความเสถียรสูง",
         accentColor: "#059669",
         bgColor: "#ecfdf5",
         textColor: "#0f172a",
@@ -1935,10 +2106,10 @@
         signName3: "",
         siteTitle: "ระบบจัดการเงินห้องเรียน",
         siteSubtitle: "โปร่งใส ตรวจสอบได้ 24 ชั่วโมง",
-        heroBadge: "CLASS FUND V.1.2.1",
+        heroBadge: "CLASS FUND V.1.2.2",
         heroTitle: "สรุปภาพรวมการเก็บเงินห้อง",
         heroDesc: "สแกนจ่าย QR Code พร้อมส่งสลิปตรวจสอบอัตโนมัติ ซิงค์ข้อมูลครบทุกหน้า",
-        marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.1 ตรวจสอบยอดและสแกนชำระเงินได้ตลอด 24 ชั่วโมง!",
+        marqueeText: "📢 ยินดีต้อนรับสู่ระบบจัดการเงินห้องเรียน V.1.2.2 ตรวจสอบยอดและสแกนชำระเงินได้ตลอด 24 ชั่วโมง!",
         marqueeBg: "#064e3b",
         marqueeColor: "#ffffff",
         marqueeSpeed: 18,
@@ -2911,7 +3082,7 @@
       const descEl = document.getElementById("home-latest-week-desc");
       if (descEl && targetSession) {
         const dtText = targetSession.date ? ` (${formatThaiShortDate(targetSession.date)})` : "";
-        descEl.innerHTML = `เกณฑ์ประจำ <strong>${targetSession.label}${dtText}</strong> ยอดสัปดาห์นี้ <strong>${targetSession.required} บาท</strong> (แสดงเฉพาะยอดขาดสัปดาห์ปัจจุบัน ไม่รวมค้างอดีต)`;
+        descEl.innerHTML = `เกณฑ์ประจำ <strong>${targetSession.label}${dtText}</strong> ยอดสัปดาห์นี้ <strong>${targetSession.required} บาท</strong>`;
       }
 
       const keyword = (document.getElementById("home-search")?.value || "").toLowerCase();
@@ -4266,7 +4437,7 @@
       document.getElementById("cfg-bg-overlay").value = s.bgOverlay || 0.84;
       document.getElementById("cfg-site-title").value = s.siteTitle;
       document.getElementById("cfg-site-subtitle").value = s.siteSubtitle;
-      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND V.1.2.1";
+      document.getElementById("cfg-hero-badge").value = s.heroBadge || "CLASS FUND V.1.2.2";
       document.getElementById("cfg-hero-title").value = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("cfg-hero-desc").value = s.heroDesc || "";
 
@@ -4450,7 +4621,7 @@
 
       document.getElementById("ui-site-title").textContent = s.siteTitle;
       document.getElementById("ui-site-subtitle").textContent = s.siteSubtitle;
-      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND V.1.2.1";
+      document.getElementById("ui-hero-badge").textContent = s.heroBadge || "CLASS FUND V.1.2.2";
       document.getElementById("ui-hero-title").textContent = s.heroTitle || "สรุปภาพรวมการเก็บเงินห้อง";
       document.getElementById("ui-hero-desc").textContent = s.heroDesc || "";
 
